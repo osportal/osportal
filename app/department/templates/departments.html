@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% from 'macros/pagination.html' import paginate %}
+
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+
+<legend>Departments</legend>
+
+{{ forms.search('department.all') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if request.args.get('q') %}
+    {% if departments.items | count == 0 %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% endif %}
+
+
+{% if departments.items %}
+    
+    <!-- Get all Departments -->
+    <div><!-- Start of row -->
+        <table class="table table-light" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Members</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        {% for department in departments.items %}
+        <tr>
+            <td>
+                <a style="font-size: 20px" href="{{ url_for('department.info', id=department.id) }}">{{ department.name }}</a>
+            </td>
+            <td>
+                <span class="ml-1 text-muted">{{ department.members.count() }}</span>
+            </td>
+            <td>
+                {{ department.created_at.strftime("%-d %b %Y %H:%M %z") }}
+            </td>
+        </tr>
+        {% endfor %}
+        </table>
+    </div><!-- end of row -->
+    {{ paginate(departments) }}
+{% endif %}<!-- end of if departments -->
+    
+{% endblock %}

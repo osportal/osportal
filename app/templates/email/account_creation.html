@@ -1,0 +1,9 @@
+Hi {{ user.username }},
+
+We've created an account for you on our system at {{ url_for('main.index') }}
+
+Please follow the link below to confirm your account.
+
+<div>
+    <a class="btn btn-primary" href="{{ url_for('user.password_reset', token=token, _external=True) }}">Reset Password</a>
+</div>

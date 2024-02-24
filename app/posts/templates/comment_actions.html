@@ -1,0 +1,40 @@
+<div class="dropdown">
+  <button class="btn btn-sm shadow-none w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="More Options">
+                    <i class="bi bi-three-dots"></i>
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% if current_user.permission(('admin.comment', 'comment'), crud='create') and c.user != current_user %}
+      <button onclick="SetMentionData(window.editor, '{{ c.id }}', '{{ c.user.username }}')" type="button" class="dropdown-item" href="">Reply</button>
+      {% endif %}
+      {% if (current_user.permission('comment', crud='update') and c.user == current_user) or current_user.permission('admin.comment', crud='update') %}
+      <a class="dropdown-item" href="{{ url_for('posts.comment_edit', id=c.id) }}">Edit</a>
+      {% endif %}
+      {% if (current_user.permission('comment', crud='delete') and c.user == current_user) or current_user.permission('admin.comment', crud='delete') %}
+      <button class="dropdown-item" type="button" data-toggle="modal" data-target="#deleteCommentModal-{{c.id}}">Delete</button>
+      {% endif %}
+  </div>
+</div>
+<!-- End of dropdown -->
+
+<!-- Modal Delete Comment has to be included inside the for loop -->
+<div class="modal fade" id="deleteCommentModal-{{c.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+				<div class="modal-content">
+						<div class="modal-header">
+								<h5 class="modal-title" id="deleteCommentModalLabel">Delete Comment</h5>
+							    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								    <span aria-hidden="true">&times;</span>
+							    </button>
+						</div>
+						<div class="modal-body">
+						Are you sure you want to delete?
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<form action="{{ url_for('posts.comment_delete', id=c.id)  }}" method="POST">
+									<input class="btn btn-danger" type="submit" value="Delete">
+							</form>
+						</div>
+				</div>
+	 	</div>
+</div>

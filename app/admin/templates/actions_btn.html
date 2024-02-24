@@ -1,0 +1,78 @@
+<div class="btn-group" role="group">
+    <button
+      class="btn btn-primary btn-sm mr-1 dropdown-toggle"
+      type="button"
+      role="button"
+      id="dropdownMenuButton"
+      data-toggle="dropdown"
+      aria-expanded="false"
+    >
+    <i class="fas fa-cog mr-1"></i>Actions
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% if request.endpoint == 'admin.users' %}
+      <li>
+        <a onclick="checkArrayLen('#bulkPasswordReset')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <i class="bi bi-envelope-fill"></i>
+            <span class="align-middle">
+                Send Password Reset Email
+            </span>
+        </a>
+      </li>
+      {% endif %}
+      <li>
+          <form id="export-form" action="{{ url_for('admin.export_selected_csv', table=table_name) }}" method="POST">
+            <button type="submit" class="dropdown-item" role="button">
+                <i class="bi bi-download"></i>
+                <span class="align-middle">
+                    Export Selected to CSV
+                </span>
+            </button>
+          </form>
+      </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkDelete')"
+          class="dropdown-item" 
+          href=""
+          role="button"
+          data-toggle="modal">
+            <i class="bi bi-trash"></i>
+            <span class="align-middle">
+                Delete
+            </span>
+        </a>
+      </li>
+      {% if request.endpoint != 'admin.departments' %}
+      <li>
+        <a onclick="checkArrayLen('#bulkDisable')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+  <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/>
+</svg>
+            <span class="align-middle">
+                Disable
+            </span>
+        </a>
+      </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkEnable')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <i class="bi bi-check-circle-fill"></i>
+            <span class="align-middle">
+                Enable
+            </span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+</div>

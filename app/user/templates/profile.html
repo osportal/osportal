@@ -1,0 +1,38 @@
+{% extends "profile_base.html" %}
+
+{% block profile_content %}
+<div class="mt-3">
+
+    {% if user.bio %}
+    <div class="mb-4">
+        <div class="text-muted">{{ user.bio | safe}}</div>
+    </div>
+    {% endif %}
+    
+    <!-- Departments -->
+    {% if user.department[0] %}
+    <div class="mb-4">
+        <h5>Departments</h5>
+        <p>{{ user.username }} is a member of the following departments:</p>
+        <div id="groups-list" style="list-style-type: none">
+            {% for d in user.department %}
+                <li><a class="mr-2" href="{{ url_for('department.info', id=d.id) }}">{{ d }}</a>({{ d.members.count() }} members)
+                </li>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <!-- END OF DEPARTMENTS -->
+
+    <!-- STATS -->
+    <div class="mb-4">
+        <h5>Stats</h5>
+        <div><strong class="mr-2">Registered:</strong>{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+        <div><strong class="mr-2">Departments:</strong>{{ user.department|count }}</div>
+        <div><strong class="mr-2">Posts:</strong>{{ user.posts.count() }}</div>
+        <div><strong class="mr-2">Comments:</strong>{{ user.comments.count() }}</div>
+    </div> <!-- END OF STATS -->
+
+</div>
+
+{% endblock profile_content %}

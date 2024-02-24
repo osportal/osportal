@@ -1,0 +1,10 @@
+{%- from "macros/profile.html" import profile_table with context -%}
+{%- from "macros/pagination.html" import paginate -%}
+{% extends "profile_base.html" %}
+
+{% set args = {'username': user.username} %}
+
+{% block profile_content %}
+    {{ profile_table(comments.items, 'comment', 'posts.comment') }}
+    {{ paginate(comments, args) }}
+{% endblock profile_content %}

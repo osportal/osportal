@@ -1,0 +1,247 @@
+{% extends "layout.html" %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{% import 'macros/user.html' as account %}
+{% set import_endpoint = 'admin.import_csv' %}
+{% set table_name = 'user' %}
+
+{% block title %}Users - Dashboard{% endblock %}
+
+{% block content %}
+{% set extra_setting_links = admin_user_sidebar(user=current_user) %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<!-- index -->
+
+{{ forms.search('admin.users') }}
+{% if users.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+  {% include "actions_btn.html" %}
+  <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <label for="select_all"></label>
+          <input id="select_all" name="select_all" type="checkbox">
+        </th>
+        <th class="superuser-icon">
+            {# superuser status #}
+        </th>
+        <th class="col-header">
+          {{ items.sort('username') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('role') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('active') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('last_login_time', 'Last login') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('created_at', 'Created') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('updated_at', 'Last Updated') }}
+        </th>
+        <th>
+        <!-- for action buttons -->
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ user.id }}">
+        </td>
+        <td>
+            {{ account.role_icon_for(user) }}
+        </td>
+        <td>
+            <a href="{{ url_for('admin.users_info', id=user.id) }}">
+                    <h4>{{ user.username }}</h4>
+                    {% if user.email %}
+                    <p class="text-muted">{{ user.email }}</p>
+                    {% endif %}
+            </a>
+        </td>
+        <td>
+            {{ user.role }}
+        </td>
+        <td>
+            {{ user.render(user.active) }}
+        </td>
+        <td>
+        {% if user.current_login_time %}
+            {{ user.pretty_date(user.current_login_time) }}
+            <time class="from-now" data-datetime="{{ user.current_login_time }}">
+                <div class="text-muted">{{ user.current_login_time.strftime(("%-d %b %Y %H:%M %z")) }}</div>
+            </time>
+          {% endif %}
+        </td>
+        <td>
+	  {% if user.created_at %}
+          <time class="from-now" data-datetime="{{ user.created_at }}">
+            {{ user.pretty_date(user.created_at) }}
+            <div class="text-muted">{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+	  {% endif %}
+        </td>
+        <td>
+        {% if user.updated_at %}
+          <time class="from-now" data-datetime="{{ user.updated_at }}">
+              {{ user.pretty_date(user.updated_at) }}
+            <div class="text-muted">{{ user.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+        {% endif %}
+        </td>
+        <td>
+            {% if current_user.permission('admin.user', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.users_edit', id=user.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.user', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete-" ~ user.id, 
+                    url=url_for('admin.users_delete', id=user.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{{ items.paginate(users) }}
+<!-- End of index -->
+<!-- Bulk Delete Modal -->
+<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      User data for the selected users will be removed.
+      </p>
+      <p>
+      <strong>Important: This cannot be undone.</strong>
+      </p>
+      <p>
+      Are you sure you want to delete the selected users?
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.users_bulk_delete') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Delete</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{#{% endcall %}#}
+<!-- Bulk Reset Password Modal -->
+<div class="modal fade" id="bulkPasswordReset" tabindex="-1" aria-labelledby="bulkPasswordResetLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkPasswordResetLabel">Send Password Reset Email</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to send a password reset email to the selected users?
+      </p>
+      <p>
+      <strong>Please confirm to continue</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.users_bulk_password_reset') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bulk Lock -->
+<div class="modal fade" id="bulkDisable" tabindex="-1" aria-labelledby="bulkDisableLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkDisableLabel">Disable Login</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to disable logins for the selected users?
+      </p>
+      <p>
+      <strong>Please confirm to continue</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.users_bulk_lock') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bulk Unlock -->
+<div class="modal fade" id="bulkEnable" tabindex="-1" aria-labelledby="bulkEnableLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkEnableLabel">Enable Login</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to enable logins for the selected users?
+      </p>
+      <p>
+      <strong>Please confirm to continue</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.users_bulk_unlock') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% include "partials/confirm_dialog.html" %}
+{% endblock content%}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/importCSV.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock %}

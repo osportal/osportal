@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% set endpoint = 'main.setup' %}
+{% set button = 'Create User' %}
+{% set title = 'Setup' %}
+{% set legend = 'Create Admin User' %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<hr>
+<legend>{{ legend }}</legend>
+
+{% call f.form_tag(endpoint, form=form) %}
+    {% call f.form_group(form.username) %}
+    {% endcall %}
+    
+    {% call f.form_group(form.email) %}
+    {% endcall %}
+
+    {% call f.form_group(form.password) %}
+    {% endcall %}
+
+    {% call f.form_group(form.password2) %}
+    {% endcall %}
+
+    {% call f.form_group(form.country) %}
+    {% endcall %}
+    <button type="submit" class="btn btn-primary btn-block">
+        {{ button }}
+    </button>
+{% endcall %}
+
+
+{% endblock content %}

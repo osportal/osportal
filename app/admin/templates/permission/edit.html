@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% set active = 'admin.permissions' %}
+{% set button = 'Save' %}
+
+{% if request.endpoint.endswith('new') %}
+    {% set endpoint = 'admin.permissions_new' %}
+    {% set form_kwargs = {} %}
+    {% set legend = 'Create New Permission' %}
+{% else %}
+    {% set endpoint = 'admin.permissions_edit' %}
+    {% set form_kwargs = {'id': permission.id} %}
+    {% set legend = 'Edit ' + permission.name %}
+{% endif %}
+
+{% block content %}
+  {% set extra_setting_links = admin_permission_sidebar(user=current_user) %}
+  {% include "menu.html" %}
+  {{ sidebaritems(extra_setting_links) }}
+  <legend>{{ legend }}</legend>
+
+  {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+
+    {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.description, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.db_name, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.create, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.read, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.update, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.delete, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+  <!-- Submit buttons -->
+  <hr/>
+  <div class="row">
+    <div class="col-md-6">
+        <button type="submit" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.permissions') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+  <!-- End of Submit buttons -->
+{% endblock content %}

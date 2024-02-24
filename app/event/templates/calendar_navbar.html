@@ -1,0 +1,114 @@
+{% from 'macros/navigation.html' import is_active %}
+{% import 'macros/form.html' as f with context %}
+
+{% set endpoint = 'event.index' %}
+{% set button = 'Submit' %}
+{% set icon = 'fa fa-calendar' %}
+{% set name = 'Personal Calendar' %}
+{% set name2 = 'Filter' %}
+
+
+<ul class="nav nav-tabs"> 
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">Calendars</a>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
+            </li>
+            {% if current_user.department| length > 1 %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            {% for dept in current_user.department %}
+            <li><a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% if current_user.events %}
+	<li class="nav-item">
+        <a class="nav-link {{ is_active('event.history') }}" href="{{ url_for('event.history') }}">Event History</a></li>
+    </li>
+    {% endif %}
+    {% if current_user.count_authoriser_requests() %}
+    <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+            <span>
+                <span class="text">Authorise</span>
+                {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
+                {% if authpendingcount > 0 %}
+                    <span class="badge badge-pill badge-danger">{{ authpendingcount }}</span>
+                {% endif %}
+            </span>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item {{ is_active('event.authorise') }}" href="{{ url_for('event.authorise') }}">
+                    <span class="mr-2">
+                        <span class="text" style="vertical-align: middle;">Pending</span>
+                        {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
+                        {% if authpendingcount > 0 %}
+                            <span class="icon badge badge-pill badge-danger">{{ authpendingcount }}</span>
+                        {% endif %}
+                    </span>
+                </a>
+            </li>
+            <li><a class="dropdown-item {{ is_active('event.authorise_history') }}" href="{{ url_for('event.authorise_history') }}">History</a></li>
+        </ul>
+    </li>
+    {% endif %}
+	<li class="nav-item">
+        <a class="nav-link" 
+           href="#" 
+           onclick="checkAuthoriserExists('#addEventModal')"
+           role="button"
+           data-toggle="modal">
+                <i class="fas fa-plus mr-1"></i>Add Event
+        </a>
+    </li>
+    <li>
+        <a id="toggle-calendar" title="Toggle Calendar" class="nav-link" role="button" onclick="hideCalendar()"><i class="bi bi-caret-up"></i></a>
+    </li>
+</ul>
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addEventModalLabel">Add Event</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					    <span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+                <div class="modal-body">
+                    {% call f.form_tag(endpoint, form=form, fid="submitRequestForm") %}
+
+                        {% call f.form_group(form.etype) %}
+                        {% endcall %}
+
+                        {% if form.half_day %}
+                            {% call f.form_group(form.half_day) %}
+                            {% endcall %}
+                        {% endif %}
+
+                        {% call f.form_group(form.start_date) %}
+                        {% endcall %}
+                        
+                        {% call f.form_group(form.end_date) %}
+                        {% endcall %}
+
+                        {% call f.form_group(form.details) %}
+                        {% endcall %}
+
+                        <div class="form-group">
+                            <span id="calculate-days-val"></span>
+                        </div>
+
+                        {% call f.form_group(form.submit, css_class="btn btn-primary") %}
+                        {% endcall %}
+
+                    {% endcall %}
+                </div>
+	    </div>
+    </div>
+</div>

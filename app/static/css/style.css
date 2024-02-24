@@ -1,0 +1,250 @@
+html body {
+    background-color: #eef0f1;
+	margin-top: 5rem;
+}
+
+.container {
+    max-width: 1500px !important;
+    width: calc(100% - 4.5rem) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+		color: #444444;
+}
+
+.btn-group-xs > .btn, .btn-xs {
+    padding  : .25rem .4rem !important;
+    font-size  : .875rem !important;
+    line-height  : .5 !important;
+    border-radius : .2rem !important;
+}
+
+.bg-steel {
+    background-color: #5f788a;
+}
+
+/* Logo stuff */
+.navbar-brand {
+    align-items: center;
+}
+
+/* end of logo stuff */
+
+.content-section {
+	background: #ffffff;
+	padding: 12px 10px;
+    /*overflow: auto;*/
+}
+.pin-section {
+	background: #ffffff;
+	padding: 6px 10px;
+}
+
+.profile-section {
+	background: #ffffff !important;
+	padding: 20px 30px !important;
+}
+
+.article-title {
+	    color: #444444;
+}
+
+a.article-title:hover {
+		color: #428bca;
+		text-decoration: none;
+}
+
+.icon-img {
+    margin-right: 10px;
+}
+
+.article-metadata {
+        margin-left: 10px;
+		padding-bottom: 1px;
+		margin-bottom: 4px;
+}
+.post-menu {
+    text-align: right;
+}
+
+
+.article-metadata a:hover {
+	    color: #333;
+		text-decoration: none;
+}
+
+.article-svg {
+	    width: 25px;
+		height: 25px;
+		vertical-align: middle;
+}
+
+.account-img {
+		height: 125px;
+		width: 125px;
+}
+
+.notify-delete-td {
+    position: relative;
+    display: table-cell;
+    width: 100px;
+}
+
+.delete-input {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+.profile-questions {
+        font-weight: normal;
+        font-family: sans-serif;
+}
+/*
+input[type=checkbox].css-checkbox { 
+        position: absolute;  
+        overflow: hidden;  
+        clip: rect(0 0 0 0);  
+        height:1px;  
+        width:1px;  
+        margin:-1px;  
+        padding:0; 
+        border:0; 
+} 
+input[type=checkbox].css-checkbox + label.css-label { 
+        padding-left:20px;
+        height:15px;  
+        display:inline-block; 
+        line-height:15px; 
+        background-repeat:no-repeat; 
+        background-position: 0 0; 
+        font-size:15px; 
+        vertical-align:middle; 
+        cursor:pointer; 
+} 
+input[type=checkbox].css-checkbox:checked + label.css-label { 
+        background-position: 0 -15px; 
+}
+*/
+.show {
+    display: table-row;
+}
+
+#profileImg:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+#filterList:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+#calendar-container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-top: 5px solid orange;
+}
+/*for 'today' color in fullcalendarjs*/
+.fc-day-today {
+    background-color: #fff !important;
+    border: 5px solid blue;
+    box-shadow: 0 0 10px blue;
+}
+.fc-event {
+    cursor: pointer;
+}
+
+/* for calendar leave information */
+.chart-pie {
+  position: relative;
+  height: 15rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .chart-pie {
+    height: calc(20rem - 43px) !important;
+  }
+}
+
+
+/* admin Dashboard */
+.dash-category a, 
+.dash-category a:hover, 
+.dash-category a:focus, 
+.dash-category a:active, 
+.dash-cateogry a:link {
+      text-decoration: none !important;
+      color: inherit !important;
+}
+
+#bulk_actions {
+    display: none;
+}		
+
+/*https://stackoverflow.com/questions/3163615/how-to-scroll-an-html-page-to-a-given-anchor?answertab=modifieddesc#tab-top*/
+/*https://stackoverflow.com/questions/31863582/automatically-scroll-to-a-div-when-flask-returns-rendered-template*/
+/*https://stackoverflow.com/questions/24665602/scrollintoview-scrolls-just-too-far*/
+
+/* scroll-behavior commented out to be more like stackoverflow UI design for user answers*/
+/*{scroll-behavior: smooth;}*/
+
+.comment {
+        scroll-margin-top: 110px;
+  /*    Adds margin to the top/bottom of the viewport
+        scroll-margin-block-start: 110px;
+        scroll-margin-block-end: 110px;
+        */
+}
+
+.highlighted-comment {
+    animation: highlight-fade 3s; 
+    animation-timing-function: ease;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: none;
+    animation-play-state: running;
+}
+
+@keyframes highlight-fade {
+    from { background-color: #FFF59D; }
+}
+
+/* see https://stackoverflow.com/questions/46559354/how-to-set-the-height-of-ckeditor-5-classic-editor */
+
+.posts-width {
+    max-width: 800px !important;
+}
+
+/* for table row link to comments, posts, notifications */
+[data-href] {
+    cursor: pointer;
+}
+
+tr {
+	border-bottom: 1px solid #e3e3e3;
+}
+
+td, th {
+    vertical-align: middle !important;
+}
+
+th.superuser-icon {
+    width: 1% !important;
+}
+
+.table-hover td, th {
+    padding: 12px;
+}
+.table-hover > tbody > tr:hover {
+    -moz-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+    -webkit-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+}

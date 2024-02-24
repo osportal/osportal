@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/form.html' as forms with context %}
+
+{% block title %}User {{ user }}{% endblock %}
+
+{% set active = 'admin.users' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_user_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">User {{ user}}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.user', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.users_edit', id=user.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.user', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete-" ~ user.id, 
+              url=url_for('admin.users_delete', id=user.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False) 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+<div class="row">
+  <div class="col-md-5 well">
+    <div role="tabpanel" class="tab-pane config-section" id="settings">
+    	<ul class="nav nav-tabs mb-3" role="tablist">
+    		<li class="nav-item">
+    			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#leaveconfig" aria-controls="leaveconfig" role="tab" data-toggle="tab">Leave Settings</a>
+    		</li>
+    	</ul>
+
+    	<div class="tab-content">
+    		<div role="tabpanel" class="tab-pane active" id="general">
+    			<div class="form-group">
+                    	    <!-- Leave Settings -->
+			    <div class="mb-2">
+			    	<div><strong>Email</strong></div>
+			    	<div>{{ user.email }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Username</strong></div>
+			    	<div>{{ user.username }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Role</strong></div>
+			    	<div>{{ user.role }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Department</strong></div>
+			    	<div>{{ user.department }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Authoriser</strong></div>
+			    	<div>{{ user.authoriser }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Job Title</strong></div>
+			    	<div>{{ user.job_title }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Country</strong></div>
+			    	<div>{{ user.country }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Active</strong></div>
+			    	<div>{{ user.render(user.active) }}</div>
+			    </div>
+			{% if current_user.permission('admin.user', crud='update') %}
+			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
+			{% endif %}
+                	</div>
+    		</div>
+    		<div role="tabpanel" class="tab-pane" id="leaveconfig">
+    			<div class="form-group">
+			    <div class="mb-2">
+			    	<div><strong>Leave Year Start</strong></div>
+			    	<div>{{ user.leave_year_start }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Annual Entitlement</strong></div>
+			    	<div>{{ user.annual_entitlement }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Total Holiday Entitlement</strong></div>
+			    	<div>{{ user.total_holiday_entitlement }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Used Days</strong></div>
+			    	<div>{{ user.used_days }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Days Left</strong></div>
+			    	<div>{{ user.days_left }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Carry Over Days</strong></div>
+			    	<div>{{ user.carry_over_days }}</div>
+			    </div>
+    			</div>
+            	</div>
+      		<hr/>
+        </div>
+    </div>
+  </div><!-- End of Col -->
+  <div class="col-md-5 col-md-push-1 col-md-offset-1">
+    <div class="form-group">
+      <label class="control-label"><strong>Created</strong></label>
+      <p class="sm-margin-bottom form-control-static">
+        <time class="from-now" data-datetime="{{ user.created_at }}">
+          {{ user.pretty_date(user.created_at) }}
+          <span class="text-muted small ml-2">{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</span>
+        </time>
+      </p>
+    </div>
+    <h3>Login activity</h3>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <dl>
+          <dt>Current sign in date</dt>
+          <dd class="sm-margin-bottom">
+            {% if user.current_login_time %}
+              <time class="from-now"
+                    data-datetime="{{ user.current_login_time }}">
+                {{ user.pretty_date(user.current_login_time) }}
+                <span class="text-muted small ml-2">{{ user.current_login_time.strftime("%-d %b %Y %H:%M %z") }}</span>
+              </time>
+            {% endif %}
+          </dd>
+          <dt>Current sign in IP address</dt>
+          <dd class="sm-margin-bottom">{{ user.current_login_ip_address }}</dd>
+          <dt>Previous sign in date</dt>
+          <dd class="sm-margin-bottom">
+            {% if user.previous_login_time %}
+              <time class="from-now"
+                    data-datetime="{{ user.previous_login_time }}">
+                {{ user.pretty_date(user.previous_login_time) }}
+                <span class="text-muted small ml-2">{{ user.previous_login_time.strftime("%-d %b %Y %H:%M %z") }}</span>
+              </time>
+            {% endif %}
+          </dd>
+          <dt>Previous sign in IP address</dt>
+          <dd>{{ user.previous_login_ip_address }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% include "partials/confirm_dialog.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

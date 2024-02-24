@@ -1,0 +1,35 @@
+    {% for e in user_events %}
+    {% set event_id = e.id | string %}
+    {% set url = url_for('event.delete', id=event_id) %}
+    {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + url + '">delete</a>' %}
+    {
+        id: '{{ e.id }}',
+        title : '{{ e.etype.name }} - {{ e.status }}', 
+        start : '{{ e.start_date }}',
+        end : '{{ e.full_calendar_add_one_day() }}',
+        extendedProps:{
+            details: `
+                <div>{{ e.start_date.strftime("%-d %b, %Y") }}
+                    {% if e.half_day %} (Half Day)
+                    {% else %} - {{ e.end_date.strftime("%-d %b, %Y") }}
+                    {% endif %}
+                </div>
+                <div>Days: {{ e.num_days }}</div>
+                {% if e.details %}
+                    <div>Details: {{ e.details }}</div>
+                {% endif %}
+                {% if e.status == "Pending" %}
+                    <hr>
+                    {{ del_btn | safe}}
+                {% endif %}
+                `, 
+        },
+        backgroundColor : '{{ e.hex_colour }}',
+        editable : false,
+        {% if e.half_day == True %}
+            allDay: false 
+        {% else %}
+            allDay: true 
+        {% endif %}
+    },
+    {% endfor %}

@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set table_name = 'role' %}
+
+{% block title %}Roles - Admin{% endblock %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_role_sidebar(user=current_user) %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.roles') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if roles.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <label for="select_all"></label>
+          <input id="select_all" name="select_all" type="checkbox">
+        </th>
+        <th class="col-header">
+          {{ items.sort('name') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('description') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('created_at', 'Created') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('updated_at', 'Last updated') }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for role in roles.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ role.id }}">
+        </td>
+        <td>
+            <a href="{{ url_for('admin.roles_info', id=role.id) }}">
+                <h6>{{ role.name }}</h6>
+            </a>
+        </td>
+        <td>{{ role.description }}</td>
+        <td>
+            {% if role.created_at %}
+          <time class="from-now" data-datetime="{{ role.created_at }}">
+              {{ role.pretty_date(role.created_at) }}
+            <div class="text-muted">{{ role.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+          {% endif %}
+        </td>
+        <td>
+        {% if role.updated_at %}
+          <time class="from-now" data-datetime="{{ role.updated_at }}">
+              {{ role.pretty_date(role.updated_at) }}
+            <div class="text-muted">{{ role.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+        {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{{ items.paginate(roles) }}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+{% endblock %}

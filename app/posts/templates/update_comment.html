@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% set endpoint = 'posts.comment_edit' %}
+{% set form_kwargs = {'id': comment.id} %}
+{% set legend = 'Edit comment' %}
+{% set button = 'Update' %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/vendor/ckeditor/build/ckeditor.js') }}"></script>
+<style>
+.ck-editor__editable {
+    min-height: 430px;
+    max-height: 450px;
+}
+</style>
+{% endblock head %}
+
+{% block content %}
+
+<legend>{{ legend }}</legend>
+{% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+
+    {% call f.form_group(form.text, css_class='sm-margin-bottom',
+                          autofocus='autofocus') %}
+    {% endcall %}
+    
+    <hr/>
+    <div class="row">
+      <div class="col-md-6">
+          <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+      </div>
+      <div class="col-md-6">
+        <div class="visible-xs visible-sm sm-margin-top"></div>
+        <a href="{{ url_for('posts.post', id=comment.post_id) }}"
+            class="btn btn-light bg-opacity-10 btn-block">
+          Cancel
+        </a>
+      </div>
+    </div>
+{% endcall %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>var endpoint = "{{ url_for('user.mentions') }}"</script>
+<script src="{{ url_for('static', filename='js/textEditor.js') }}"></script>
+{% endblock %}

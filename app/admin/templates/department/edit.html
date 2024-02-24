@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.departments' %}
+
+{% if request.endpoint.endswith('new') %}
+  {% set endpoint = 'admin.departments_new' %}
+  {% set form_kwargs = {} %}
+  {% set legend = 'Add a new department' %}
+  {% set button = 'Add' %}
+{% else %}
+  {% set endpoint = 'admin.departments_edit' %}
+  {% set form_kwargs = {'id': department.id} %}
+  {% set legend = 'Edit department' %}
+  {% set button = 'Save' %}
+{% endif %}
+
+
+{% block content %}
+    {% set extra_setting_links = admin_department_sidebar(user=current_user) %}
+    {% include "menu.html" %}
+    {{ sidebaritems(extra_setting_links) }}
+
+{% if request.endpoint.endswith('new') %}
+<div class="row">
+  <div class="col-md-5 well">
+  <legend>{{ legend }}</legend>
+  {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+
+  {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                        autofocus='autofocus') %}
+  {% endcall %}
+
+  {% call f.form_group(form.members, css_class='sm-margin-bottom') %}
+  {% endcall %}
+  
+  <div class="row">
+    <div class="col-md-6">
+        <button type="submit" class="btn btn-primary btn-block">
+          {{ button }}
+        </button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.departments') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+  </div>
+</div>
+
+{% else %}
+<!-- Edit Department -->
+
+<div class="row">
+  <div class="col-md-5 well">
+  <legend>{{ legend }}</legend>
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+      {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                            autofocus='autofocus') %}
+      {% endcall %}
+
+      {% call f.form_group(form.head, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.description, css_class='sm-margin-bottom') %}
+      {% endcall %}
+      
+
+      {% call f.form_group(form.members, css_class='sm-margin-bottom') %}
+      {% endcall %}
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-block">
+            {{ button }}
+          </button>
+        </div>
+        <div class="col-md-6">
+          <div class="visible-xs visible-sm sm-margin-top"></div>
+          <a href="{{ url_for('admin.departments') }}"
+              class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+          </a>
+        </div>
+      </div>
+    {% endcall %}
+  </div>
+  <div class="col-md-5 col-md-push-1 col-md-offset-1">
+      <div class="form-group">
+        <label class="control-label"><strong>Created</strong></label>
+        <p class="sm-margin-bottom form-control-static">
+          <time class="from-now" data-datetime="{{ department.created_at }}">
+              {{ department.pretty_date(department.created_at) }}
+            <span class="text-muted small ml-2">{{ department.created_at.strftime("%-d %b %Y %H:%M %z") }}</span>
+          </time>
+        </p>
+      </div>
+  </div>
+</div>
+{% endif %}
+{% endblock content %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

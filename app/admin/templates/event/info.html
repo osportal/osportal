@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Event Type Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.events' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_event_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+<div class="row">
+  <div class="col-md-5 well">
+    {% if current_user.permission('admin.event_type', crud='update') %}
+    <a href="{{ url_for('admin.event_type_edit', id=etype.id) }}" class="btn btn-primary mb-4">Edit</a>
+    {% endif %}
+    <div class="form-group">
+        <!-- Event Type Settings -->
+        <div class="mb-2">
+        	<div><strong>Name</strong></div>
+        	<div>{{ etype.name }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Colour</strong></div>
+        	<div>{{ etype.hex_colour }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Deductable</strong></div>
+        	<div>{{ etype.render(etype.deductable) }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Approval</strong></div>
+        	<div>{{ etype.render(etype.approval) }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Active</strong></div>
+        	<div>{{ etype.render(etype.active) }}</div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

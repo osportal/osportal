@@ -1,0 +1,19 @@
+{% macro user_svg(size="16", colour="#6c757d", title="Member") -%}
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ size }}" height="{{ size }}" fill="{{ colour }}" class="bi bi-person-fill" viewBox="0 0 16 16">
+  <title>{{ title }}</title>
+  <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+</svg>
+{% endmacro %}
+
+{% macro role_icon_for(user) -%}
+  {% if user.role.superuser %}
+  {{ user_svg(size="44", colour="#dc3545", title="Admin") }}
+  {% else %}
+    {{ user_svg(size="44") }}
+  {% endif %}
+{% endmacro %}
+
+{%- macro avatar_img(user, size="125", id=None) -%}
+    {% set avatar_url = user.avatar %}
+    <img id="{{ id }}" src="{{ avatar_url }}" width="{{ size }}" height="{{ size }}">
+{%- endmacro -%}

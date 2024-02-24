@@ -1,0 +1,95 @@
+version: '3.6'
+
+services:
+  redis:
+    container_name: osportal-redis-dev 
+    image: 'redis:3.0-alpine'
+    command: redis-server --requirepass devpassword
+    volumes:
+      - 'redis_vol:/var/lib/redis/data'
+    ports:
+      - '9379:6379'
+    networks:
+      - network
+    restart: always
+  postgres:
+    container_name: osportal-db-dev
+    image: 'postgres:9.5'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    ports:
+      - 54321:5432
+    environment:
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'devpassword'
+      POSTGRES_DB: 'osportaldb'
+    networks:
+      - network
+    restart: always
+  app:
+    container_name: osportal-app-dev 
+    build: .
+    ports:
+      - 8002:5000
+    volumes:
+      - type: bind
+        source: .
+        target: /osportal
+    tty: true
+    networks:
+      - network
+    environment:
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'devpassword'
+      POSTGRES_DB: 'osportaldb'
+      TESTING: False
+    depends_on:
+      - postgres
+      - redis
+      - celery
+    command: > 
+      gunicorn -c "python:conf.gunicorn"
+      --reload
+      "app.run:app"
+    restart: always
+  celery:
+    container_name: osportal-worker-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    image: osportal-worker
+    cpus: 0.5
+    command: celery --app app.email worker -B -l info
+    volumes:
+      - type: bind
+        source: .
+        target: /osportal
+    environment:
+      C_FORCE_ROOT: 'true'
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'devpassword'
+      POSTGRES_DB: 'osportaldb'
+    networks:
+      - network
+    restart: always
+  flower:
+    container_name: osportal-flower-dev
+    image: mher/flower
+    environment:
+        - CELERY_BROKER_URL=redis://:devpassword@redis:6379/0
+        - FLOWER_PORT=5555
+        - FLOWER_BASIC_AUTH=admin:password
+    ports:
+        - 5555:5555
+    depends_on:
+        - redis
+    networks:
+      - network
+networks:
+  network:
+volumes:
+  postgres:
+  redis_vol:

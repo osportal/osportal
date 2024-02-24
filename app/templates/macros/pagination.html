@@ -1,0 +1,124 @@
+{# Paginate through a resource. #}
+{% macro paginate(resource, kwargs={}) -%}
+  {% set args = request.args.to_dict() %}
+  {%- set _ =  args.update(kwargs) -%}
+
+  <ul class="pagination">
+    <li class="{{ 'disabled' if resource.page == 1 }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=1, **args) }}"
+          aria-label="First">
+        &laquo; First
+      </a>
+    </li>
+    <li class="{{ 'disabled' if not resource.has_prev }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.page - 1, **args) }}"
+          aria-label="Previous">
+        Prev
+      </a>
+    </li>
+  {%- for page in resource.iter_pages() %}
+    <li class="{{ 'active' if page and page == resource.page }} page-item">
+      {% if page %}
+        {% if page != resource.page %}
+          <a class="page-link" href="{{ url_for(request.endpoint, page=page, **args) }}">{{ page }}</a>
+        {% else %}
+          <span class="page-link">{{ page }}</span>
+        {% endif %}
+      {% else %}
+        <span class="ellipsis page-link"><i class="bi bi-three-dots"></i></span>
+      {% endif %}
+    </li>
+  {%- endfor %}
+    <li class="{{ 'disabled' if not resource.has_next }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.page + 1, **args) }}"
+          aria-label="Next">
+        Next
+      </a>
+    </li>
+    <li class="{{ 'disabled' if resource.page == resource.pages or not resource.pages }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.pages, **args) }}"
+          aria-label="Last">
+        Last &raquo;
+      </a>
+    </li>
+  </ul>
+{%- endmacro %}
+
+{# Paginate through a resource. #}
+{#
+{% macro paginate(resource, kwargs={}) -%}
+  {% if resource.pages %}<!-- if pagination obj is not empty, render -->
+
+  <ul class="pagination">
+    <li class="{{ 'disabled' if resource.page == 1 }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=1, **kwargs) }}"
+          aria-label="First">
+        &laquo; First
+      </a>
+    </li>
+    <li class="{{ 'disabled' if not resource.has_prev }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.page - 1, **kwargs) }}"
+          aria-label="Previous">
+        Prev
+      </a>
+    </li>
+  {%- for page in resource.iter_pages() %}
+    <li class="{{ 'active' if page and page == resource.page }} page-item">
+      {% if page %}
+        {% if page != resource.page %}
+          <a class="page-link" href="{{ url_for(request.endpoint, page=page, **kwargs) }}">{{ page }}</a>
+        {% else %}
+          <span class="page-link active">{{ page }}</span>
+        {% endif %}
+      {% else %}
+        <span class="ellipsis">…</span>
+      {% endif %}
+    </li>
+  {%- endfor %}
+    <li class="{{ 'disabled' if not resource.has_next }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.page + 1, **kwargs) }}"
+          aria-label="Next">
+        Next
+      </a>
+    </li>
+    <li class="{{ 'disabled' if (resource.page == resource.pages or not resource.pages) }} page-item">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=resource.pages, **kwargs) }}"
+          aria-label="Last">
+        Last &raquo;
+      </a>
+    </li>
+  </ul>
+  {% endif %}
+{%- endmacro %}
+#}
+
+{# Toggle sorting order on a specific field. #}
+{% macro sort(field, title_header=None) -%}
+  {% set sort = request.args.get('sort', None) %}
+  {% set direction = request.args.get('direction', 'asc') %}
+  {% set q = request.args.get('q', '') %}
+
+  {% if title_header == None %}
+    {% set label = field | title %}
+  {% else %}
+    {% set label = title_header %}
+  {% endif %}
+
+  {% if sort == field and direction == 'asc' %}
+    {% set direction = 'desc' %}
+  {% else %}
+    {% set direction = 'asc' %}
+  {% endif %}
+
+  {% if sort == field %}
+    {% set css = direction %}
+  {% else %}
+    {% set css = 'sort' %}
+  {% endif %}
+
+  <a class="{{ css }}" href="{{ url_for(request.endpoint,
+                                        q=q,
+                                        sort=field,
+                                        direction=direction,
+                                        **request.view_args) }}">{{ label }}</a>
+{%- endmacro %}

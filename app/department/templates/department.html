@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{%- from "macros/user.html" import avatar_img -%}
+{% from 'macros/pagination.html' import paginate %}
+
+{% set profile_endpoint = 'user.profile' %}
+{% set title = department.name %}
+{% set args = {'id': department.id} %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+
+<!-- Department Manager -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <legend>{{ title }}</legend>
+        <hr>
+        {% if department.description %}
+            {{ department.description }}
+        {% endif %}
+    </div><!-- End of col -->
+    <!-- Department Members -->
+    <div class="col-md-9">
+            <table class="table table-light" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            {% for member in members.items %}
+            <tr>
+                <td>
+                    <a href="{{ url_for(profile_endpoint, username=member.username) }}">{{ avatar_img(member, size='48', id='profileImg') }}</a>
+                    <a href="{{ url_for(profile_endpoint, username=member.username) }}">{{ member.username }}</a>
+                    {% if department.manager == member %}
+                        <span class="badge badge-pill badge-light">Manager</span>
+                    {% endif %}
+        	        {% if member.job_title %}
+        	            <span class="text-muted">{{ member.job_title }}</span>
+        	        {% endif %}
+                </td>
+                <td style="vertical-align: middle;">
+                    {{ member.created_at.strftime("%-d %b %Y %H:%M %z") }}
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
+            {{ paginate(members, args) }}
+    </div><!-- End of col -->
+</div><!--End of row -->
+
+
+{% endblock %}

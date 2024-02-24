@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+{% set table_name = 'country' %}
+
+{% set extra_setting_links = admin_country_sidebar(user=current_user) %}
+
+{% block content %}
+{% set active = 'admin.countries' %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.countries') }}
+{% if countries.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+          <th>
+            <label for="select_all"></label>
+            <input id="select_all" name="select_all" type="checkbox">
+          </th>
+          <th class="col-header">
+	      {{ items.sort('code', 'Alpha Code') }}
+	      </th>
+          <th class="col-header">
+	      {{ items.sort('name', 'Name') }}
+	      </th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for country in countries.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ country.id }}">
+        </td>
+        <td>
+            {{ country.code }}
+        </td>
+        <td>
+	    <a href="{{ url_for('admin.country', id=country.id) }}">{{ country.name }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+{{ items.paginate(countries) }}
+<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span style="color: #fff;" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Country data for the selected users will be removed.
+      </p>
+      <p>
+      <strong>Important: This cannot be undone.</strong>
+      </p>
+      <p>
+      Are you sure you want to delete the selected countries?
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.countries_bulk_delete') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Delete</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+{% endblock scripts %}

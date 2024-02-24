@@ -1,0 +1,11 @@
+{% extends "calendar_base.html" %}
+
+{% block title %}All Requests{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <legend class="d-inline">All Requests</legend>
+    <div class="d-inline"><em> for {{ current_user.department|join(', ') }}</em></div>
+</div>
+{{ super() }}
+{% endblock content %}

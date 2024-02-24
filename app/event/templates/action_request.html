@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% set form_kwargs = {'id': event.id} %}
+
+{% if request.endpoint == 'event.decline' %}
+    {% set heading = 'Decline Request - ' + event.user.username %}
+    {% set endpoint = 'event.decline' %}
+{% elif request.endpoint == 'event.revoke' %}
+{% set heading = 'Revoke Request - ' + event.user.username %}
+    {% set endpoint = 'event.revoke' %}
+{% endif %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+
+<legend>{{ heading }}</legend>
+
+<div class="row">
+  <div class="col-md-5 well">
+    <div class="form-group">
+	  <div class="mb-2">
+          <strong>Start Date: </strong>{{ event.start_date.strftime("%-d %b %Y") }}
+      {% if event.half_day %}
+        <span><strong> (half day)</strong></span>
+      {% endif %}
+      </div>
+      {% if not event.half_day %}
+	  <div class="mb-2">
+          <strong>End Date: </strong>{{ event.end_date.strftime("%-d %b %Y") }}
+      </div>
+      {% endif %}
+	  <div class="mb-2">
+          <strong>Duration: </strong>{{ event.days }}
+      </div>
+	  <div class="mb-2">
+          <strong>Type: </strong>{{ event.etype }}
+      </div>
+      {% if event.details %}
+	  <div class="mb-2">
+          <strong>Details: </strong>{{ event.details }}
+      </div>
+      {% endif %}
+	  <div class="mb-2">
+          <strong>Status: </strong>{{ event.status }}
+      </div>
+      {% if event.actioned_by %}
+	  <div class="mb-2">
+          <strong>Previously Actioned by: </strong>{{ event.actioned_by }}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Action Request Form  -->
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+
+        {% call f.form_group(form.status_details) %}
+        {% endcall %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Submit
+                </button>
+            </div>
+            <div class="col-md-6">
+                    <a href="{{ url_for('event.authorise') }}" role="button" class="btn btn-light btn-block">
+                        Cancel
+                    </a>
+            </div>
+        </div><!-- End of btn row -->
+    {% endcall %}
+    </div><!-- End of col -->
+</div><!-- End of row -->
+
+
+
+{% endblock %}

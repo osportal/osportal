@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Admin - User Update{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.users' %}
+
+{% block content %}
+    {% set extra_setting_links = admin_user_sidebar(user=current_user) %}
+    {% include "menu.html" %}
+    {{ sidebaritems(extra_setting_links) }}
+    {% include "user/_form.html" with context %}
+{% endblock %}

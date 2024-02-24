@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% block title %}LDAP Settings{% endblock %}
+
+{% block content %}
+{% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{% if request.endpoint.endswith('edit') %}
+    {% set endpoint = 'admin.ldap_edit' %}
+    {% set form_kwargs = {} %}
+    {% set button = 'Save' %}
+{% endif %}
+
+
+{% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+    <div class="row">
+        <div class="col-md-5 well">
+            <legend>{{ legend }}</legend>
+            {% call f.form_group(form.ldap_host) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_port) %}
+            {% endcall %}
+            {% call f.form_group(form.active_directory) %}
+            {% endcall %}
+            <div class="domain-name-form">
+            {% call f.form_group(form.domain_name) %}
+            {% endcall %}
+            </div>
+            {% call f.form_group(form.ldap_bind_username) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_bind_password) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_search) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_uid_field) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_user_registration) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_firstname_field) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_lastname_field) %}
+            {% endcall %}
+            {% call f.form_group(form.ldap_email_field) %}
+            {% endcall %}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">
+        {{ button }}
+    </button>
+{% endcall %}
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    function toggle_ad_domain() {
+        if (document.getElementById('active_directory').checked) {
+            document.getElementsByClassName("domain-name-form")[0].style.display = "block";
+            //console.log("checked");
+        } else {
+            //console.log("UNchecked");
+            document.getElementById("domain_name").value = '';
+            document.getElementsByClassName("domain-name-form")[0].style.display = "none";
+        }
+    }
+    toggle_ad_domain();
+    document.getElementById('active_directory').onchange = function(){
+        toggle_ad_domain();
+    };
+    // email id for testEmailCon script
+</script>
+{% endblock scripts %}

@@ -1,0 +1,559 @@
+from app.admin.utils import get_settings_value
+from app.extensions import db
+from app.models import get_class_by_tablename
+from app.event.models import Event
+from app.posts.models import Comment
+from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
+from collections import OrderedDict
+from datetime import datetime
+from flask_login import UserMixin, logout_user
+from flask import url_for, current_app, request
+import json
+import jwt
+import os
+from sqlalchemy import text, or_, func
+from sqlalchemy.ext.hybrid import hybrid_property
+from time import time
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+class RolePermission(db.Model, ResourceMixin):
+    __tablename__ = "role_permission"
+    id = db.Column(db.Integer, nullable=True) # used in import zip job
+    permission_id = db.Column(db.Integer, db.ForeignKey('permission.id',
+                                                  onupdate='CASCADE',
+                                                  ondelete='CASCADE'),
+                        index=True, primary_key=True)
+    role_id = db.Column(db.Integer,
+                              db.ForeignKey('role.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'),
+                              index=True, primary_key=True)
+
+
+class Permission(db.Model, ResourceMixin):
+    __tablename__ = "permission"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(StripStr(60), unique=True, nullable=False)
+    description = db.Column(db.String(120), nullable=True)
+    db_name = db.Column(StripStr(60), nullable=False)
+    # CRUD
+    create = db.Column(db.Boolean, default=False)
+    read = db.Column(db.Boolean, default=False)
+    update = db.Column(db.Boolean, default=False)
+    delete = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'{self.name} <{self.db_name}>'
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (Permission.name.ilike(search_query),)
+
+        return or_(*search_chain)
+
+
+
+class Role(db.Model, ResourceMixin):
+    __tablename__ = "role"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(StripStr(50), unique=True, nullable=False)
+    description = db.Column(db.String(120), nullable=True)
+    # Superuser level permissions override any of the permissions
+    superuser = db.Column(db.Boolean, default=False)
+
+    permissions = db.relationship('Permission',
+                                  secondary='role_permission',
+                                  backref='permission_role',
+                                  lazy='dynamic',
+                                  uselist=True)
+
+
+    def __repr__(self):
+        return "<{} {} {}>".format(self.__class__.__name__,
+                                   self.id,
+                                   self.name)
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (Role.name.ilike(search_query),)
+
+        return or_(*search_chain)
+
+
+    def check_admin_dash_access(self):
+        if self.superuser:
+            return self.superuser
+        for p in self.permissions:
+            if p.db_name[:5] == 'admin':
+                return getattr(p, 'read')
+
+
+    def check_access(self, obj_type, access_level):
+        # if user is superuser no need to check for any other permission
+        if self.superuser:
+            return self.superuser
+        if self.permissions:
+            for p in self.permissions:
+                for obj in obj_type:
+                    if p.db_name == obj:
+                        return getattr(p, access_level)
+
+    @classmethod
+    def bulk_delete(cls, ids):
+        """
+        Override the general bulk_delete method because we need to delete them
+        one at a time while also deleting them on Stripe.
+
+        :param ids: List of ids to be deleted
+        :type ids: list
+        :return: int
+        """
+        delete_count = 0
+
+        for id in ids:
+            role = Role.query.get(id)
+            if role is None:
+                continue
+            else:
+                role.delete()
+                delete_count += 1
+        return delete_count
+
+
+class User(db.Model, UserMixin, ResourceMixin):
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
+    username = db.Column(FmtString(113), unique=True, nullable=False)
+    email = db.Column(FmtString(120), unique=True, nullable=False)
+    image_file = db.Column(db.String(40), nullable=True, default=None)
+    password = db.Column(db.String(128), nullable=False, server_default='')
+    active = db.Column(db.Boolean, default=True)
+    hidden = db.Column(db.Boolean, unique=False, default=False)
+    dob = db.Column(db.DateTime, nullable=True)
+    bio = db.Column(db.String(255), nullable=True)
+    job_title = db.Column(StripStr(50))
+    authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
+
+    last_notification_read_time = db.Column(db.DateTime)
+
+    # Login Info
+    current_login_time = db.Column(db.DateTime, default=datetime.utcnow())
+    current_login_ip_address = db.Column(db.String(50))
+
+    previous_login_time = db.Column(db.DateTime, default=datetime.utcnow())
+    previous_login_ip_address = db.Column(db.String(50))
+
+    # Leave Days
+    leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
+    annual_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    total_holiday_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    max_carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    used_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    days_left = db.Column(db.Numeric(precision=4, scale=1), default=0)
+
+    # RELATIONSHIPS
+    role = db.relationship("Role", foreign_keys=[role_id], backref='user')
+    authoriser = db.relationship(lambda: User,
+                                 remote_side=id,
+                                 backref=db.backref('lauthoriser', lazy='dynamic')
+                                 )
+    events = db.relationship('Event',
+                             backref='user',
+                             cascade='delete',
+                             lazy=True)
+    posts = db.relationship('Post',
+                            backref='user',
+                            primaryjoin='User.id==Post.user_id',
+                            cascade='delete',
+                            lazy='dynamic')
+    comments = db.relationship('Comment',
+                               backref='user',
+                               primaryjoin='User.id==Comment.user_id',
+                               cascade='delete',
+                               lazy='dynamic')
+    notifications = db.relationship('Notification',
+                                    backref='user',
+                                    cascade='delete',
+                                    lazy='dynamic')
+    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
+    country = db.relationship('Country', foreign_keys=[country_id], backref='user')
+
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        self.password = User.encrypt_password(kwargs.get('password', ''))
+
+
+    def __repr__(self):
+        return self.username
+
+    def __str__(self):
+        return self.username + f' ({self.email})'
+
+    def permission(self, *obj, crud):
+        if self.role:
+            access = self.role.check_access(obj, crud)
+            return access
+
+    def post_actions_access(self, post):
+        return (self.permission('post', crud='delete') and post.user==self) or \
+                (self.permission('admin.post', crud='delete')) or \
+                (self.permission('post', crud='update') and post.user==self) or \
+                (self.permission('admin.post', crud='update'))
+
+    def comment_actions_access(self, comment):
+        return (self.permission('comment', crud='delete') and comment.user==self) or \
+                (self.permission('admin.comment', crud='delete')) or \
+                (self.permission('comment', crud='update') and comment.user==self) or \
+                (self.permission('admin.comment', crud='update'))
+
+    def admin_dash_permissions(self):
+        if self.role:
+            for p in self.role.permissions:
+                if p.read:
+                    return p
+            permissions = ('user_admin_view', 'dept_admin_view',
+                           'leave_admin_view', 'sys_admin_view')
+            return self.permission(*permissions)
+
+
+    def comment_permissions(self):
+        if self.role:
+            permissions = ('create_comments', 'edit_any_comment',
+                           'delete_any_comment')
+            return self.permission(*permissions)
+
+    @hybrid_property
+    def avatar(self):
+        """
+        two paths - one is a root path for checking image exists
+        other deform_path returns for use with macro avatar url_for
+        """
+        base_path = os.path.join(current_app.static_folder, 'img/profile_pics')
+        deform_path = os.path.join('/static', 'img/profile_pics')
+        default_img = os.path.join(deform_path, 'default.png')
+        # default user image_file is None so provide default image
+        if self.image_file is None:
+            return default_img
+        path = os.path.join(base_path, self.image_file)
+        # if existing image_file has been accidentally deleted etc
+        # if so, provide default image
+        if not os.path.exists(path):
+            return default_img
+        # otherwise return saved image_file
+        return os.path.join(deform_path, self.image_file)
+
+    @hybrid_property
+    def leave_year_start_fmt(self):
+        if self.leave_year_start:
+            return self.leave_year_start.strftime("%-d %b %Y")
+        return self.leave_year_start
+
+    def all_departments_events(self):
+        from app.department.models import DepartmentMembers
+        events = db.session.query(Event).join(User) \
+                .filter(DepartmentMembers.user_id==self.id,
+                        Event.status!='Declined',
+                        Event.status!='Revoked')
+        return events.all()
+
+    @classmethod
+    def find_by_identity(cls, identity):
+        """
+        Find a user by their email or username
+        """
+        return User.query.filter(
+            # TODO ldap filter string needs to be both username or email
+            #(User.email == identity.lower()) | (User.username == identity.lower())).first()
+            # therefore login with only username for now
+           User.username == identity.lower()).first()
+
+    @classmethod
+    def initialize_password_reset(cls, email):
+        u = User.find_by_email(email)
+        reset_token = u.serialize_token()
+
+    def serialize_token(self, expiration=1800):
+        """ Sign and create a token that can be used with a one off token such
+        as resetting password etc. Token default expiry is 1800 secs / 30 mins."""
+        return jwt.encode(
+                {'reset_password': self.id, 'exp': time() + expiration},
+                str(os.environ.get('SECRET_KEY')), algorithm='HS256')
+
+    @staticmethod
+    def verify_password_reset_token(token):
+        try:
+            id = jwt.decode(token, str(os.environ.get('SECRET_KEY')),
+                            algorithms=['HS256'])['reset_password']
+        except Exception as e:
+            print(e)
+            return
+        return User.query.get(id)
+
+    def authenticated(self, with_password=True, password=''):
+        """
+        Ensure a user is authenticated, and optionally check their password.
+        :param with_password: Optionally check their password
+        :type with_password: bool
+        :param password: Optionally verify this as their password
+        :type password: str
+        :return: bool
+        """
+        if with_password:
+            return check_password_hash(self.password, password)
+        return True
+
+    @classmethod
+    def encrypt_password(cls, plaintext_password):
+        if plaintext_password:
+            return generate_password_hash(plaintext_password)
+        return None
+
+    @classmethod
+    def is_last_admin(cls, user):
+        """
+        Determine whether or not this user is the last admin account.
+
+        :param user: User being tested
+        :type user: User
+        :param new_role: New role being set
+        :type new_role: str
+        :param new_active: New active status being set
+        :type new_active: bool
+        :return: bool
+        """
+        if user.role:
+            if user.role.superuser:
+                admin_count = User.query.join(Role).filter(Role.superuser == True and User.active == True).count()
+                if admin_count == 1:
+                    return True
+        return False
+
+    @classmethod
+    def bulk_delete(cls, ids):
+        """
+        Override the general bulk_delete method because we need to delete them
+        one at a time while also deleting them on Stripe.
+
+        :param ids: List of ids to be deleted
+        :type ids: list
+        :return: int
+        """
+        delete_count = 0
+
+        for id in ids:
+            user = User.query.get(id)
+            if user is None:
+                continue
+            if User.is_last_admin(user):
+                print('Cannot delete the last admin')
+            else:
+                user.delete()
+                delete_count += 1
+        return delete_count
+
+    @classmethod
+    def bulk_disable_login(cls, ids):
+        disable_count = 0
+
+        for id in ids:
+            user = User.query.get(id)
+            if user is None:
+                continue
+            if User.is_last_admin(user):
+                print('Cannot disable the last admin')
+            else:
+                user.active = False
+                user.save()
+                disable_count += 1
+        return disable_count
+
+    @classmethod
+    def bulk_enable_login(cls, ids):
+        active_count = 0
+
+        for id in ids:
+            user = User.query.get(id)
+            if user is None:
+                continue
+            user.active = True
+            user.save()
+            active_count += 1
+        return active_count
+
+    @classmethod
+    def bulk_password_reset(cls, ids):
+        reset_count = 0
+
+        for id in ids:
+            user = User.query.get(id)
+            if user is None:
+                continue
+            from app.email import send_password_reset_email
+            send_password_reset_email(user)
+            reset_count += 1
+        return reset_count
+
+    def update_login_activity(self, ip_address):
+        """
+        Update account metadata
+        such as current and previous login times
+        as well as ip addresses etc.
+        """
+        self.previous_login_time = self.current_login_time
+        self.current_login_time = datetime.utcnow()
+
+        self.previous_login_ip_address = self.current_login_ip_address
+        self.current_login_ip_address = ip_address
+
+        return self.save()
+
+    def deduct_leave_days(self, days):
+        self.used_days += days
+        #self.total_holiday_entitlement -= days
+        self.days_left = self.total_holiday_entitlement - self.used_days
+
+    def reinstate_allowance_days(self, days):
+        self.used_days -= days
+        #self.total_holiday_entitlement += days
+        self.days_left += days
+
+    def is_active(self):
+        return self.active
+
+
+    def paginated_events(self, page):
+        sort_by = Event.sort_by(request.args.get('sort', 'start_date'),
+                               request.args.get('direction', 'desc'))
+        order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+        events = Event.query \
+                .filter(Event.user_id==self.id) \
+                .order_by(text(order_values)) \
+                .paginate(page, get_settings_value('events_per_page'), False)
+        return events
+
+    def pending_or_approved_events(self):
+        events = Event.query \
+                .filter(Event.user==self,
+                        Event.status!='Declined',
+                        Event.status!='Revoked') \
+                .all()
+        return events
+
+    def count_authoriser_requests(self):
+        events = db.session.query(Event).join(User) \
+                .filter(User.authoriser==self) \
+                .count()
+        return events
+
+    def pending_authoriser_requests(self):
+        events = db.session.query(Event).join(User) \
+                .filter(User.authoriser==self, Event.status=='Pending')
+        return events
+
+    def paginated_pending_authoriser_requests(self, page):
+        events = self.pending_authoriser_requests() \
+                .paginate(page, get_settings_value('events_per_page'), False)
+        return events
+
+    def paginated_actioned_authoriser_requests(self, page):
+        events = db.session.query(Event).join(User) \
+                .filter(User.authoriser==self, Event.status!='Pending') \
+                .paginate(page, get_settings_value('events_per_page'), False)
+        return events
+
+    @classmethod
+    def calculate_leave_days(cls):
+        return User._group_and_count(User, User.role)
+
+    @classmethod
+    def _group_and_count(cls, model, field):
+        count = func.count(field)
+        query = db.session.query(count, field).group_by(field).all()
+
+        results = {
+                'query': query,
+                'total': model.query.count()
+                }
+        return results
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (User.email.ilike(search_query),
+                        User.username.ilike(search_query))
+
+        return or_(*search_chain)
+
+    def serialize(self):
+        return {
+                'id': f'@{self.username}',
+                'userId': self.id,
+                'name': self.username,
+                'link': url_for('user.profile', username=self.username)
+                }
+
+    def add_notification(self, data, endpoint):
+        #self.notifications.filter_by(name=name).delete()
+        n = Notification(payload_json=json.dumps(data), endpoint=endpoint, user=self)
+        n.save()
+
+    def new_notifications(self):
+        last_read_time = self.last_notification_read_time or datetime(1900, 1, 1)
+        return Notification.query.filter_by(user_id=self.id).filter(
+            Notification.created_at > last_read_time).count()
+
+    def delete_all_notifications(self):
+        Notification.query.filter(Notification.user_id==self.id).delete()
+        return db.session.commit()
+
+    @classmethod
+    def bulk_delete_notifications(cls, ids):
+        delete_count = 0
+
+        for id in ids:
+            n = Notification.query.get(id)
+            if n is None:
+                continue
+            else:
+                n.delete()
+                delete_count += 1
+        return delete_count
+
+    def display_leave_allowance(self):
+        columns = [
+            [self.annual_entitlement, 'Annual Entitlement'],
+            [self.carry_over_days, 'Days Carried Over From Last Year'],
+            [self.total_holiday_entitlement, 'Total Annual Entitlement'],
+            [self.used_days,'Used and Authorised Days'],
+            [self.days_left, 'Days Left']
+        ]
+        for column in columns:
+            if column[0].as_integer_ratio()[1] == 1:
+                column[0] = int(column[0])
+                yield column
+            else:
+                yield column
+
+
+
+class Notification(db.Model, ResourceMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    payload_json = db.Column(db.Text)
+    endpoint = db.Column(db.String(200))
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
+
+    def __repr__(self):
+        return self.payload_json

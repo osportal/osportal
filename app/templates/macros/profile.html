@@ -1,0 +1,35 @@
+{% macro profile_table(query, class, endpoint) %}
+    <!-- If posts - create table -->
+    {% if query %}
+        <table class="table-hover" style="width:100%">
+        {% for obj in query %}
+            {% if obj.__table__.name == 'post' %}
+                {% set url = url_for(endpoint, id=obj.id) %}
+            {% elif obj.__table__.name == 'comment' %}
+                {% set url = url_for(endpoint, id=obj.id) %}
+            {% endif %}
+            <tr data-href="{{ url }}">
+                <td width="75%">
+                    <div class="profile-questions">
+                        <a style="text-decoration:none" href="{{url}}">{{ obj | safe }}</a>
+                    </div>
+                </td>
+                <td width="25%" style="text-align:right">
+                    {{ obj.pretty_date(obj.created_at) }}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+    <!-- If NO posts -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        No {{ class }}s yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}

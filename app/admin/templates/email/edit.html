@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+
+{% set active = 'admin.emails' %}
+{% set button = 'Save' %}
+
+{% if request.endpoint.endswith('new') %}
+  {% set endpoint = 'admin.emails_new' %}
+  {% set form_kwargs = {} %}
+  {% set legend = 'Add a new email address' %}
+{% else %}
+  {% set endpoint = 'admin.emails_edit' %}
+  {% set form_kwargs = {'id': email.id} %}
+  {% set legend = 'Edit ' + email.name %}
+{% endif %}
+
+{% block title %}{{ legend }}{% endblock %}
+
+{% block content %}
+{% set extra_setting_links = admin_emails_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+    <div class="row">
+        <div class="col-md-5 well">
+            <legend>{{ legend }}</legend>
+            {% call f.form_group(form.name) %}
+            {% endcall %}
+            {% call f.form_group(form.email) %}
+            {% endcall %}
+            {% call f.form_group(form.server) %}
+            {% endcall %}
+            {% call f.form_group(form.port) %}
+            {% endcall %}
+            {% call f.form_group(form.ssl) %}
+            {% endcall %}
+            {% call f.form_group(form.starttls) %}
+            {% endcall %}
+            {% call f.form_group(form.auth) %}
+            {% endcall %}
+            <div class="auth-form">
+            {% call f.form_group(form.username) %}
+            {% endcall %}
+            {% call f.form_group(form.password) %}
+            {% endcall %}
+            </div>
+        </div>
+        {% if request.endpoint.endswith('edit') %}
+        <div class="col-md-5 well">
+            <div class="alert alert-info">
+			        <i class="fas fa-info pr-1"></i>
+		        <small class="text-muted">
+                    This will attempt an SMTP connection using your saved configuration
+                </small>
+            </div>
+            <button class="btn btn-primary" type="button" onclick="testEmail()">Test Email Config</button>
+            <div class="mt-2 mb-2" id="test-email-status"></div>
+        </div>
+        {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">
+        {{ button }}
+    </button>
+{% endcall %}
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    function validate() {
+        if (document.getElementById('auth').checked) {
+            document.getElementsByClassName("auth-form")[0].style.display = "block";
+            //console.log("checked");
+        } else {
+            //console.log("UNchecked");
+            document.getElementById("username").value = '';
+            document.getElementById("password").value = '';
+            document.getElementsByClassName("auth-form")[0].style.display = "none";
+        }
+    }
+    validate();
+    document.getElementById('auth').onchange = function(){
+        validate();
+    };
+    // email id for testEmailCon script
+    {% if request.endpoint.endswith('edit') %}
+    var test_email_url = '{{ url_for("admin.test_email_config", id=email.id) }}'
+    {% endif %}
+</script>
+{% if request.endpoint.endswith('edit') %}
+<script src="{{ url_for('static', filename='js/testEmailCon.js') }}"></script>
+{% endif %}
+{% endblock scripts %}

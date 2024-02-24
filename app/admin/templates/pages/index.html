@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+
+{% set table_name = 'page' %}
+
+{% block title %}Page Settings{% endblock %}
+
+{% block content %}
+
+{% set endpoint = 'admin.pages' %}
+{% set button = 'Save' %}
+{% set extra_setting_links = admin_pages_sidebar(user=current_user) %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.pages') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if pages.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+          <th>
+            <label for="select_all"></label>
+            <input id="select_all" name="select_all" type="checkbox">
+          </th>
+          <th class="col-header">
+              Name
+          </th>
+          <th class="col-header">
+              Active
+          </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for page in pages.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ page.id }}">
+        </td>
+        <td>
+            <a href="{{ url_for('admin.pages_info', id=page.id)}}">{{ page.name }}</a>
+        </td>
+        <td>
+            {{ page.render(page.active) }}
+        </td>
+        <td>
+            {% if current_user.permission('admin.page', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.pages_edit', id=page.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.page', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete-" ~ page.id, 
+                    url=url_for('admin.pages_delete', id=page.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    target="#confirmModal",
+                    icon="bi bi-trash") 
+                }}
+            {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+{{ items.paginate(pages) }}
+<!-- Bulk Disable Modal -->
+<div class="modal fade" id="bulkDisable" tabindex="-1" aria-labelledby="bulkDisableLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkDisableLabel">Disable</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span style="color: #fff;" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to disable the selected pages?
+      </p>
+      <p>
+      <strong>Please confirm to continue.</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_disable') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bulk Enable Modal -->
+<div class="modal fade" id="bulkEnable" tabindex="-1" aria-labelledby="bulkEnableLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkEnableLabel">Enable</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span style="color: #fff;" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to enable the selected pages?
+      </p>
+      <p>
+      <strong>Please confirm to continue.</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_enable') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bulk Delete -->
+<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span style="color: #fff;" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      Are you sure you want to delete the selected pages?
+      </p>
+      <p>
+      <strong>Please confirm to continue.</strong>
+      </p>
+      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_delete') }}" method="POST">
+        <button class="btn btn-primary" type="submit">Confirm</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% include "partials/confirm_dialog.html" %}
+{% endif %}
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock %}

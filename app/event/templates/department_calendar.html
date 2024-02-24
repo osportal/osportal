@@ -1,0 +1,11 @@
+{% extends "calendar_base.html" %}
+
+{% set heading = department.name + ' Calendar' %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+<h3>{{ heading }}</h3>
+{{ super() }}
+
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<script async charset="utf-8" src="https://cdn.embedly.com/widgets/platform.js"></script>
+{% endblock head %}
+
+{% block content %}
+    {{ page.content | safe }}
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/embed.js') }}"></script>
+{% endblock %}

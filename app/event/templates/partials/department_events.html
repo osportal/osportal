@@ -1,0 +1,42 @@
+    {% for e in events %}
+    {% set event_id = e.id | string %}
+    {% set del_url = url_for('event.delete', id=event_id) %}
+    {% set approve_url = url_for('event.approve', id=event_id) %}
+    {% set decline_url = url_for('event.decline', id=event_id) %}
+    {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">delete</a>' %}
+    {% set approve_btn = '<a class="btn btn-sm btn-success" href="' + approve_url + '">approve</a>' %}
+    {% set decline_btn = '<a class="btn btn-sm btn-danger" href="' + decline_url + '">decline</a>' %}
+    {
+        id: '{{ e.id }}',
+        title : '{{ e.user.username }}', 
+        start : '{{ e.start_date}}',
+        end : '{{ e.full_calendar_add_one_day() }}',
+        extendedProps:{
+            details: 
+            `
+                <div>{{ e.start_date.strftime("%-d %b, %Y") }} - {{ e.end_date.strftime("%-d %b, %Y") }}</div>
+                <div>Days: {{ e.num_days }}</div>
+                <div>Type: {{ e.etype.name }} ({{ e.status }})</div>
+                {% if e.details %}
+                    <div>Details: {{ e.details }}</div>
+                {% endif %}
+                {% if e.status == "Pending" %}
+                    <hr>
+                    {% if current_user.id == e.user_id %}
+                        {{ del_btn | safe}}
+                    {% endif %}
+                    {% if current_user.id == e.user.authoriser_id %}
+                        {{ approve_btn | safe }} {{ decline_btn | safe }}
+                    {% endif %}
+                {% endif %}
+            `, 
+        },
+        backgroundColor : '{{ e.hex_colour }}',
+        editable : false,
+        {% if e.half_day == True %}
+            allDay: false 
+        {% else %}
+            allDay: true 
+        {% endif %}
+    },
+    {% endfor %}

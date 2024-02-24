@@ -1,0 +1,9 @@
+{%- from "macros/navigation.html" import navlink with context -%}
+
+{% block content %}
+<ul class="nav nav-tabs"> 
+    {% for view, text, icon in user_profile_links(user=user)  %}
+    {{ navlink(view, text, icon, active, {"username": user.username}) }}
+    {% endfor %}
+</ul>
+{% endblock %}

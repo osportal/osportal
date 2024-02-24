@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Role Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.roles' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_role_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+<div class="row">
+  <div class="col-md-5 well">
+    {% if current_user.permission('admin.role', crud='update') %}
+    <a href="{{ url_for('admin.roles_edit', id=role.id) }}" class="btn btn-primary mb-4">Edit</a>
+    {% endif %}
+    	<div class="form-group">
+	        <div class="mb-2">
+	        	<div><strong>Name</strong></div>
+	        	<div>{{ role.name }}</div>
+	        </div>
+	        {% if role.description %}
+	        <div class="mb-2">
+	        	<div><strong>Description</strong></div>
+	        	<div>{{ role.description }}</div>
+	        </div>
+	        {% endif %}
+	        <div class="mb-2">
+	        	<div><strong>Superuser?</strong></div>
+	        	<div>{{ role.render(role.superuser) }}</div>
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Permissions</strong></div>
+		    {% for p in role.permissions %}
+		    <div>{{ p }}</div>
+		    {% endfor %}
+	        </div>
+        </div>
+  </div>
+</div>
+{% endblock %}

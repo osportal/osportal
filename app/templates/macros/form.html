@@ -1,0 +1,123 @@
+{# Render a form field's label with visual aid to see if it's required. #}
+{%- macro field_label(f) -%}
+  <label for="{{ f.id }}">
+      {% if f.flags %}
+    {%- if f.flags.required -%}
+      <strong>{{ f.label.text }}</strong>
+    {%- else %}
+      {{ f.label.text }}
+    {%- endif %}
+    {%- endif %}
+  </label>
+{%- endmacro -%}
+
+
+{# Render a form field's errors. #}
+{%- macro field_errors(f) -%}
+  {% if f.errors %}
+    <ul class="list-unstyled text-danger field-error">
+      {% for error in f.errors %}
+        <li>{{ error | e }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{%- endmacro -%}
+
+
+{# Render a form field. #}
+{%- macro field(f, css_class='form-control') -%}
+  {{ f(class=css_class, **kwargs) }}
+{%- endmacro -%}
+
+
+
+
+{# Render colour input. #}
+{%- macro colour_field(f, css_class='sm-margin-bottom') -%}
+    <div class="form-group {{css_class}}">
+        <label for="{{ f.id }}">
+            <strong>{{ f.label.text }}</strong>
+        </label>
+        <div>
+            {{ f(class=css_class, **kwargs) }}
+        </div>
+    </div>
+{%- endmacro -%}
+
+
+{# Render a checkbox field. #}
+{%- macro checkbox_field(f) -%}
+  {{ f(type='checkbox', **kwargs) }} {{ f.label }}
+{%- endmacro -%}
+
+{%- macro btn_field(f, css_class='btn btn-primary') -%}
+    {{ f(class=css_class) }}
+{%- endmacro -%}
+
+{# Render a form group with errors for various field types. #}
+{%- macro form_group(f, css_class='') -%}
+  {% if f.errors %}
+    {% set css_class = css_class + ' has-error ' + kwargs.pop('class', '') %}
+  {% endif %}
+
+  {% if f.type == 'BooleanField' %}
+    <div class="checkbox {{ css_class }}">
+    {{ checkbox_field(f, **kwargs) }}
+  {% elif f.type == 'SubmitField' %}
+    <div>
+    {{ btn_field(f, css_class=css_class) }}
+  {% else %}
+    <div class="form-group {{ css_class }}">
+    {{ field_label(f) }}
+    {{ field(f, **kwargs) }}
+  {% endif %}
+    {{ field_errors(f) }}
+    {{ caller () }}
+   </div>
+{%- endmacro %}
+
+
+{# Render a form tag that contains a CSRF token and all hidden fields. #}
+{%- macro form_tag(endpoint, form, fid='', css_class='', method='post', enctype='') -%}
+  <form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" id="{{ fid }}" class="{{ css_class }}" role="form" enctype="{{ enctype }}">
+    {{ form.hidden_tag() }}
+    {{ caller () }}
+  </form>
+{%- endmacro -%}
+
+{%- macro file_form_tag(endpoint, fid='', css_class='', method='post', enctype='' ) -%}
+<form action="{{ url_for(endpoint, **kwargs) }}" method="{{ method }}" enctype="{{ enctype }}" 
+        id="{{ fid }}" class="{{ css_class }}" role="form">
+    {{ form.hidden_tag() }}
+    {{ caller () }}
+  </form>
+{%- endmacro -%}
+
+
+{# Render a form for searching. #}
+{%- macro search(endpoint) -%}
+  {% call form_tag(endpoint, form=form, method='get') %}
+    <label for="q"></label>
+    <div class="input-group mb-2">
+            <input type="text" class="form-control"
+             id="q" name="q" value="{{ request.args.get('q', '') }}"
+             placeholder="Search by typing, then press enter...">
+        <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+        </button>
+    </div>
+  {% endcall %}
+{%- endmacro -%}
+
+
+{% macro action_confirm(id, url, title, target='', icon='', btn='btn btn-icon', icon_only=True) %}
+<form class="d-inline" id="{{ id }}" method="POST" action="{{ url }}">
+    <button type="button" class="{{ btn }}" data-toggle="modal" data-target="{{ target }}">
+        {% if icon_only %}
+        <span class="{{ icon }}" data-bs-toggle="tooltip" title="{{ title }}"></span>
+        {% else %}
+        <span class="{{ icon }}"></span> {{ title }}
+        {% endif %}
+    </button>
+</form>
+{% endmacro %}

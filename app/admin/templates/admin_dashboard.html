@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+{% set legend = 'Admin Dashboard' %}
+{% block title %}{{ legend }} {% endblock %}
+
+
+{% block content %}
+<legend>{{ legend }}</legend>
+
+<div class="row">
+    {% if current_user.permission('admin.settings', crud='read') %}
+    <!-- Components -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                            Components
+                        </div>
+                        <div>Flask: {{ flask_version }}</div>
+                        <div>Celery: {{ celery_version }} <span id="celery-status" class="text-warning">checking status</span>
+                        </div>
+                        <div><a target="_blank" href="http://localhost:5555/tasks">View Tasks</a></div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.user', crud='read') %}
+    <!-- User card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.users') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Users
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_users.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.role', crud='read') %}
+    <!-- Roles card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.roles') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Roles
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_roles.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-hammer fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.permission', crud='read') %}
+    <!-- Roles card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.permissions') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Permissions
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_permissions.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-key fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.department', crud='read') %}
+    <!-- Department card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.departments') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Departments
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_departments.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-sitemap fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.event', crud='read') %}
+    <!-- Events card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.events') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                   Events and Types
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_event_types.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-plane fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.page', crud='read') %}
+    <!-- Pages card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.pages') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Pages
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_pages.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.system_email', crud='read') %}
+    <!-- Emails card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.emails') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Emails
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_emails.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.country', crud='read') %}
+    <!-- Settings card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.countries') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Countries
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_countries.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-globe fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.settings', crud='read') %}
+    <!-- Settings card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.settings') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Settings and Preferences
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-cog fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+{% if current_user.permission('admin.settings', crud='read') %}
+<script>
+
+// TOOD: Put this into management.celery_status
+const running = "<span id='celery-status' class='text-success'><strong>running</strong></span>";
+const not_running = "<span id='celery-status' class='text-danger'><strong>not running</strong></span>";
+
+const notification = `
+    <div class='alert-message alert-message-danger'>
+        <h4>There is a problem.</h4>
+        <p class="mb-0">Celery is <strong>not</strong> running.</p>
+    </div>
+`;
+const endpoint = "{{ url_for('admin.celery_status') }}";
+
+check_overview_status(endpoint, notification, running, not_running);
+</script>
+{% endif %}
+{% endblock scripts %}

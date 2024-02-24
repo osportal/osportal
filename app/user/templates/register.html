@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+{% set endpoint = 'user.register' %}
+{% set button = 'Register' %}
+{% set legend = 'Register' %}
+
+<div class="row">
+    <div class="col-md-5 well">
+    <legend>{{ legend }}</legend>
+    <hr>
+
+    {% call f.form_tag(endpoint, form=form) %}
+    
+    {% call f.form_group(form.username) %}
+    {% endcall %}
+    
+    {% call f.form_group(form.email) %}
+    {% endcall %}
+
+    {% call f.form_group(form.password) %}
+    {% endcall %}
+
+    {% call f.form_group(form.password2) %}
+    {% endcall %}
+    
+    {#
+    {% call f.form_group(form.country) %}
+    {% endcall %}
+    #}
+    <button type="submit" class="btn btn-primary btn-block">
+        {{ button }}
+    </button>
+    {% endcall %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

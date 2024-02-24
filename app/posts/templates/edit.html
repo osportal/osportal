@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+
+{% if request.endpoint.endswith('new') %}
+  {% set endpoint = 'posts.post_new' %}
+  {% set form_kwargs = {} %}
+  {% set legend = 'Create a new post' %}
+  {% set button = 'Create' %}
+{% else %}
+  {% set endpoint = 'posts.post_edit' %}
+  {% set form_kwargs = {'id': post.id} %}
+  {% set legend = 'Edit post' %}
+  {% set button = 'Save' %}
+{% endif %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/vendor/ckeditor/build/ckeditor.js') }}"></script>
+<style>
+.ck-editor__editable {
+    min-height: 430px;
+    max-height: 450px;
+}
+</style>
+{% endblock head %}
+
+{% block content %}
+{% if request.endpoint.endswith('new') %}
+  <legend>{{ legend }}</legend>
+  {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+
+  {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                        autofocus='autofocus') %}
+  {% endcall %}
+
+  {% call f.form_group(form.content, css_class='sm-margin-bottom',
+                        autofocus='autofocus') %}
+  {% endcall %}
+  <!-- Submit buttons -->
+  <hr/>
+  <div class="row">
+    <div class="col-md-6">
+        <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('posts.index') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  <!-- End of Submit buttons -->
+
+  {% endcall %}<!-- end call for form -->
+<!-- End of request new post -->
+{% else %}
+<!-- if end request is edit -->
+    {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+      <legend>{{ legend }}</legend>
+      <div class="form-group">
+        <label class="control-label"><strong>Created</strong></label>
+        <p class="sm-margin-bottom form-control-static">
+          <time class="from-now" data-datetime="{{ post.created_at }}">
+              {{ post.pretty_date(post.created_at) }}
+            <span class="text-muted small ml-2">{{ post.created_at.strftime("%-d %b %Y %H:%M %z") }}</span>
+          </time>
+        </p>
+      </div>
+      {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                            autofocus='autofocus') %}
+      {% endcall %}
+
+      {% call f.form_group(form.content, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+            <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+        </div>
+        <div class="col-md-6">
+          <div class="visible-xs visible-sm sm-margin-top"></div>
+          <a href="{{ url_for('posts.post', id=post.id) }}"
+              class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+          </a>
+        </div>
+      </div>
+
+      {% endcall %}<!-- end call for form -->
+
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>var endpoint = "{{ url_for('user.mentions') }}"</script>
+<script src="{{ url_for('static', filename='js/textEditor.js') }}"></script>
+{% endblock %}

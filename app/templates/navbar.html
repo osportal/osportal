@@ -1,0 +1,78 @@
+<nav class="navbar fixed-top navbar-expand-lg bg-white shadow scrolling-navbar"> 
+	<div class="container">
+        {% include "logo.html" %}
+	    <button class="navbar-light navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" 
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-light navbar-toggler-icon"></span>
+	    </button>
+
+	    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		    {% if current_user.is_authenticated %}
+		    <ul class="navbar-nav mr-auto">
+		        <li class="nav-item">
+		    	<a class="nav-link waves-effect" href="{{ url_for('event.index') }}">Calendar</a>
+		        </li>
+		        <li class="nav-item">
+		    	<a class="nav-link waves-effect" href="{{ url_for('user.all_users') }}">Users</a>
+		        </li>
+		        <li class="nav-item">
+		    	<a class="nav-link waves-effect" href="{{ url_for('department.all') }}">Departments</a>
+		        </li>
+		        <li class="nav-item">
+		    	<a class="nav-link waves-effect" href="{{ url_for('posts.index') }}">Posts</a>
+		        </li>
+                {% for page in pages_menu_bar() %}
+		            <li class="nav-item">
+                        <a class="nav-link waves-effect" href="{{ url_for('pages.index', route=page.route) }}">{{ page.name }}</a>
+                    </li>
+                {% endfor %}
+		    </ul>
+            <!-- Right -->
+            <ul class="navbar-nav nav-flex-icons flex-row">
+                    <!-- Notifications with bell & badge pill -->
+                    <li class="nav-item">
+		    	    	<a class="btn btn-outline-dark mr-1" href="{{ url_for('user.notifications') }}">
+                            <i class="bi bi-bell"></i>
+                            <span id="notification-count"
+                                  class="badge badge-pill badge-danger"
+                                  style="display: {% if current_user.new_notifications() %}inline-block;{% else %}none;{% endif %}">
+                                    {{ current_user.new_notifications() }}
+                            </span>
+                        </a>
+                    </li>
+                <!-- User Account -->
+                    <li class="nav-item dropdown">
+                        <a class="btn btn-outline-dark dropdown-toggle w-100" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bi bi-person" aria-label="account"></i>
+                            <span id="navbar_user">{{ current_user.username | truncate(30, true, '...') }}</span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% if current_user.role %}
+                                {% if current_user.role.check_admin_dash_access() %}
+                                    <a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+                                    <div class="dropdown-divider"></div>
+                                {% endif %}
+                            {% endif %}
+                            <a class="dropdown-item" href="{{ url_for('user.account') }}">Account Settings</a>
+		    	            <a class="dropdown-item" href="{{ url_for('user.logout') }}">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            <!-- ELSE If not authenticated -->
+		    {% else %}
+            <ul class="navbar-nav mr-auto">
+                 <li class="nav-item">
+		             <a class="nav-link waves-effect" href="{{ url_for('user.login') }}">Login</a>
+                 </li>
+                 <!-- IF REGISTRATION IS ENABLED -->
+                 {% if g.guest_registration %}
+                 <li class="nav-item">
+		             <a class="nav-link" href="{{ url_for('user.register') }}">Register</a>
+                 </li>
+                 {% endif %}
+            </ul>
+		    {% endif %}
+            <!-- END OF AUTHENTICATED IF ELSE -->
+	    </div>
+	</div>
+</nav>

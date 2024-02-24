@@ -1,0 +1,49 @@
+{% import 'macros/form.html' as f with context %}
+{%- from "macros/user.html" import avatar_img -%}
+{% extends "layout.html" %}
+
+{% block title %}Profile Update{% endblock %}
+{% set endpoint = 'user.account' %}
+{% set button = 'Update' %}
+
+{% block content %}
+<div class="profile-section">
+    <div class="row">
+        <div class="col-sm-auto">
+            {{ avatar_img(current_user) }}
+        </div>
+        <div class="col-md-8 justify-content-between mb-3">
+				<h2>{{ current_user.username }}</h2>
+				<!-- FORM here -->
+                {% call f.form_tag(endpoint, form=form, enctype="multipart/form-data") %}
+                    {% call f.form_group(form.username, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.email, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {{ form.image_file(class="mb-3 mt-3") }}
+
+                    {% call f.form_group(form.bio, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+                    <hr/>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary btn-block">
+                          {{ button }}
+                        </button>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="visible-xs visible-sm sm-margin-top"></div>
+                        <a href="{{ url_for('user.profile', username=current_user.username) }}"
+                            class="btn btn-light bg-opacity-10 btn-block">
+                          Cancel
+                        </a>
+                      </div>
+                    </div>
+                {% endcall %}
+                <!-- End of FORM -->
+        </div><!-- End of col -->
+    </div> <!-- End row -->
+</div><!-- End profile-section -->
+{% endblock %}

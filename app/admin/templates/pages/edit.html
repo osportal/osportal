@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% set active = 'admin.pages' %}
+{% set button = 'Save' %}
+
+{% if request.endpoint.endswith('new') %}
+    {% set endpoint = 'admin.pages_new' %}
+    {% set form_kwargs = {} %}
+    {% set legend = 'Create New Page' %}
+{% else %}
+    {% set endpoint = 'admin.pages_edit' %}
+    {% set form_kwargs = {'id': page.id} %}
+    {% set legend = 'Edit ' + page.name %}
+{% endif %}
+
+{% block content %}
+  {% set extra_setting_links = admin_pages_sidebar(user=current_user) %}
+  {% include "menu.html" %}
+  {{ sidebaritems(extra_setting_links) }}
+  <legend>{{ legend }}</legend>
+
+  {% call f.form_tag(endpoint, form=form, fid="editor-form", **form_kwargs) %}
+
+      {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.route, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.active, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.content, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+  <!-- Submit buttons -->
+  <hr/>
+  <div class="row">
+    <div class="col-md-6">
+        <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.pages') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+  <!-- End of Submit buttons -->
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/ckeditor/build/ckeditor.js') }}"></script>
+<style>
+.ck-editor__editable {
+    min-height: 430px;
+    max-height: 450px;
+}
+</style>
+<script>var endpoint = "{{ url_for('user.mentions') }}"</script>
+<script src="{{ url_for('static', filename='js/textEditor.js') }}"></script>
+{% endblock scripts %}

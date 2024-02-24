@@ -1,0 +1,70 @@
+<!-- Leave Information -->
+<div class="row">
+    <div class="col-md-6">
+	    <div class="card mb-6">
+	        <div class="card-header">
+	            Personal Information
+	        </div>
+	        <div class="card-body">
+		        <table class="table table-striped">
+		        <tr>
+		        	<td>Name</td>
+		        	<td>{{ current_user.username }}</td>
+		        </tr>
+		        <tr>
+		        	<td>Authoriser</td>
+		        	<td>{{ current_user.authoriser }}</td>
+		        </tr>
+		        <tr>
+		        	<td>Leave Year Start</td>
+		        	<td>{{ current_user.leave_year_start_fmt }}</td>
+		        </tr>
+		        <tr>
+		        	<td>Country</td>
+		        	<td>{{ current_user.country }}</td>
+		        </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+	<div class="card mb-6">
+	    <div class="card-header">
+	        Leave Information
+	    </div>
+	    <div class="card-body">
+            {% if current_user.days_left == 0 and current_user.used_days == 0 %}
+            {% else %}
+            <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                <canvas id="myPieChart" style="display: block; width: 292px; height: 208px;" width="292" height="208" class="chartjs-render-monitor"></canvas>
+            </div>
+            <div class="mb-2 text-center small">
+                <span class="mr-2">
+                    <span class="icon">
+                        {{ legend_circle(size="15", colour="#4e73df") }}
+                    </span>
+                    <span class="text" style="vertical-align: middle;">
+                        Days Left
+                    </span>
+                </span>
+                <span class="mr-2">
+                    <span class="icon">
+                    {{ legend_circle(size="15", colour="#D3D3D3") }}
+                    </span>
+                    <span class="text" style="vertical-align: middle;">
+                        Days Used
+                    </span>
+                </span>
+            </div>
+            {% endif %}
+		<table class="table table-striped">
+            {% for col in current_user.display_leave_allowance() %}
+		    <tr>
+                <td>{{ col[1] }}</td>
+                <td>{{ col[0] }}</td>
+		    </tr>
+            {% endfor %}
+		</table>
+    	</div>
+	</div>
+</div>

@@ -1,0 +1,16 @@
+{%- from "macros/navigation.html" import navlink with context -%}
+
+{% block content %}
+{% block breadcrumb %}{% endblock breadcrumb %}
+{# only show admin menu heading if it is not empty because of no read permissions #}
+{% if admin_settings_menu(user=current_user) | list | length > 0 %}
+<div class="card-header">
+    <ul class="nav nav-pills nav-justified">
+    {% for view, text, icon in admin_settings_menu(user=current_user)  %}
+        {{ navlink(view, text, icon, active) }}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+

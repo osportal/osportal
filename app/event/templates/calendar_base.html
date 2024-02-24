@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+{%- from "macros/utils.html" import legend_circle -%}
+
+{% block content %}
+{% include "calendar_navbar.html" %}
+<div id="calendar-container">
+    {% block calendar_content %}
+    <div id="calendar"></div>
+    <!-- Legend -->
+    <div class="mt-2">
+        <ul style="text-align: center; list-style: none;">
+            {% for type in event_types %}
+            <span class="mr-2">
+                <span class="icon">
+                    {% if type == 'Pending' %}
+                        {{ legend_circle(colour=pending_colour) }}
+                    {% elif type == 'Public Holiday' %}
+                        {{ legend_circle(colour=public_hol_colour) }}
+                    {% else %}
+                        {{ legend_circle(colour=type.hex_colour) }}
+                    {% endif %}
+                </span>
+                <span class="text" style="vertical-align: middle;">{{ type }}</span>
+            </span>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endblock calendar_content %}
+</div>
+
+{% include "event_information.html" %}
+
+{% endblock content %}
+
+{% block scripts %}
+{% if request.endpoint != 'event.history' %}
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/dist/index.global.min.js') }}"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+    authoriser = '{{ current_user.authoriser }}';
+    allowance = '{{ current_user.total_holiday_entitlement }}';
+    daysLeft = '{{ current_user.days_left }}';// use for pie chart
+    daysUsed = '{{ current_user.used_days }}';// use for pie chart
+    const selectType = document.querySelector('#event-type-select');
+    const submitForm= document.querySelector('#submitRequestForm');
+    const submitBtn = document.querySelector('#submitRequestBtn');
+    const halfDay = document.getElementById("half_day");
+    var eventTypeId = selectType.value;
+
+    function validateHalfDay() {
+        endDate = document.getElementById("end_date");
+        endDateParent = endDate.parentNode;
+        if (document.getElementById('half_day').checked) {
+            //console.log("checked");
+            endDate.valueAsDate = null;
+            endDateParent.style.display = 'none';
+            $('#end_date').prop('disabled', true);
+            //document.getElementById('calculate-days-val').innerHTML = '0.5 days';
+            calculateDays();
+
+        } else {
+            //console.log("UNchecked");
+            $('#end_date').prop('disabled', false);
+            endDateParent.style.display = 'block';
+            document.getElementById('calculate-days-val').innerHTML = '';
+        }
+    }
+    function calculateDays(){
+        startDate = document.getElementById("start_date").value;
+        endDate = document.getElementById("end_date").value;
+        var endpoint = "{{ url_for('event.calculate_days_async') }}";
+        var etype_endpoint = "{{ url_for('event.get_etype_deductable') }}";
+        etype_endpoint += '?&event-type-id=' + eventTypeId;
+        if (halfDay) { // if half days are enabled
+            if (halfDay.checked){
+                disableSubmitBtn();
+                document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
+                endpoint += '?&start_date=' + startDate; 
+                endpoint += '&half_day=true';
+                calculate_days_for_user(endpoint, etype_endpoint);
+            }
+        }
+        if (startDate && endDate){
+            disableSubmitBtn();
+            document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
+            endpoint += '?&start_date=' + startDate; 
+            endpoint += '&end_date=' + endDate;
+            calculate_days_for_user(endpoint, etype_endpoint);
+        } else {
+            document.getElementById('calculate-days-val').innerHTML = '';
+        }
+    }
+    // function calls are here because of a page refresh
+    calculateDays();
+    if (halfDay) {
+        validateHalfDay();
+        document.getElementById('half_day').onchange = function(){
+            validateHalfDay();
+        };
+    }
+
+
+    function disableSubmitBtn(){
+        // set Timeout used here for compatibility with Chrome + Safari
+        setTimeout(function() {
+            submitBtn.disabled = true;
+        }, 0);
+    }
+    function enableSubmitBtn(){
+        // set Timeout used here for compatibility with Chrome + Safari
+        setTimeout(function() {
+            submitBtn.disabled = false;
+        }, 0);
+    }
+    
+    submitForm.addEventListener('submit', function(event) {
+        // set Timeout used here for compatibility with Chrome + Safari
+        setTimeout(function() {
+            submitBtn.disabled = true;
+        }, 0);
+          // Custom logic
+    });
+    document.getElementById('start_date').onchange = function(){
+        calculateDays();
+    };
+    document.getElementById('end_date').onchange = function(){
+        calculateDays();
+    };
+    selectType.onchange = function(){
+        eventTypeId = this.value;
+        calculateDays();
+    };
+    {% if form.errors %}
+        $('#addEventModal').modal('show');
+    {% endif %}
+</script>
+
+<script>
+    var trueOrFalse;
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            height: 'auto',
+            editable: true,
+            themeSystem: '{{ theme }}',
+            headerToolbar: { 
+                left: '{{ left_view }}',
+                center: '{{ center_view }}',
+            },
+            initialView: '{{ initial_view }}',
+            duration: { days: `{{ duration_days }}` },
+            weekends: {{ weekends }},
+            dayMaxEventRows: true,
+            views: {
+              dayGridMonth: {
+                dayMaxEventRows: 4 // adjust to 6 only for timeGridWeek/timeGridDay
+              }
+            },
+            eventDidMount: function(info){
+                $(info.el).popover({
+                    trigger: 'click',
+                    html: true,
+                    title: info.event.title,
+                    content: info.event.extendedProps.details
+                });
+                $('.popover.in').remove(); //<--- Remove the popover 
+            },
+            events: [
+                {% for e in public_holidays %}
+                {
+                	id: '{{ e.id }}',
+                	title: '{{ e.name }}',
+            	    start: '{{ e.start_date }}',
+            	    end: '{{ e.full_calendar_add_one_day() }}',
+                    extendedProps:{
+                        details: `
+                        {{ e.start_date.strftime("%-d %b, %Y") }}
+                        <div>
+                            Public Holiday for {{ e.country }}
+                        </div>`
+                    },
+                    backgroundColor: '{{ public_hol_colour }}',
+                    allDay: true 
+                },
+                {% endfor %}
+            {% if request.endpoint == 'event.index' %}
+              {% include "partials/personal_events.html" %}
+            {% elif request.endpoint == 'event.department' %}
+              {% include "partials/department_events.html" %}
+            {% elif request.endpoint == 'event.departments' %}
+              {% include "partials/all_departments_events.html" %}
+            {% endif %}
+            ],
+            displayEventTime: false,
+        });
+        calendar.render();
+        $('.fc-day-today').addClass('cell-background');
+});
+$(document).on('click', function (e) {
+    $('[data-toggle="popover"],[data-original-title]').each(function () {
+        //the 'is' for buttons that trigger popups
+        //the 'has' for icons within a button that triggers a popup
+        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+            (($(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false  // fix for BS 3.3.6
+        }
+
+    });
+});
+</script>
+
+{% if current_user.days_left == 0 and current_user.used_days == 0 %}
+{% else %}
+<script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chart-pie-demo.js') }}"></script>
+{% endif %}
+{% endblock scripts %}

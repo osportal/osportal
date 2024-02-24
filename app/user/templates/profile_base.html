@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{%- from "macros/user.html" import avatar_img -%}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename="css/imageModal.css") }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-section mb-3">
+    <div class="row">
+        <div class="col-sm-auto mb-3">
+            {{ avatar_img(user, size="128", id='profileImg') }}
+    	    <!-- The Image Modal -->
+    	    <div class="modal" id="imageModal">
+    	      <span class="close">&times;</span>
+    	      <img class="modal-content" id="img01">
+              <div id="caption"></div>
+    	    </div>
+        </div>
+        <!-- End of col -->
+        <div class="col-md-6 justify-content-between mb-3">
+            <h3>{{ user.username }}</h3>
+		    <h5><a href="mailto:{{ user.email }}">{{ user.email }}</a></h5>
+            {% if user.job_title %}
+                <h5 class="text-muted">{{ user.job_title }}</h5>
+            {% endif %}
+        </div>
+    </div>
+    <!-- End of Row -->
+    <div class="row">
+    <!-- row for buttons -->
+        <div class="col-12 col-sm-auto mb-3">
+        {% if current_user == user %}
+            <a href="{{ url_for('user.account') }}"class="btn btn-secondary">Edit Profile</a>
+        {% endif %}
+        </div>
+    </div>
+{% include "navigation.html" %}
+{% block profile_content %}
+{% endblock profile_content %}
+</div>
+
+{% endblock content %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/buttonFilter.js') }}"></script>
+<script src="{{ url_for('static', filename='js/imageModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lazyLoad.js') }}"></script>
+<script>
+<!-- for post and comment history --> 
+$(document).ready(function() {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+        });
+});
+</script>
+{% endblock %}

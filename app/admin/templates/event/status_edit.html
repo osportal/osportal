@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Leave Request Status{% endblock %}
+{% block content %}
+
+{% import 'macros/form.html' as f with context %}
+
+{% set endpoint = 'admin.event_status_edit' %}
+{% set form_kwargs = {'id': event.id} %}
+{% set legend = 'Update the status for this event request' %}
+{% set button = 'Save' %}
+
+<div class="row">
+  <div class="col-md-5 well">
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+      <legend>{{ legend }}</legend>
+
+      {% call f.form_group(form.status, css_class='sm-margin-bottom',
+                            autofocus='autofocus') %}
+      {% endcall %}
+
+      <hr/>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-block">
+            {{ button }}
+          </button>
+        </div>
+        <div class="col-md-6">
+          <div class="visible-xs visible-sm sm-margin-top"></div>
+          <a href="{{ url_for('admin.events') }}"
+              class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+          </a>
+        </div>
+      </div>
+    {% endcall %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

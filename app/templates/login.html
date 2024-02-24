@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+{% set endpoint = 'user.login' %}
+{% set button = 'Login' %}
+{% set legend = 'Login' %}
+
+<div>
+<legend>{{ legend }}</legend>
+<hr>
+    <div>
+    {% call f.form_tag(endpoint, form=form) %}
+    
+    {% call f.form_group(form.identity) %}
+    {% endcall %}
+    
+    {% call f.form_group(form.password) %}
+    {% endcall %}
+    
+    {% call f.form_group(form.remember) %}
+    {% endcall %}
+
+    <button type="submit" class="btn btn-primary btn-block">
+        {{ button }}
+    </button>
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}"/>
+    {% endcall %}
+    </div>
+    <br>
+    <p><a href="{{ url_for('user.forgot_password') }}">Forgot Password?</a></p>
+</div>
+
+
+{% endblock %}

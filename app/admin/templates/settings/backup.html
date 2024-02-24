@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% block title %}Import/Export Data{% endblock %}
+
+{% block content %}
+{% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
+{% set active = 'admin.settings' %}
+{% set button = 'Save' %}
+{% set app_name = 'osPortal' %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div role="tabpanel" class="tab-pane config-section" id="backup">
+	<ul class="nav nav-tabs mb-3" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" href="#export-zip" aria-controls="export-zip" role="tab" data-toggle="tab">Export</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="#import-zip" aria-controls="import-zip" role="tab" data-toggle="tab">Import</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link " href="#save-csv" aria-controls="save-csv" role="tab" data-toggle="tab">Download CSV</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link " href="#import-csv" aria-controls="import-csv" role="tab" data-toggle="tab">Import CSV</a>
+		</li>
+	</ul>
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane active" id="export-zip">
+			<div class="form-group">
+                <p>Exports are an archive of {{ app_name }} in its current state. They can be re-imported into other
+                {{ app_name }} instances or used by scripts and third parties to calculate statistics.</p>
+				<p>To download an export click the button below.</p>
+			</div>
+			<div class="form-group">
+				<a href="{{ url_for('admin.export_zip') }}" id="export-button" class="btn btn-warning">Export</a>
+			</div>
+		</div>
+		<div role="tabpanel" class="tab-pane" id="import-zip">
+			<div class="form-group">
+                <p>You can import saved {{ app_name }} exports by uploading them below. This will completely wipe your existing
+                {{ app_name }} instance and all your data will be replaced by the imported data.
+					You should only import data that you trust!</p>
+
+				<div class="alert alert-warning" role="alert">
+					<small class="text-muted text-right">
+						<i class="fas fa-exclamation pr-2"></i>
+                        Importing a {{ app_name }} export will completely wipe your existing data
+					</small>
+				</div>
+			</div>
+			{% with form = import_zip_form %}
+			{% set endpoint = 'admin.import_zip' %}
+  			{% call f.form_tag(endpoint, form=form, fid="import-file", enctype='multipart/form-data') %}
+  			    {% call f.form_group(form.zip_file, class='form-control-file', accept=".zip") %}
+  			    {% endcall %}
+
+			    {% call f.form_group(form.submit, css_class='btn btn-warning') %}
+  			    {% endcall %}
+
+  			{% endcall %}
+            		{% endwith %}
+		</div>
+		<div role="tabpanel" class="tab-pane" id="save-csv">
+			<div class="alert alert-warning" role="alert">
+				<small class="text-muted text-right">
+					<i class="fas fa-exclamation pr-2"></i>
+                    CSVs exported from {{ app_name }} are not guaranteed to import back in via the Import CSV functionality. See <a href="https://osportal.com" target="_blank">CSV Importing instructions</a> for details.
+				</small>
+			</div>
+			{% with form = export_csv_form %}
+			{% set endpoint = 'admin.export_csv_backup' %}
+  			{% call f.form_tag(endpoint, form=form) %}
+  			    {% call f.form_group(form.table_name, css_class='sm-margin-bottom') %}
+  			    {% endcall %}
+
+			    {% call f.form_group(form.submit, css_class='btn btn-warning') %}
+  			    {% endcall %}
+
+  			{% endcall %}
+			{% endwith %}
+		</div>
+		<div role="tabpanel" class="tab-pane" id="import-csv">
+			{% with form = import_csv_form %}
+			{% set endpoint = 'admin.import_csv' %}
+  			{% call f.form_tag(endpoint, form=form, fid="import-csv-form", enctype='multipart/form-data') %}
+			    <div class="form-group">
+			    	<div class="alert alert-info" role="alert">
+			    		<small class="text-muted text-right">
+			    			<a href="https://osportal.com" target="_blank">
+			    				<i class="far fa-question-circle pr-2"></i>Instructions and CSV templates
+			    			</a>
+			    		</small>
+			    	</div>
+			    </div>
+  			    {% call f.form_group(form.csv_type, css_class='sm-margin-bottom') %}
+  			    {% endcall %}
+
+			    {% call f.form_group(form.csv_file, class="form-control-file", id="import-csv-file", accept=".csv") %}
+  			    {% endcall %}
+
+			    {% call f.form_group(form.submit, css_class='btn btn-warning') %}
+  			    {% endcall %}
+
+  			{% endcall %}
+			{% endwith %}
+
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/importCSV.js') }}"></script>
+{% endblock scripts %}

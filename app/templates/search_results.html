@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{%- from "macros/user.html" import avatar_img -%}
+{% set profile_endpoint = 'user.profile' %}
+
+{% block content %}
+		<h3>Search Results</h3>
+		<a href="/posts/post" class="btn btn-outline-info">Create Post</a>
+		<form class="form-inline my-2 my-lg-0" action="/results" method="GET" autocomplete="off">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search Posts" aria-label="Search" name="q" id="q" value={{ q }}>
+		    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+		</form>
+<br>
+<h4>{{ posts.total }} Results</h4>
+<p>{{ test }}</p>
+{% for post in posts.items %}
+    <article class="media content-section">
+        {{ avatar_img(post.user, size='44', id='profileImg') }}
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{{ url_for(profile_endpoint, username=post.username) }}">{{ post.username }}</a>
+                <small class="text-muted">{{ post.date_posted.strftime('%e %b %Y at %H:%M') }}</small>
+            </div>
+			<h4><a class="article-title btn-link" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.name }}</a></h4>
+        </div>
+    </article>
+{% endfor %}
+{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+	{% if page_num %}
+		{% if posts.page == page_num %}
+			<button class="btn btn-info mb-4" href="{{ url_for('main.results', page=page_num) }}" disabled>{{ page_num }}</button>
+		{% else %}
+			<a class="btn btn-outline-info mb-4" href="{{ url_for('main.results', page=page_num) }}">{{ page_num }}</a>
+		{% endif %}
+	{% else %}
+	...
+	{% endif %}
+{% endfor %}
+{% endblock %}

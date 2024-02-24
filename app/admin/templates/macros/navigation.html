@@ -1,0 +1,32 @@
+{% macro is_active(endpoint, active='') %}
+    {%- if endpoint == request.endpoint or endpoint == active or active == True -%}
+        active disabled
+    {%- endif -%}
+{% endmacro %}
+
+{% macro navlink(endpoint, name, icon='', active='', urlforkwargs=None) %}
+	<li class="nav-item">
+	    <a class="nav-link {{ is_active(endpoint, active) }}" href="{% if urlforkwargs %}{{ url_for(endpoint, **urlforkwargs) }}{% else %}{{ url_for(endpoint) }}{% endif %}">
+	        {% if icon %}<i class="{{ icon }}"></i> {% endif %} {{ name }}
+	    </a>
+	</li>
+{% endmacro %}
+
+<!-- new list for items as we need to check length and generator function can only be used once -->
+{% macro sidebaritems(items) %}
+{% set newitems = [] %}
+{% for item in items %}
+{{ newitems.append(item) or "" }}
+{% endfor %}
+{% if newitems | list | length > 0 %}
+<div class="card-header mb-4">
+    <div class="col-md-6">
+        <ul class="nav nav-pills nav-justified">
+            {% for view, text, icon in newitems %}
+                {{ navlink(view, text, icon, active) }}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}

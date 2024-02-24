@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Email Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.emails' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_emails_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+<div class="row">
+  <div class="col-md-5 well">
+    {% if current_user.permission('admin.system_email', crud='update') %}
+    <a href="{{ url_for('admin.emails_edit', id=email.id) }}" class="btn btn-primary mb-4">Edit</a>
+    {% endif %}
+    <div class="form-group">
+        <div class="mb-2">
+        	<div><strong>Display Name</strong></div>
+        	<div>{{ email.name }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Send Email From</strong></div>
+        	<div>{{ email.email }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Mail Server</strong></div>
+        	<div>{{ email.server }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Mail Port</strong></div>
+        	<div>{{ email.port }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>SSL/TLS</strong></div>
+        	<div>{{ email.render(email.ssl) }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>STARTTLS</strong></div>
+        	<div>{{ email.render(email.starttls) }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Use Mail Server Username and Password?</strong></div>
+        	<div>{{ email.render(email.auth) }}</div>
+        </div>
+	{% if email.username %}
+        <div class="mb-2">
+        	<div><strong>Mail Username</strong></div>
+        	<div>{{ email.username }}</div>
+        </div>
+	{% endif %}
+    </div>
+  </div>
+  <div class="col-md-5 well">
+      <div class="alert alert-info">
+  		        <i class="fas fa-info pr-1"></i>
+  	        <small class="text-muted">
+              This will attempt an SMTP connection using your saved configuration
+          </small>
+      </div>
+      <button class="btn btn-primary" type="button" onclick="testEmail()">Test Email Config</button>
+      <div class="mt-2 mb-2" id="test-email-status"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var test_email_url = '{{ url_for("admin.test_email_config", id=email.id) }}'
+</script>
+<script src="{{ url_for('static', filename='js/testEmailCon.js') }}"></script>
+{% endblock scripts %}

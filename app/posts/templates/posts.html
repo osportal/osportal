@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{%- from "macros/user.html" import avatar_img -%}
+{%- from "macros/utils.html" import pin_icon -%}
+{%- import "macros/pagination.html" as items -%}
+
+{% set heading = 'Posts' %}
+{% set profile_endpoint = 'user.profile' %}
+
+{% block title %}{{ heading }}{% endblock title %}
+
+
+
+{% block content %}
+<legend>{{ heading }}</legend>
+{% if current_user.permission('admin.post', 'post', crud='create') %}
+<a class="btn btn-primary" href="{{ url_for('posts.post_new') }}">Create Post</a>
+{% endif %}
+
+
+{{ forms.search('posts.index') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if request.args.get('q') %}
+    {% if posts.items | count == 0 %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% endif %}
+
+{% if posts.items %}
+
+<ul class="mb-1 mt-4 nav align-items-center">
+    <li class="nav-item ml-auto">
+        <h6>{{ items.sort('created_at', 'Sort by date') }}</h6>
+    </li>
+</ul>
+
+<!-- Get all Posts -->
+{% for post in posts.items %}
+<div class="mb-4">
+    {% if post.is_pin %}
+        <div class="pin-section">
+            <div class="mb-2">
+                {{ pin_icon(size='20') }}<span class="ml-1">Pinned</span>
+            </div>
+    {% else %}
+        <div class="content-section">
+    {% endif %}
+        <article class="media">
+            <a href="{{ url_for(profile_endpoint, username=post.user.username) }}">
+                {{ avatar_img(post.user, size='44', id='profileImg') }}
+            </a>
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-1" href="{{ url_for(profile_endpoint, username=post.user.username) }}">{{ post.user.username }}</a>
+                    <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
+    			<h4><a class="article-title btn-link" href="{{ url_for('posts.post', id=post.id) }}">{{ post.name }}</a></h4>
+    			{% if post.comments.count() >= 1 %}
+                <small class="text-muted">Comments </small><span class="badge badge-pill badge-secondary">{{ post.comments.count() }}</span>
+                {% endif %}
+                </div>
+            </div>
+            <!-- Check post permissions -->
+            <!-- If user has no post permissions and is not the post author avoid displaying empty dropdown -->
+            {% if current_user.post_actions_access(post) %}
+                <div>
+                {% include "post_actions.html" %}
+                </div>
+            {% endif %}
+        </article>
+    </div>
+</div>
+{% endfor %}
+{{ items.paginate(posts) }}
+{% endif %}
+
+{% endblock %}

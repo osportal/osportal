@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/user.html" import avatar_img -%}
+
+{% set heading = 'People' %}
+{% set profile_endpoint = 'user.profile' %}
+{% block title %}{{ heading }}{% endblock title %}
+
+{% block content %}
+
+<legend>{{ heading }}</legend>
+
+{{ forms.search('user.all_users') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+
+{% if request.args.get('q') %}
+    {% if users.items | count == 0 %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% endif %}
+
+
+{% if users.items %}
+
+<!-- Get all Users -->
+<div><!-- Start of row -->
+    <table class="table table-light" style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Job Title</th>
+        </tr>
+    </thead>
+    {% for user in users.items %}
+    <tr>
+        <td>
+            <a class="mr-3" href="{{ url_for(profile_endpoint, username=user.username) }}">{{ avatar_img(user, size='80', id='profileImg') }}</a>
+            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, username=user.username) }}">{{ user.username }}</a></span>
+        </td>
+        <td style="vertical-align: middle;">
+            {{ user.email }}
+        </td>
+        <td style="vertical-align: middle;">
+	{% if user.job_title %}
+            {{ user.job_title }}
+	{% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+</div><!-- End of Row -->
+{{ items.paginate(users) }}
+
+{% endif %}
+
+{% endblock %}

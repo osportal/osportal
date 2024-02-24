@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% set active = 'admin.countries' %}
+{% set button = 'Save' %}
+
+{% if request.endpoint.endswith('new') %}
+    {% set endpoint = 'admin.countries_new' %}
+    {% set form_kwargs = {} %}
+    {% set legend = 'Add Country' %}
+{% else %}
+    {% set form_kwargs = {'id': country.id} %}
+    {% set endpoint = 'admin.countries_edit' %}
+    {% set legend = 'Edit ' + (country|string) %}
+{% endif %}
+
+{% block content %}
+{% set extra_setting_links = admin_country_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+  <legend>{{ legend }}</legend>
+
+  {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+      {% call f.form_group(form.code, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.default_annual_allowance, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.default_carry_over_days, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+  <!-- Submit buttons -->
+  <hr/>
+  <div class="row">
+    <div class="col-md-6">
+        <button type="submit" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.countries') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+  <!-- End of Submit buttons -->
+{% endblock content %}

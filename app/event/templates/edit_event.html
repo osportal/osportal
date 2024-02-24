@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Edit Request{% endblock %}
+
+{% set endpoint = 'event.edit' %}
+{% set form_kwargs = {'id': event.id} %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-5 well">
+    <!-- Edit Request Form  -->
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+
+        {% call f.form_group(form.etype) %}
+        {% endcall %}
+
+        {% if form.half_day %}
+            {% call f.form_group(form.half_day) %}
+            {% endcall %}
+        {% endif %}
+
+        {% call f.form_group(form.start_date) %}
+        {% endcall %}
+        
+        {% call f.form_group(form.end_date) %}
+        {% endcall %}
+
+        {% call f.form_group(form.details) %}
+        {% endcall %}
+
+        <div class="form-group">
+            <span id="calculate-days-val"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% call f.form_group(form.submit, css_class="btn btn-primary form-control") %}
+                {% endcall %}
+            </div>
+            <div class="col-md-6">
+                    <a href="{{ url_for('event.history') }}" role="button" class="btn btn-light btn-block">
+                        Cancel
+                    </a>
+            </div>
+        </div><!-- End of btn row -->
+    {% endcall %}
+    </div><!-- End of col -->
+</div><!-- End of row -->
+{% endblock %}

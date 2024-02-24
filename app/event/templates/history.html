@@ -1,0 +1,91 @@
+{% extends "calendar_base.html" %}
+{%- import "macros/pagination.html" as items -%}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Event History{% endblock title %}
+
+{% set delete_endpoint = 'event.delete' %}
+
+{% block calendar_content %}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+<table class="table">
+    <thead class="thead">
+        <tr>
+            <th scope="col">
+                {{ items.sort('etype', 'Type') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('start_date', 'Start Date') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('end_date', 'End Date') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('days', 'Duration') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('status', 'Status') }}
+            </th>
+            <th scope="col">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for event in events.items %}
+    <tr>
+        <td>
+            {{ event.etype }}
+        </td>
+        <td>
+            {{ event.start_date.strftime("%-d %b %Y") }}
+        </td>
+        <td>
+            {{ event.end_date.strftime("%-d %b %Y") }}
+        </td>
+        <td>
+            {{ event.num_days }} days
+        </td>
+        <td>
+            {{ event.status }}
+        </td>
+        <td>
+            {% if event.status == 'Pending' %}
+                <span>
+                      <a class="btn btn-sm btn-success" href="{{ url_for('event.edit', id=event.id) }}">Edit</a>
+                      <a href="#" class="btn btn-sm btn-danger" data-target="#deleteEventModal-{{event.id}}" data-toggle="modal">Delete</a>
+                </span>
+            {% endif %}
+        </td>
+    </tr>
+    <!-- Delete Pending Event Modal -->
+    <div class="modal fade" id="deleteEventModal-{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+    				<div class="modal-header">
+                        <h5 class="modal-title" id="deleteEventModalLabel">Delete {{ event.status }} Leave Request</h5>
+    					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    					    <span aria-hidden="true">&times;</span>
+    					</button>
+    				</div>
+                    <div class="modal-body">
+                        <p>
+                        Are you sure you want to delete the {{ event.status }} event request?
+                        <div>Type: {{ event.etype }}</div>
+                        <div>Dates: {{ event.start_date.strftime("%-d %b %Y") }} - {{ event.end_date.strftime("%-d %b %Y") }}</div>
+                        <div>Days: {{ event.num_days }}</div>
+                        </p>
+                        {% set kwargs = {'id': event.id } %}
+                        {% call f.form_tag(delete_endpoint, form=form, **kwargs) %}
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Delete
+                        </button>
+                        {% endcall %}
+                    </div>
+    	    </div>
+        </div>
+    </div>
+    {% endfor %}
+    </tbody>
+</table>
+{{ items.paginate(events) }}
+{% endblock calendar_content %}

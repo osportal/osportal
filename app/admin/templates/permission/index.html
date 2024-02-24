@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set table_name = 'permission' %}
+
+{% block title %}Permissions - Admin{% endblock %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_permission_sidebar(user=current_user) %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.permissions') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if permissions.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <label for="select_all"></label>
+          <input id="select_all" name="select_all" type="checkbox">
+        </th>
+        <th class="col-header">
+          {{ items.sort('name') }}
+        </th>
+        <th class="col-header">
+            {{ items.sort('description') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('db_name', 'Object Type') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('create', 'Create') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('read', 'Read') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('update', 'Update') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('delete', 'Delete') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('created_at', 'Created') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('updated_at', 'Last updated') }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for p in permissions.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ p.id }}">
+        </td>
+        <td>
+            <a href="{{ url_for('admin.permissions_info', id=p.id) }}">
+                <h6>{{ p.name }}</h6>
+            </a>
+        </td>
+        <td>
+	    {% if p.description %}
+            {{ p.description }}
+	    {% endif %}
+        </td>
+        <td>
+            {{ p.db_name }}
+        </td>
+        <td>
+            {{ p.render(p.create) }}
+        </td>
+        <td>
+            {{ p.render(p.read) }}
+        </td>
+        <td>
+            {{ p.render(p.update) }}
+        </td>
+        <td>
+            {{ p.render(p.delete) }}
+        </td>
+        <td>
+            {% if p.created_at %}
+          <time class="from-now" data-datetime="{{ p.created_at }}">
+              {{ p.pretty_date(p.created_at) }}
+            <div class="text-muted">{{ p.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+          {% endif %}
+        </td>
+        <td>
+        {% if p.updated_at %}
+          <time class="from-now" data-datetime="{{ p.updated_at }}">
+              {{ p.pretty_date(p.updated_at) }}
+            <div class="text-muted">{{ p.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+        {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{{ items.paginate(permissions) }}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+{% endblock %}

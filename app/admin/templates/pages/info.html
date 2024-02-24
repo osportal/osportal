@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Page Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.pages' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_pages_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+<div class="row">
+  <div class="col-md-5 well">
+    {% if current_user.permission('admin.page', crud='update') %}
+    <a href="{{ url_for('admin.pages_edit', id=page.id) }}" class="btn btn-primary mb-4">Edit</a>
+    {% endif %}
+    	<div class="form-group">
+	        <div class="mb-2">
+	        	<div><strong>Name</strong></div>
+	        	<div>{{ page.name }}</div>
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Route</strong></div>
+	        	<div>{{ page.route }}</div>
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Active</strong></div>
+	        	<div>{{ page.render(page.active) }}</div>
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Content</strong></div>
+	        	<div>{{ page.content }}</div>
+	        </div>
+        </div>
+  </div>
+</div>
+{% endblock %}

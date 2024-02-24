@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% import 'macros/pagination.html' as items %}
+
+{% set title = "Notifications" %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+
+{% block content %}
+{% if not notifications.items %}
+    <legend>No {{ title }}</legend>
+{% else %}
+<div class="content-section"><!-- Start of row -->
+<ul class="nav align-items-center">
+    <li class="nav-item">
+        <legend>{{ notifications.count }} {{ title }}</legend>
+    </li>
+    <li class="nav-item ml-auto">
+        <div class="btn-group" role="group">
+            <button
+              class="btn btn-primary btn-sm mr-1 dropdown-toggle"
+              type="button"
+              role="button"
+              id="dropdownMenuButton"
+              data-toggle="dropdown"
+              aria-expanded="false"
+            >
+            <i class="fas fa-cog mr-1"></i>Actions
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#deleteAllNotifications"
+                  role="button"
+                  data-toggle="modal">Clear All
+                </a>
+              </li>
+              <li>
+                  <form class="bulkforms" action="{{ url_for('user.notifications_bulk_delete') }}" method="POST" href="" role="button">
+                  <button class="dropdown-item" type="submit">Clear Selected</button>
+                  </form>
+              </li>
+            </ul>
+        </div>
+    </li>
+</ul>
+<table class="table">
+    <thead class="thead">
+        <tr>
+            <th scope="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="select_all" id="select_all">
+                <label class="form-check-label" for="select_all"></label>
+              </div>
+            </th>
+            <th scope="col">Details</th>
+            <th scope="col">Time</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for n in notifications.items %}
+    <tr>
+        <td>
+        <div class="form-check">
+          <label for="bulk_ids" class="form-check-label"></label>
+          <input class="checkbox-item form-check-input" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ n.id }}">
+        </td>
+        </div>
+        <td data-href="{{ n.endpoint }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width:85%; max-width:0;">
+            {{ n.get_data() | safe }}
+        </td>
+        <td style="width: 15%;">
+            <div class="small">{{ n.pretty_date(n.created_at) }}</div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div><!-- end of row -->
+{{ items.paginate(notifications) }}
+{% endif %}<!-- end of search -->
+<!-- Delete All Notification Modal -->
+<div class="modal fade" id="deleteAllNotifications" tabindex="-1" role="dialog" aria-labelledby="deleteAllNotificationsLabel" aria-hidden="true">
+		<div class="modal-dialog">
+				<div class="modal-content">
+						<div class="modal-header">
+								<h5 class="modal-title" id="deleteAllNotificationsLabel">Clear All Notifications</h5>
+							    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								    <span aria-hidden="true">&times;</span>
+							    </button>
+						</div>
+						<div class="modal-footer pull-left">
+							<form action="{{ url_for('user.delete_notifications') }}" method="POST">
+									<input class="btn btn-primary" type="submit" value="Confirm">
+							</form>
+						</div>
+				</div>
+	 	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+<!-- for creating table row link --> 
+$(document).ready(function() {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+        });
+});
+</script>
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+{% endblock scripts %}

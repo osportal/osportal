@@ -1,0 +1,85 @@
+{% extends "calendar_base.html" %}
+{%- import "macros/pagination.html" as items -%}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Authorise History{% endblock title %}
+
+{% set revoke_btn = 'Revoke' %}
+{% set revoke_endpoint = 'event.revoke' %}
+
+{% block calendar_content %}
+
+<!-- IF ACTIONED REQUESTS EXIST -->
+{% if actioned_events.items %}
+
+<legend>Previously actioned requests for users you oversee</legend>
+
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+<table class="table">
+    <thead class="thead">
+        <tr>
+            <th scope="col">
+                {{ items.sort('user', 'Requested By') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('etype', 'Type') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('start_date', 'Start Date') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('end_date', 'End Date') }}
+            </th>
+            <th scope="col">
+                {{ items.sort('days', 'Duration') }}
+            </th>
+            <th class="col-header">
+                Last Actioned By
+            </th>
+            <th scope="col">
+                {{ items.sort('status', 'Status') }}
+            </th>
+            <th scope="col">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for event in actioned_events.items %}
+    <tr>
+        <td>
+            {{ event.user }}
+        </td>
+        <td>
+            {{ event.etype }}
+        </td>
+        <td>
+            {{ event.start_date.strftime("%-d %b %Y") }}
+        </td>
+        <td>
+            {{ event.end_date.strftime("%-d %b %Y") }}
+        </td>
+        <td>
+            {{ event.num_days }} days
+        </td>
+        <td>
+            <span>{{ event.actioned_by }}</span>
+        </td>
+        <td>
+            <span>{{ event.status }}</span>
+        </td>
+        <td>
+            {% if event.status == 'Approved' %}
+                <span>
+                    <a href="{{ url_for('event.revoke', id=event.id) }}" class="btn btn-sm btn-danger">Revoke</a>
+                </span>
+            {% endif %}
+        </td>
+    </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+{{ items.paginate(actioned_events) }}
+{% endif %}
+
+{% endblock calendar_content %}
