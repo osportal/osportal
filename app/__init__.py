@@ -111,6 +111,7 @@ def extensions(app):
 def authentication(app, user_model):
     login_manager.login_view = 'user.login'
     login_manager.login_message_category = 'warning'
+    login_manager.session_protection = 'strong'
 
     @login_manager.user_loader
     def load_user(uid):
