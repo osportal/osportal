@@ -117,7 +117,7 @@
             {% endif %}
             {% if current_user.permission('admin.user', crud='delete') %}
                 {{ forms.action_confirm(
-                    id="delete-" ~ user.id, 
+                    id="delete-user-confirm",
                     url=url_for('admin.users_delete', id=user.id),
                     title="Delete", 
                     btn="btn btn-sm btn-warning",
@@ -244,4 +244,11 @@
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/importCSV.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script>
+    var deleteUser = document.getElementById('delete-user-confirm');
+    deleteUser.addEventListener('click', function() {
+        var deleteWarningP = document.getElementById('modal-warning-info');
+        deleteWarningP.innerHTML = 'We do not recommend deleting users, instead make them inactive.';
+    });
+</script>
 {% endblock %}
