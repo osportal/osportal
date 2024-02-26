@@ -34,7 +34,7 @@
 
 {% block scripts %}
 {% if request.endpoint != 'event.history' %}
-    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/dist/index.global.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/fullcalendar/index.global.min.js') }}"></script>
 {% endif %}
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
