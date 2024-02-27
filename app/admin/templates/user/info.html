@@ -30,11 +30,12 @@
       {% if current_user.permission('admin.user', crud='delete') %}
           <div class="btn-group mr-2"> 
           {{ forms.action_confirm(
-              id="delete-" ~ user.id, 
+              id="delete-user-confirm",
               url=url_for('admin.users_delete', id=user.id),
               title="Delete", 
               btn="btn btn-sm btn-warning",
-              icon_only=False) 
+              icon_only=False,
+              target="#confirmModal") 
           }}
           </div>
       {% endif %}
@@ -176,4 +177,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/userModalWarning.js') }}"></script>
 {% endblock scripts %}
