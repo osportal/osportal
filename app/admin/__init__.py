@@ -4,15 +4,16 @@ from flask_login import current_user
 
 def admin_settings_menu(user):
     results = [
-        ('admin.users', 'Users', 'fa fa-users'),
-        ('admin.roles', 'Roles', 'fa fa-hammer'),
-        ('admin.permissions', 'Permissions', 'fa fa-key'),
-        ('admin.departments', 'Departments', 'fa fa-sitemap'),
-        ('admin.events', 'Events', 'fa fa-plane'),
-        ('admin.pages', 'Pages', 'fa fa-file'),
-        ('admin.emails', 'Emails', 'fa fa-envelope'),
-        ('admin.countries', 'Countries', 'fa fa-globe'),
-        ('admin.settings', 'Settings', 'fa fa-cogs')
+        ('admin.users', 'Users', 'bi bi-people-fill'),
+        ('admin.roles', 'Roles', 'bi bi-hammer'),
+        ('admin.permissions', 'Permissions', 'bi bi-key-fill'),
+        ('admin.departments', 'Departments', 'bi bi-diagram-3-fill'),
+        ('admin.events', 'Events', 'bi bi-calendar-event'),
+        ('admin.event_types', 'Event Types', 'bi bi-luggage'),
+        ('admin.pages', 'Pages', 'bi bi-file-earmark'),
+        ('admin.emails', 'Emails', 'bi bi-envelope'),
+        ('admin.countries', 'Countries', 'bi bi-globe'),
+        ('admin.settings', 'Settings', 'bi bi-tools')
     ]
     for result in results:
         view = result[0]
@@ -29,6 +30,9 @@ def admin_settings_menu(user):
                 and current_user.permission('admin.department', crud='read'):
                     yield result
         if view == 'admin.events' \
+                and current_user.permission('admin.event', crud='read'):
+                    yield result
+        if view == 'admin.event_types' \
                 and current_user.permission('admin.event_type', crud='read'):
                     yield result
         if (view=='admin.pages') \
@@ -107,14 +111,24 @@ def admin_department_sidebar(user):
 
 def admin_event_sidebar(user):
     results = [
-        ('admin.events', 'Manage Types', ''),
-        ('admin.event_type_new', 'New Type', ''),
-        ('admin.event_requests', 'Manage Requests', ''),
+        ('admin.events', 'Manage', ''),
     ]
     for result in results:
         view = result[0]
-        if (view=='admin.events' or view=='admin.event_requests') \
+        if view=='admin.events' \
             and current_user.permission('admin.event', crud='read'):
+                yield result
+
+
+def admin_event_type_sidebar(user):
+    results = [
+        ('admin.event_types', 'Manage', ''),
+        ('admin.event_type_new', 'New Type', ''),
+    ]
+    for result in results:
+        view = result[0]
+        if view=='admin.event_types' \
+            and current_user.permission('admin.event_type', crud='read'):
                 yield result
         if view == 'admin.event_type_new' \
             and current_user.permission('admin.event_type', crud='create'):
@@ -193,6 +207,7 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_permission_sidebar=admin_permission_sidebar)
     app.jinja_env.globals.update(admin_department_sidebar=admin_department_sidebar)
     app.jinja_env.globals.update(admin_event_sidebar=admin_event_sidebar)
+    app.jinja_env.globals.update(admin_event_type_sidebar=admin_event_type_sidebar)
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)
     app.jinja_env.globals.update(admin_country_sidebar=admin_country_sidebar)

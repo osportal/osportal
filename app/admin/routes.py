@@ -143,10 +143,10 @@ def departments(page):
                            departments=paginated_departments)
 
 
-@admin.route('/events', defaults={'page':1}, methods=['GET', 'POST'])
-@admin.route('/events/page/<int:page>', methods=['GET', 'POST'])
-@permission_required('admin.event', crud='read')
-def events(page):
+@admin.route('/event-types', defaults={'page':1}, methods=['GET', 'POST'])
+@admin.route('/event-types/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.event_type', crud='read')
+def event_types(page):
     search_form = SearchForm()
 
     sort_by = EventType.sort_by(request.args.get('sort', 'created_at'),
@@ -158,16 +158,16 @@ def events(page):
         .order_by(text(order_values)) \
         .paginate(page, get_settings_value('items_per_admin_page'), True)
 
-    return render_template('event/index.html', event_types=paginated_etypes)
+    return render_template('event_type/index.html', event_types=paginated_etypes)
 
 
-@admin.route('/events/requests', defaults={'page': 1}, methods=['GET', 'POST'])
-@admin.route('/events/requests/page/<int:page>', methods=['GET', 'POST'])
+@admin.route('/events', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/events/page/<int:page>', methods=['GET', 'POST'])
 @permission_required('admin.event', crud='read')
-def event_requests(page):
+def events(page):
     events = Event.query \
             .paginate(page, get_settings_value('items_per_admin_page'), False)
-    return render_template('event/requests_index.html', events=events)
+    return render_template('event/index.html', events=events)
 
 
 @admin.route('/users', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -558,6 +558,7 @@ def departments_bulk_delete():
 
 
 @admin.route('/event-type/new', methods=['GET', 'POST'])
+@permission_required('admin.event_type', crud='create')
 def event_type_new():
     event_type = EventType(active=True, hex_colour='#0066FF')
     form = EventTypeSettingsForm(obj=event_type)
@@ -566,11 +567,11 @@ def event_type_new():
             #event_type = EventType(name=form.name.data, hex_colour=form.hex_colour.data)
             form.populate_obj(event_type)
             event_type.save()
-            flash(f'Successfully created event type {event_type.name}', 'success')
-            return redirect(url_for('admin.events'))
+            flash(f'Successfully created {event_type.name}', 'success')
+            return redirect(url_for('admin.event_types'))
     except Exception as e:
         flash(f'{e}', 'danger')
-    return render_template('event/type_edit.html', form=form)
+    return render_template('event_type/edit.html', form=form)
 
 
 @admin.route('/event-type/edit/<int:id>', methods=['GET', 'POST'])
@@ -581,9 +582,9 @@ def event_type_edit(id):
     if form.validate_on_submit():
         form.populate_obj(event_type)
         event_type.save()
-        flash(f'Event Type {event_type.name} has been saved successfully.', 'success')
-        return redirect(url_for('admin.events'))
-    return render_template('event/type_edit.html', form=form, event_type=event_type)
+        flash(f'Successfully updated {event_type.name}', 'success')
+        return redirect(url_for('admin.event_types'))
+    return render_template('event_type/edit.html', form=form, event_type=event_type)
 
 
 @admin.route('/event-type/<int:id>/delete', methods=['POST'])
@@ -596,11 +597,12 @@ def event_type_delete(id):
         db.session.rollback()
         flash(f'{e}', 'danger')
     else:
-        flash(f'Successfully deleted {page.name}', 'success')
-    return redirect(url_for('admin.events'))
+        flash(f'Successfully deleted {event_type.name}', 'success')
+    return redirect(url_for('admin.event_types'))
 
 
 @admin.route('/events/<int:id>/status/edit', methods=['GET', 'POST'])
+@permission_required('admin.event', crud='update')
 def event_status_edit(id):
     event = Event.query.get(id)
     form = EventRequestsForm(obj=event)
@@ -613,16 +615,18 @@ def event_status_edit(id):
 
 
 @admin.route('/event-type/bulk_delete', methods=['POST'])
+@permission_required('admin.event_type', crud='delete')
 def event_type_bulk_delete():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
     from app.event.tasks import delete_event_type
     delete_event_type.delay(ids)
     flash('{0} event type(s) scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.events'))
+    return redirect(url_for('admin.event_types'))
 
 
 @admin.route('/events/bulk_disable', methods=['POST'])
+@permission_required('admin.event_type', crud='update')
 def event_bulk_disable():
     ids = request.form.get('checked-items').split(",")
     print(ids)
@@ -631,17 +635,18 @@ def event_bulk_disable():
     from app.event.tasks import disable_event_type
     disable_event_type.delay(ids)
     flash('{0} event type(s) scheduled to be disabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.events'))
+    return redirect(url_for('admin.event_types'))
 
 
 @admin.route('/events/bulk_enable', methods=['POST'])
+@permission_required('admin.event_type', crud='update')
 def event_bulk_enable():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
     from app.event.tasks import enable_event_type
     enable_event_type.delay(ids)
     flash('{0} event type(s) scheduled to be enabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.events'))
+    return redirect(url_for('admin.event_types'))
 
 
 @admin.route('/pages/bulk_disable', methods=['POST'])
@@ -736,7 +741,7 @@ def departments_info(id):
 @permission_required('admin.event_type', crud='read')
 def event_type_info(id):
     etype = EventType.query.get(id)
-    return render_template('event/info.html', etype=etype)
+    return render_template('event_type/info.html', etype=etype)
 
 
 @admin.route('/pages/<int:id>', methods=['GET', 'POST'])

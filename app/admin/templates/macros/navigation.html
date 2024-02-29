@@ -5,9 +5,9 @@
 {% endmacro %}
 
 {% macro navlink(endpoint, name, icon='', active='', urlforkwargs=None) %}
-	<li class="nav-item">
+	<li>
 	    <a class="nav-link {{ is_active(endpoint, active) }}" href="{% if urlforkwargs %}{{ url_for(endpoint, **urlforkwargs) }}{% else %}{{ url_for(endpoint) }}{% endif %}">
-	        {% if icon %}<i class="{{ icon }}"></i> {% endif %} {{ name }}
+	        {% if icon %}<i class="{{ icon }}"></i> {% endif %}{{ name }}
 	    </a>
 	</li>
 {% endmacro %}

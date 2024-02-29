@@ -12,7 +12,7 @@
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row no-gutters">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                             Components
@@ -23,7 +23,7 @@
                         <div><a target="_blank" href="http://localhost:5555/tasks">View Tasks</a></div>
                     </div>
                     <div class="col-auto">
-                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        <i class="bi bi-clipboard-data h1 text-gray-300"></i>
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         <a href="{{ url_for('admin.users') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Users
@@ -44,7 +44,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_users.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                                <i class="bi bi-people-fill h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
         <a href="{{ url_for('admin.roles') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Roles
@@ -66,7 +66,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_roles.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-hammer fa-2x text-gray-300"></i>
+                                <i class="bi bi-hammer h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -80,29 +80,7 @@
         <a href="{{ url_for('admin.permissions') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Permissions
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_permissions.total }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-key fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-            </div>
-        </a>
-    </div>
-    {% endif %}
-    {% if current_user.permission('admin.department', crud='read') %}
-    <!-- Department card -->
-    <div class="col-xl-3 col-md-6 mb-4 dash-category">
-        <a href="{{ url_for('admin.departments') }}">
-            <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Departments
@@ -110,7 +88,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_departments.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-sitemap fa-2x text-gray-300"></i>
+                                <i class="bi bi-diagram-3-fill h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -124,7 +102,7 @@
         <a href="{{ url_for('admin.events') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                    Events and Types
@@ -132,7 +110,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_event_types.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-plane fa-2x text-gray-300"></i>
+                                <i class="bi bi-calendar-event h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -146,7 +124,7 @@
         <a href="{{ url_for('admin.pages') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Pages
@@ -154,7 +132,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_pages.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-file fa-2x text-gray-300"></i>
+                                <i class="bi bi-file-earmark h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -168,7 +146,7 @@
         <a href="{{ url_for('admin.emails') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Emails
@@ -176,7 +154,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_emails.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                                <i class="bi bi-envelope h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -190,7 +168,7 @@
         <a href="{{ url_for('admin.countries') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Countries
@@ -198,7 +176,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_countries.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-globe fa-2x text-gray-300"></i>
+                                <i class="bi bi-globe h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -212,14 +190,14 @@
         <a href="{{ url_for('admin.settings') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Settings and Preferences
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-cog fa-2x text-gray-300"></i>
+                                <i class="bi bi-tools h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>

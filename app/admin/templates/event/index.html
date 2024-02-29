@@ -1,20 +1,16 @@
 {% extends "layout.html" %}
-{% import 'macros/form.html' as forms with context %}
 {%- from "macros/navigation.html" import navlink with context -%}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% import 'macros/pagination.html' as items %}
-{% set table_name = 'event_type' %}
 
 {% block title %}L-Days - Admin{% endblock %}
 
 {% block content %}
+{% set active = 'admin.events' %}
 {% set extra_setting_links = admin_event_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{% include "actions_btn.html" %}
-
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 <table class="table table-striped">
     <thead>
         <tr>
@@ -23,147 +19,83 @@
             <input id="select_all" name="select_all" type="checkbox">
           </th>
           <th class="col-header">
-              {{ items.sort('name', 'Event Type') }}
+              User 
           </th>
           <th class="col-header">
-              {{ items.sort('deductable') }}
+              Type
           </th>
           <th class="col-header">
-              {{ items.sort('approval', 'Approval required') }}
+              Requested Dates 
           </th>
           <th class="col-header">
-              {{ items.sort('active') }}
+             Status 
+          </th>
+          <th class="col-header">
+              Current Authoriser
+          </th>
+          <th class="col-header">
+              Last Actioned By
           </th>
         </tr>
     </thead>
     <tbody>
-    {% for etype in event_types.items %}
+    {% for event in events.items %}
       <tr>
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                 type="checkbox" value="{{ etype.id }}">
+                 type="checkbox" value="{{ event.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.event_type_info', id=etype.id) }}">
-            {{ etype.name }}
+            {{ event.user }}
+        </td>
+        <td>
+            {{ event.etype.name }}
+        </td>
+        <td>
+            {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}
+        </td>
+        <td>
+            <a href="{{ url_for('admin.event_status_edit', id=event.id) }}">
+            {{ event.status }}
             </a>
-        </td>
-        <td>
-            {{ etype.render(etype.deductable) }}
-        </td>
-        <td>
-            {{ etype.render(etype.approval) }}
-        </td>
-        <td>
-            {{ etype.render(etype.active) }}
-        </td>
-        <td>
-            {% if current_user.permission('admin.event_type', crud='update') %}
-                <a class="btn btn-sm btn-primary" 
-                   href="{{ url_for('admin.event_type_edit', id=etype.id) }}" type="button">
-                    <i class="bi bi-pencil-fill"></i>
-                </a>
+            {% if event.status_details %}
+                <small>
+                [<a href="#" class="link-primary" data-toggle="modal" data-target="#statusDetails-{{event.id}}">see reason</a>]
+                </small>
             {% endif %}
-            {% if current_user.permission('admin.event_type', crud='delete') %}
-                {{ forms.action_confirm(
-                    id="delete-" ~ etype.id, 
-                    url=url_for('admin.event_type_delete', id=etype.id),
-                    title="Delete", 
-                    btn="btn btn-sm btn-warning",
-                    target="#confirmModal",
-                    icon="bi bi-trash") 
-                }}
-            {% endif %}
+        </td>
+        <td>
+            {{ event.user.authoriser }}
+        </td>
+        <td>
+            {{ event.actioned_by }}
         </td>
       </tr>
+        <!-- Status Details Modal -->
+        <div class="modal fade" id="statusDetails-{{event.id}}" tabindex="-1" aria-labelledby="statusDetailsLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="statusDetailsLabel">{{ event.status }} Details</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					    <span aria-hidden="true">&times;</span>
+					</button>
+              </div>
+              <div class="modal-body">
+              <p>
+                {{ event.status_details }}
+              </p>
+              </div>
+            </div>
+          </div>
+        </div>
       {% endfor %}
     </tbody>
 </table>
-{{ items.paginate(event_types) }}
-
-<!-- Bulk Delete Modal -->
-<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      The selected event types will be removed.
-      </p>
-      <p>
-      <strong>Important: This cannot be undone.</strong>
-      </p>
-      <p>
-      Are you sure you want to delete the selected event types?
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.event_type_bulk_delete') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Delete</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Disable Modal -->
-<div class="modal fade" id="bulkDisable" tabindex="-1" aria-labelledby="bulkDisableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDisableLabel">Disable</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to disable the selected event types?
-      </p>
-      <p>
-      <strong>Please confirm to continue.</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.event_bulk_disable') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Enable Modal -->
-<div class="modal fade" id="bulkEnable" tabindex="-1" aria-labelledby="bulkEnableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkEnableLabel">Enable</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to enable the selected event types?
-      </p>
-      <p>
-      <strong>Please confirm to continue.</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.event_bulk_enable') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% include "partials/confirm_dialog.html" %}
-{% endblock content %}
+{{ items.paginate(events) }}
+{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
-<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock %}

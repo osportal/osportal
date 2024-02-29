@@ -2,8 +2,8 @@
 {% block title %}Admin - Event Type{% endblock %}
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
-{% set active = 'admin.events' %}
-{% set extra_setting_links = admin_event_sidebar(user=current_user) %}
+{% set active = 'admin.event_types' %}
+{% set extra_setting_links = admin_event_type_sidebar(user=current_user) %}
 
 {% import 'macros/form.html' as f with context %}
 
