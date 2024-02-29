@@ -128,49 +128,8 @@
         </div>
     </div>
   </div><!-- End of Col -->
-  <div class="col-md-5 col-md-push-1 col-md-offset-1">
-    <div class="form-group">
-      <label class="control-label"><strong>Created</strong></label>
-      <p class="sm-margin-bottom form-control-static">
-        <time class="from-now" data-datetime="{{ user.created_at }}">
-          {{ user.pretty_date(user.created_at) }}
-          <span class="text-muted small ml-2">{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</span>
-        </time>
-      </p>
-    </div>
-    <h3>Login activity</h3>
-
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <dl>
-          <dt>Current sign in date</dt>
-          <dd class="sm-margin-bottom">
-            {% if user.current_login_time %}
-              <time class="from-now"
-                    data-datetime="{{ user.current_login_time }}">
-                {{ user.pretty_date(user.current_login_time) }}
-                <span class="text-muted small ml-2">{{ user.current_login_time.strftime("%-d %b %Y %H:%M %z") }}</span>
-              </time>
-            {% endif %}
-          </dd>
-          <dt>Current sign in IP address</dt>
-          <dd class="sm-margin-bottom">{{ user.current_login_ip_address }}</dd>
-          <dt>Previous sign in date</dt>
-          <dd class="sm-margin-bottom">
-            {% if user.previous_login_time %}
-              <time class="from-now"
-                    data-datetime="{{ user.previous_login_time }}">
-                {{ user.pretty_date(user.previous_login_time) }}
-                <span class="text-muted small ml-2">{{ user.previous_login_time.strftime("%-d %b %Y %H:%M %z") }}</span>
-              </time>
-            {% endif %}
-          </dd>
-          <dt>Previous sign in IP address</dt>
-          <dd>{{ user.previous_login_ip_address }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
+  <!-- Login Activity Column -->
+    {% include "user/login_activity.html" %}
 </div>
 {% include "partials/confirm_dialog.html" %}
 {% endblock %}

@@ -149,53 +149,9 @@
       </div>
     </div>
     {% endcall %}<!-- End of form -->
-
   </div>
-  <div class="col-md-5 col-md-push-1 col-md-offset-1">
-    <div class="form-group">
-      <label class="control-label"><strong>Registered</strong></label>
-      <p class="sm-margin-bottom form-control-static">
-        <time class="from-now" data-datetime="{{ user.created_at }}">
-          {{ user.pretty_date(user.created_at) }}
-          <span class="text-muted small ml-2">{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</span>
-        </time>
-      </p>
-    </div>
-    <h3>Login activity</h3>
-
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <dl>
-          <dt>Sign in count</dt>
-          <dd class="sm-margin-bottom">{{ user.sign_in_count }}</dd>
-          <dt>Current sign in date</dt>
-          <dd class="sm-margin-bottom">
-            {% if user.current_sign_in_time %}
-              <time class="from-now"
-                    data-datetime="{{ user.current_sign_in_time }}">
-                {{ user.pretty_date(user.current_sign_in_time) }}
-                <span class="text-muted small ml-2">{{ user.current_sign_in_time.strftime("%-d %b %Y %H:%M %z") }}</span>
-              </time>
-            {% endif %}
-          </dd>
-          <dt>Current sign in IP address</dt>
-          <dd class="sm-margin-bottom">{{ user.current_sign_in_ip }}</dd>
-          <dt>Previous sign in date</dt>
-          <dd class="sm-margin-bottom">
-            {% if user.last_sign_in_time %}
-              <time class="from-now"
-                    data-datetime="{{ user.last_sign_in_time }}">
-                {{ user.pretty_date(user.last_sign_in_time) }}
-                <span class="text-muted small ml-2">{{ user.last_sign_in_time.strftime("%-d %b %Y %H:%M %z") }}</span>
-              </time>
-            {% endif %}
-          </dd>
-          <dt>Previous sign in IP address</dt>
-          <dd>{{ user.last_sign_in_ip }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
+  <!-- Login Activity Column -->
+    {% include "user/login_activity.html" %}
 </div>
 {% endif %}
 {% block scripts %}
