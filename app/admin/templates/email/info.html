@@ -2,6 +2,7 @@
 {% block title %}Admin - Email Info{% endblock %}
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/form.html' as forms with context %}
 {% set active = 'admin.emails' %}
 
 {% block content %}
@@ -9,11 +10,39 @@
 {% set extra_setting_links = admin_emails_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ email.name }}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.system_email', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.emails_edit', id=email.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.system_email', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ email.id,
+              url=url_for('admin.emails_delete', id=email.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
 <div class="row">
   <div class="col-md-5 well">
-    {% if current_user.permission('admin.system_email', crud='update') %}
-    <a href="{{ url_for('admin.emails_edit', id=email.id) }}" class="btn btn-primary mb-4">Edit</a>
-    {% endif %}
     <div class="form-group">
         <div class="mb-2">
         	<div><strong>Display Name</strong></div>
@@ -62,9 +91,11 @@
       <div class="mt-2 mb-2" id="test-email-status"></div>
   </div>
 </div>
+{% include "partials/confirm_dialog.html" %}
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 <script>
     var test_email_url = '{{ url_for("admin.test_email_config", id=email.id) }}'
 </script>

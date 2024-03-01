@@ -11,6 +11,10 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
+
+{% if events.total == 0 %}
+{% else %}
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -94,6 +98,7 @@
     </tbody>
 </table>
 {{ items.paginate(events) }}
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

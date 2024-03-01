@@ -11,126 +11,147 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{% if current_user.permission('admin.settings', crud='update') %}
-<a href="{{ url_for('admin.settings_edit') }}" class="btn btn-primary mb-4">Edit</a>
+{% if not settings.sitename %}
+    {% set heading = 'osPortal' %}
+{% else %}
+    {% set heading = settings.sitename %}
 {% endif %}
 
-<div role="tabpanel" class="tab-pane config-section" id="settings">
-	<ul class="nav nav-tabs mb-3" role="tablist">
-		<li class="nav-item">
-			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
-		</li>
-		<li class="nav-item">
-			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
-		</li>
-		<li class="nav-item">
-			<a class="nav-link" href="#cal" aria-controls="cal" role="tab" data-toggle="tab">Calendar</a>
-		</li>
-		<li class="nav-item">
-			<a class="nav-link" href="#pagi" aria-controls="pagi" role="tab" data-toggle="tab">Pagination</a>
-		</li>
-	</ul>
-	<div class="tab-content">
-		<div role="tabpanel" class="tab-pane active" id="general">
-			<div class="form-group">
-			    <div class="mb-2">
-			    	<div><strong>Intranet Name/Title</strong></div>
-			    	<div>{{ settings.site_name }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Company Name</strong></div>
-			    	<div>{{ settings.company_name }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Company Website</strong></div>
-			    	<div>{{ settings.company_website }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Auth Type</strong></div>
-			    	<div>{{ settings.auth_type }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>User Registration</strong></div>
-			    	<div>{{ settings.render(settings.user_registration) }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>User Registration Default Role</strong></div>
-			    	<div>{{ settings.reg_user_role }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>User Registration Default Country</strong></div>
-			    	<div>{{ settings.reg_user_country }}</div>
-			    </div>
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ heading }} Settings</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.settings', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.settings_edit') }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+
+    <div role="tabpanel" class="tab-pane config-section" id="settings">
+    	<ul class="nav nav-tabs mb-3" role="tablist">
+    		<li class="nav-item">
+    			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#cal" aria-controls="cal" role="tab" data-toggle="tab">Calendar</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#pagi" aria-controls="pagi" role="tab" data-toggle="tab">Pagination</a>
+    		</li>
+    	</ul>
+    	<div class="tab-content">
+    		<div role="tabpanel" class="tab-pane active" id="general">
+    			<div class="form-group">
+    			    <div class="mb-2">
+    			    	<div><strong>Intranet Name/Title</strong></div>
+    			    	<div>{{ settings.site_name }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Company Name</strong></div>
+    			    	<div>{{ settings.company_name }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Company Website</strong></div>
+    			    	<div>{{ settings.company_website }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Auth Type</strong></div>
+    			    	<div>{{ settings.auth_type }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>User Registration</strong></div>
+    			    	<div>{{ settings.render(settings.user_registration) }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>User Registration Default Role</strong></div>
+    			    	<div>{{ settings.reg_user_role }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>User Registration Default Country</strong></div>
+    			    	<div>{{ settings.reg_user_country }}</div>
+    			    </div>
+                </div>
+    		</div>
+            	<!-- EMAIL CONFIG -->
+    		<div role="tabpanel" class="tab-pane" id="email">
+    			<div class="form-group">
+    			    <div class="mb-2">
+    			    	<div><strong>System Email</strong></div>
+    			    	<div>{{ settings.system_email }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Alert Email</strong></div>
+    			    	<div>{{ settings.alert_email }}</div>
+    			    </div>
+    			</div>
             </div>
-		</div>
-        	<!-- EMAIL CONFIG -->
-		<div role="tabpanel" class="tab-pane" id="email">
-			<div class="form-group">
-			    <div class="mb-2">
-			    	<div><strong>System Email</strong></div>
-			    	<div>{{ settings.system_email }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Alert Email</strong></div>
-			    	<div>{{ settings.alert_email }}</div>
-			    </div>
-			</div>
-        </div>
-        <!-- CALENDAR CONFIG -->
-		<div role="tabpanel" class="tab-pane" id="cal">
-			<div class="form-group">
-			    <div class="mb-2">
-			    	<div><strong>Weekends</strong></div>
-			    	<div>{{ settings.render(settings.weekend) }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Half Days</strong></div>
-			    	<div>{{ settings.render(settings.half_day) }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Pending Colour</strong></div>
-			    	<div>{{ settings.pending_colour }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Declined Colour</strong></div>
-			    	<div>{{ settings.declined_colour }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Public Holiday Colour</strong></div>
-			    	<div>{{ settings.public_holiday_colour }}</div>
-			    </div>
-			</div>
-        </div>
-        <!-- PAGINATION CONFIG -->
-		<div role="tabpanel" class="tab-pane" id="pagi">
-			<div class="form-group">
-			    <div class="mb-2">
-			    	<div><strong>Items Per Admin Page</strong></div>
-			    	<div>{{ settings.items_per_admin_page }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Users Per Page</strong></div>
-			    	<div>{{ settings.users_per_page }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Departments Per Page</strong></div>
-			    	<div>{{ settings.departments_per_page }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Posts Per Page</strong></div>
-			    	<div>{{ settings.posts_per_page }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Comments Per Page</strong></div>
-			    	<div>{{ settings.comments_per_page }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Events Per Page</strong></div>
-			    	<div>{{ settings.events_per_page }}</div>
-			    </div>
-			</div>
+            <!-- CALENDAR CONFIG -->
+    		<div role="tabpanel" class="tab-pane" id="cal">
+    			<div class="form-group">
+    			    <div class="mb-2">
+    			    	<div><strong>Weekends</strong></div>
+    			    	<div>{{ settings.render(settings.weekend) }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Half Days</strong></div>
+    			    	<div>{{ settings.render(settings.half_day) }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Pending Colour</strong></div>
+    			    	<div>{{ settings.pending_colour }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Declined Colour</strong></div>
+    			    	<div>{{ settings.declined_colour }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Public Holiday Colour</strong></div>
+    			    	<div>{{ settings.public_holiday_colour }}</div>
+    			    </div>
+    			</div>
+            </div>
+            <!-- PAGINATION CONFIG -->
+    		<div role="tabpanel" class="tab-pane" id="pagi">
+    			<div class="form-group">
+    			    <div class="mb-2">
+    			    	<div><strong>Items Per Admin Page</strong></div>
+    			    	<div>{{ settings.items_per_admin_page }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Users Per Page</strong></div>
+    			    	<div>{{ settings.users_per_page }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Departments Per Page</strong></div>
+    			    	<div>{{ settings.departments_per_page }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Posts Per Page</strong></div>
+    			    	<div>{{ settings.posts_per_page }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Comments Per Page</strong></div>
+    			    	<div>{{ settings.comments_per_page }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Events Per Page</strong></div>
+    			    	<div>{{ settings.events_per_page }}</div>
+    			    </div>
+    			</div>
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock content %}

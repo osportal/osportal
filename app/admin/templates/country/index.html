@@ -34,6 +34,9 @@
           <th class="col-header">
 	      {{ items.sort('name', 'Name') }}
 	      </th>
+          <th>
+          <!-- for edit and delete buttons -->
+          </th>
         </tr>
     </thead>
     <tbody>
@@ -50,11 +53,28 @@
         <td>
 	    <a href="{{ url_for('admin.country', id=country.id) }}">{{ country.name }}</a>
         </td>
+        <td>
+            {% if current_user.permission('admin.country', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.countries_edit', id=country.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.country', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete" ~ country.id,
+                    url=url_for('admin.countries_delete', id=country.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
 </table>
-{{ items.paginate(countries) }}
 <div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -82,10 +102,13 @@
     </div>
   </div>
 </div>
-{% endif %}
+{{ items.paginate(countries) }}
+{% include "partials/confirm_dialog.html" %}
 
+{% endif %}
 {% endblock content %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock scripts %}

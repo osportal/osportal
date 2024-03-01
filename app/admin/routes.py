@@ -29,6 +29,7 @@ from app.user.decorators import permission_required
 from app.user.models import User, Role, Permission
 from app.user.forms import RegistrationForm
 from app.utils.csv import load_csv, dump_csv, dump_table_selected_ids
+from app.utils.util_sqlalchemy import ResourceMixin
 from app.utils.zip import export_zipfile, import_zipfile
 
 
@@ -308,38 +309,6 @@ def settings_edit():
     return render_template('settings/edit.html', form=form)
 
 
-"""
-@admin.route('/ldap', methods=['GET', 'POST'])
-@permission_required('admin.settings', crud='update')
-def ldap_edit():
-    settings = Settings.query.first_or_404()
-    form = LDAPForm(obj=settings)
-    if form.validate_on_submit():
-        form.populate_obj(settings)
-        try:
-            connection = ldap_con(form.ldap_host.data,
-                                  form.ldap_port.data,
-                                  form.ldap_bind_username.data,
-                                  form.ldap_bind_password.data,
-                                  domain_name=form.domain_name.data)
-            if connection.bind():
-                login_msg = f'Successful bind to ldap server'
-            else:
-                login_msg = f'Cannot bind to ldap server: {connection.last_error}'
-            connection.unbind()
-        except Exception as e:
-            flash(f'{e}', 'danger')
-        else:
-            if login_msg == 'Successful bind to ldap server':
-                settings.save()
-                flash('Settings saved successfully.', 'success')
-            else:
-                flash(f"*** Authentication Failed - {login_msg}", 'danger')
-    return render_template('settings/ldap.html', form=form)
-"""
-
-
-
 @admin.route('/emails/new', methods=['GET', 'POST'])
 def emails_new():
     email = SystemEmail()
@@ -352,12 +321,12 @@ def emails_new():
         else:
             email.save()
             flash('Created successfully.', 'success')
-            return redirect(url_for('admin.emails'))
+            return redirect(url_for('admin.emails_info', id=email.id))
     return render_template('email/edit.html', form=form)
 
 
 # EDIT ROUTES
-@admin.route('/emails/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/emails/<int:id>/edit', methods=['GET', 'POST'])
 def emails_edit(id):
     email = SystemEmail.query.get_or_404(id)
     form = SystemEmailForm(obj=email)
@@ -375,6 +344,22 @@ def emails_edit(id):
                            form=form,
                            email=email
                            )
+
+@admin.route('/emails/<int:id>/delete', methods=['POST'])
+@permission_required('admin.system_email', crud='delete')
+def emails_delete(id):
+    email = SystemEmail.query.get_or_404(id)
+    try:
+        email.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted email {email.name}', 'success')
+    return redirect(url_for('admin.emails'))
 
 
 @admin.route('/users/<int:id>/delete', methods=['POST'])
@@ -400,9 +385,13 @@ def countries_delete(id):
     country = Country.query.get_or_404(id)
     try:
         country.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
     except Exception as e:
         flash(f'{e}', 'danger')
-    flash(f'Successfully deleted {country.name}', 'success')
+    else:
+        flash(f'Successfully deleted {country.name}', 'success')
     return redirect(url_for('admin.countries'))
 
 
@@ -493,6 +482,8 @@ def public_holiday_delete(cid, id):
         holiday.delete()
     except Exception as e:
         flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted {holiday.name}', 'success')
     return redirect(url_for('admin.country', id=cid))
 
 
@@ -532,7 +523,7 @@ def departments_new():
     return render_template('department/edit.html', form=form)
 
 
-@admin.route('/departments/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/departments/<int:id>/edit', methods=['GET', 'POST'])
 @permission_required('admin.department', crud='update')
 def departments_edit(id):
     department = Department.query.get(id)
@@ -544,6 +535,23 @@ def departments_edit(id):
         return redirect(url_for('admin.departments_edit', id=department.id))
 
     return render_template('department/edit.html', form=form, department=department)
+
+
+@admin.route('/departments/<int:id>/delete', methods=['POST'])
+@permission_required('admin.department', crud='delete')
+def departments_delete(id):
+    dept = Department.query.get_or_404(id)
+    try:
+        dept.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted department {dept.name}', 'success')
+    return redirect(url_for('admin.departments'))
 
 
 @admin.route('/departments/bulk_delete', methods=['POST'])
@@ -885,7 +893,7 @@ def permissions_new():
     return render_template('permission/edit.html', form=form)
 
 
-@admin.route('/permissions/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/permissions/<int:id>/edit', methods=['GET', 'POST'])
 def permissions_edit(id):
     permission = Permission.query.get_or_404(id)
     form = PermissionForm(obj=permission)
@@ -901,6 +909,30 @@ def permissions_edit(id):
     return render_template('permission/edit.html', form=form, permission=permission)
 
 
+@admin.route('/permissions/<int:id>/delete', methods=['POST'])
+@permission_required('admin.permission', crud='delete')
+def permissions_delete(id):
+    p = Permission.query.get_or_404(id)
+    try:
+        '''
+        use ResourceMixin directly to delete permission because
+        permission also has delete attr and is in conflict with
+        the delete() method
+        '''
+        ResourceMixin.delete(p)
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+        print(e)
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+        print(e)
+    else:
+        flash(f'Successfully deleted permission {p.name}', 'success')
+    return redirect(url_for('admin.permissions'))
+
+
 @admin.route('/roles/new', methods=['GET', 'POST'])
 def roles_new():
     role = Role()
@@ -912,14 +944,15 @@ def roles_new():
             flash(f'{e}')
         else:
             role.save()
-            flash('Created successfully.', 'success')
+            flash(f'Successfully created role {role.name}', 'success')
             return redirect(url_for('admin.roles'))
     return render_template('role/edit.html', form=form)
 
 
 @admin.route('/roles/edit/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.role', crud='update')
 def roles_edit(id):
-    role = Role.query.get(id)
+    role = Role.query.get_or_404(id)
     form = RoleForm(obj=role)
     if form.validate_on_submit():
         try:
@@ -931,6 +964,23 @@ def roles_edit(id):
             flash('Updated successfully.', 'success')
             return redirect(url_for('admin.roles'))
     return render_template('role/edit.html', form=form, role=role)
+
+
+@admin.route('/roles/<int:id>/delete', methods=['POST'])
+@permission_required('admin.role', crud='delete')
+def roles_delete(id):
+    role = Role.query.get_or_404(id)
+    try:
+        role.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted role {role.name}', 'success')
+    return redirect(url_for('admin.roles'))
 
 
 @admin.route('/backup/export/csv/', methods=['POST'])

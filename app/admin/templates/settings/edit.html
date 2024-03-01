@@ -6,6 +6,7 @@
 
 {% block content %}
 {% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
+{% set active = 'admin.settings' %}
 {% set endpoint = 'admin.settings_edit' %}
 {% set button = 'Save' %}
 
@@ -31,8 +32,6 @@
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane active" id="general">
 			<div class="form-group">
-                <div class="row">
-                    <div class="col-md-5 well">
                         {% call f.form_group(form.site_name) %}
                         {% endcall %}
                         {% call f.form_group(form.company_name) %}
@@ -47,28 +46,20 @@
                         {% endcall %}
                         {% call f.form_group(form.reg_user_country) %}
                         {% endcall %}
-                    </div>
-			    </div>
             </div>
 		</div>
         <!-- EMAIL CONFIG -->
 		<div role="tabpanel" class="tab-pane" id="email">
 			<div class="form-group">
-                <div class="row">
-                    <div class="col-md-5 well">
                         {% call f.form_group(form.system_email) %}
                         {% endcall %}
                         {% call f.form_group(form.alert_email) %}
                         {% endcall %}
-                    </div>
-                </div>
 			</div>
         </div>
         <!-- CALENDAR CONFIG -->
 		<div role="tabpanel" class="tab-pane" id="cal">
 			<div class="form-group">
-                <div class="row">
-                    <div class="col-md-5 well">
                         {% call f.form_group(form.weekend) %}
                         {% endcall %}
                         {% call f.form_group(form.half_day) %}
@@ -79,15 +70,11 @@
                         {% endcall %}
                         {% call f.colour_field(form.public_holiday_colour) %}
                         {% endcall %}
-                    </div>
-                </div>
 			</div>
         </div>
         <!-- PAGINATION CONFIG -->
 		<div role="tabpanel" class="tab-pane" id="pagi">
 			<div class="form-group">
-                <div class="row">
-                    <div class="col-md-5 well">
                         {% call f.form_group(form.items_per_admin_page) %}
                         {% endcall %}
                         {% call f.form_group(form.users_per_page) %}
@@ -102,16 +89,26 @@
                         {% endcall %}
                         {% call f.form_group(form.notifications_per_page) %}
                         {% endcall %}
-                    </div>
-                </div>
 			</div>
         </div>
     </div>
 </div>
 
-<button type="submit" class="btn btn-primary">
-    {{ button }}
-</button>
+<!-- Save and Cancel Row -->
+<div class="row">
+  <div class="col">
+    <button type="submit" class="btn btn-primary btn-block">
+      {{ button }}
+    </button>
+  </div>
+  <div class="col">
+    <div class="visible-xs visible-sm sm-margin-top"></div>
+    <a href="{{ url_for('admin.settings') }}"
+        class="btn btn-light bg-opacity-10 btn-block">
+      Cancel
+    </a>
+  </div>
+</div>
 {% endcall %}
 
 {% endblock content %}

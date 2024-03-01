@@ -47,7 +47,21 @@
             {% call f.form_group(form.password) %}
             {% endcall %}
             </div>
-        </div>
+            <div class="row">
+              <div class="col-md-6">
+                <button type="submit" class="btn btn-primary btn-block">
+                  {{ button }}
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="visible-xs visible-sm sm-margin-top"></div>
+                <a href="{{ url_for('admin.emails') }}"
+                    class="btn btn-light bg-opacity-10 btn-block">
+                  Cancel
+                </a>
+              </div>
+            </div>
+        </div><!-- End of col -->
         {% if request.endpoint.endswith('edit') %}
         <div class="col-md-5 well">
             <div class="alert alert-info">
@@ -60,10 +74,7 @@
             <div class="mt-2 mb-2" id="test-email-status"></div>
         </div>
         {% endif %}
-    </div>
-    <button type="submit" class="btn btn-primary">
-        {{ button }}
-    </button>
+    </div><!-- End of row -->
 {% endcall %}
 
 {% endblock content %}

@@ -75,9 +75,31 @@
     </div>
     {% endif %}
     {% if current_user.permission('admin.permission', crud='read') %}
-    <!-- Roles card -->
+    <!-- Permissions card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
         <a href="{{ url_for('admin.permissions') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Permissions
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_permissions.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-key-fill h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.department', crud='read') %}
+    <!-- Departments card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.departments') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters">
@@ -96,21 +118,21 @@
         </a>
     </div>
     {% endif %}
-    {% if current_user.permission('admin.event', crud='read') %}
+    {% if current_user.permission('admin.event_types', crud='read') %}
     <!-- Events card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
-        <a href="{{ url_for('admin.events') }}">
+        <a href="{{ url_for('admin.event_types') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                   Events and Types
+                                   Event Types
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_event_types.total }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="bi bi-calendar-event h1 text-gray-300"></i>
+                                <i class="bi bi-luggage h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>

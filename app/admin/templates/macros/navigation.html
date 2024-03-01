@@ -19,7 +19,7 @@
 {{ newitems.append(item) or "" }}
 {% endfor %}
 {% if newitems | list | length > 0 %}
-<div class="card-header mb-4">
+<div class="card-header mb-3">
     <div class="col-md-6">
         <ul class="nav nav-pills nav-justified">
             {% for view, text, icon in newitems %}

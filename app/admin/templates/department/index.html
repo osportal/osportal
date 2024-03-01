@@ -43,6 +43,9 @@
         <th class="col-header">
           {{ items.sort('updated_at', 'Last updated') }}
         </th>
+        <th>
+        <!-- for edit and delete buttons -->
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -77,11 +80,28 @@
           </time>
         {% endif %}
         </td>
+        <td>
+            {% if current_user.permission('admin.department', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.departments_edit', id=department.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.department', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete" ~ department.id,
+                    url=url_for('admin.departments_delete', id=department.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-{{ items.paginate(departments) }}
 <!-- Bulk Delete Modal -->
 <div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -110,10 +130,13 @@
     </div>
   </div>
 </div>
+{{ items.paginate(departments) }}
+{% include "partials/confirm_dialog.html" %}
 {% endif %}
 
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock %}

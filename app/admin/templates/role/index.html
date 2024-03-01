@@ -43,6 +43,9 @@
         <th class="col-header">
           {{ items.sort('updated_at', 'Last updated') }}
         </th>
+        <th>
+        <!-- for edit and delete buttons -->
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -75,15 +78,36 @@
           </time>
         {% endif %}
         </td>
+        <td>
+            {% if current_user.permission('admin.role', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.roles_edit', id=role.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.role', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete" ~ role.id,
+                    url=url_for('admin.roles_delete', id=role.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-{{ items.paginate(roles) }}
-{% endif %}
 
+{{ items.paginate(roles) }}
+{% include "partials/confirm_dialog.html" %}
+
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock %}

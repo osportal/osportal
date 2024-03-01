@@ -35,7 +35,8 @@
                         url=url_for('admin.countries_delete', id=country.id),
                         title="Delete", 
                         btn="btn btn-sm btn-warning",
-                        icon_only=False) 
+                        icon_only=False,
+                        target="#confirmModal") 
                     }}
                 </div>
             {% endif %}
@@ -132,7 +133,8 @@
                     url=url_for('admin.public_holiday_delete', cid=country.id, id=holiday.id), 
                     title="Delete", 
                     btn="btn btn-sm btn-warning",
-                    icon="bi bi-trash") 
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
                 }}
             {% endif %}
         </td>
@@ -192,4 +194,5 @@
         location = url;
       });
 </script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock %}

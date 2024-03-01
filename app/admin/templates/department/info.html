@@ -2,6 +2,7 @@
 {% block title %}Admin - Department Info{% endblock %}
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/form.html' as forms with context %}
 {% set active = 'admin.departments' %}
 
 {% block content %}
@@ -9,11 +10,40 @@
 {% set extra_setting_links = admin_department_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ dept.name }}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.department', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.departments_edit', id=dept.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.department', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ dept.id,
+              url=url_for('admin.departments_delete', id=dept.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+
 <div class="row">
   <div class="col-md-5 well">
-    {% if current_user.permission('admin.department', crud='update') %}
-    <a href="{{ url_for('admin.departments_edit', id=dept.id) }}" class="btn btn-primary mb-4">Edit</a>
-    {% endif %}
     <div class="form-group">
         <div class="mb-2">
         	<div><strong>Name</strong></div>
@@ -40,4 +70,9 @@
     </div>
   </div>
 </div>
+{% include "partials/confirm_dialog.html" %}
 {% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

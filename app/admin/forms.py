@@ -65,36 +65,22 @@ class PublicHolidayForm(ModelForm):
 
 
 class PageForm(FlaskForm):
-    name_message = 'Alphanumeric characters only please.'
-
+    custom_message = 'Only alphanumeric characters and hyphens are supported.'
     name = StringField(validators=[
         DataRequired(),
         Length(1, 25),
         # Part of the Python 3.7.x update included updating flake8 which means
         # we need to explicitly define our regex pattern with r'xxx'.
-        Regexp(r'^\w+$', message=name_message)
     ])
     active = BooleanField('Active')
-    route = StringField(validators=[DataRequired(), Length(1,128)])
+    route = StringField(validators=[DataRequired(),
+                                    Length(1,128),
+                                    Regexp(r'^[\w-]+$', message=custom_message)
+                                    ])
     content = TextAreaField('Content', validators=[DataRequired()], render_kw={'id': 'ckeditor'})
 
 
 class NewUserForm(UserForm):
-
-    #username_message = 'Alphanumeric characters only please.'
-
-    #username = StringField(validators=[
-    #    check_username_exists,
-    #    DataRequired(),
-    #    Length(1, 113),
-    #    # Part of the Python 3.7.x update included updating flake8 which means
-    #    # we need to explicitly define our regex pattern with r'xxx'.
-    #])
-
-    #email = EmailField(validators=[
-    #    check_email_exists,
-    #    DataRequired()
-    #])
 
     role = QuerySelectField('Role', query_factory=lambda: Role.query.all(), get_pk=lambda r: r.id, allow_blank=True,
                             validators=[Optional()])
@@ -266,10 +252,10 @@ class SettingsForm(FlaskForm):
 
 
 class SystemEmailForm(FlaskForm):
-    name = StringField('Display Name', validators=[DataRequired(), Length(4, 50)])
-    email = EmailField('Send Email From', validators=[DataRequired()]) # previously called sender
-    server = StringField('Mail Server')
-    port = IntegerField('Mail Port')
+    name = StringField('Display Name', validators=[DataRequired(), Length(1, 50)])
+    email = EmailField('Send Email From', validators=[DataRequired()])
+    server = StringField('Mail Server', validators=[DataRequired()])
+    port = IntegerField('Mail Port', validators=[DataRequired()])
     username = StringField('Mail Username')
     password = PasswordField('Mail Password', widget=PasswordInput(hide_value=False))
     ssl = BooleanField('SSL/TLS')
