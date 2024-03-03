@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set table_name = 'plugin' %}
+
+{% block title %}Plugins - Admin{% endblock %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_plugins_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th class="col-header">
+          {{ items.sort('name') }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for plugin in plugins %}
+      <tr>
+        <td>
+            <a href="{{ request.script_root }}{{ plugin.route }}">{{ plugin.name }}</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock content %}

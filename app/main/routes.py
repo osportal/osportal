@@ -13,17 +13,10 @@ main = Blueprint('main', __name__)
 # img height and width globals to be passed into templates
 @main.before_app_request
 def before_request():
+    print(request)
     settings = Settings.query.first_or_404()
     g.site_name = settings.site_name # used in title headings
     g.guest_registration = settings.user_registration
-
-    """
-    if current_user.__class__.__name__ == 'User':
-        if current_user.role is None:
-            if request.endpoint != 'user.logout':
-                site_name = get_settings_value('site_name')
-                return render_template('auth_role_error.html', site_name=site_name)
-            """
 
 
 @main.route('/setup', methods=['GET', 'POST'])

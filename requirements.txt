@@ -33,7 +33,7 @@ psycopg2-binary
 python-dotenv
 elasticsearch-dsl==7.4.0
 flask-cors
-flask-debugtoolbar==0.13.1
+flask-debugtoolbar==0.14.1
 # ldap3
 # pycryptodome fixes unsupported hash type MD4 for AD.
 # see https://github.com/cannatag/ldap3/issues/1038

@@ -3,6 +3,7 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from flask import Flask, url_for, Blueprint, g, current_app, redirect, render_template, request
 from flask_login import current_user
+import jinja2
 import logging
 from logging.handlers import SMTPHandler
 import os
@@ -34,6 +35,7 @@ from app.extensions import (
         migrate,
         debug_toolbar,
 )
+from app.plugins import init_plugins
 
 
 CELERY_TASK_LIST = [
@@ -54,7 +56,6 @@ def create_celery_app(app):
     :param app: Flask app
     :return: Celery app
     """
-    #app=app or create_app()
     celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'],
                     include=CELERY_TASK_LIST)
     celery.conf.update(app.config)
@@ -104,6 +105,8 @@ def extensions(app):
     migrate.init_app(app, db, render_as_batch=True)
     mail.init_app(app)
     debug_toolbar.init_app(app)
+    with app.app_context():
+        init_plugins(app)
 
     return None
 
@@ -141,7 +144,6 @@ def middleware(app):
     return None
 
 
-
 def error_templates(app):
     @app.errorhandler(403)
     def forbidden(error):
@@ -167,7 +169,3 @@ def error_templates(app):
         except Exception as e:
             print(e)
         return render_template('errors/500.html'), 500
-
-
-#app = create_app()
-#celery = create_celery_app()

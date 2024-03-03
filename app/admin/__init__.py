@@ -13,7 +13,8 @@ def admin_settings_menu(user):
         ('admin.pages', 'Pages', 'bi bi-file-earmark'),
         ('admin.emails', 'Emails', 'bi bi-envelope'),
         ('admin.countries', 'Countries', 'bi bi-globe'),
-        ('admin.settings', 'Settings', 'bi bi-tools')
+        ('admin.plugins', 'Plugins', 'bi bi-plugin'),
+        ('admin.settings', 'Settings', 'bi bi-tools'),
     ]
     for result in results:
         view = result[0]
@@ -43,6 +44,9 @@ def admin_settings_menu(user):
                     yield result
         if (view=='admin.countries') \
                 and current_user.permission('admin.country', crud='read'):
+                    yield result
+        if (view=='admin.plugins') \
+                and current_user.permission('admin.plugin', crud='read'):
                     yield result
         if view=='admin.settings' \
                 and current_user.permission('admin.settings', crud='read'):
@@ -169,7 +173,6 @@ def admin_country_sidebar(user):
         ('admin.countries', 'Manage', ''),
         ('admin.countries_new', 'New Country', '')
     ]
-    # TODO need to decide on whether to show then edit settings etc.
     for result in results:
         view = result[0]
         if view=='admin.countries' \
@@ -177,6 +180,17 @@ def admin_country_sidebar(user):
                 yield result
         if view=='admin.countries_new' \
             and current_user.permission('admin.countries_new', crud='create'):
+                yield result
+
+
+def admin_plugins_sidebar(user):
+    results = [
+        ('admin.plugins', 'Manage', ''),
+    ]
+    for result in results:
+        view = result[0]
+        if view=='admin.plugins' \
+            and current_user.permission('admin.plugin', crud='read'):
                 yield result
 
 
@@ -211,4 +225,5 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)
     app.jinja_env.globals.update(admin_country_sidebar=admin_country_sidebar)
+    app.jinja_env.globals.update(admin_plugins_sidebar=admin_plugins_sidebar)
     app.jinja_env.globals.update(admin_settings_sidebar=admin_settings_sidebar)

@@ -1,4 +1,9 @@
 from celery import __version__ as celery_version
+# for plugins
+from collections import namedtuple
+import json
+import os
+#
 import csv
 from flask import (url_for, redirect, abort, request, flash, Blueprint, render_template,
                    send_file, jsonify, current_app)
@@ -58,7 +63,8 @@ def dashboard():
         "group_and_count_departments": Dashboard.group_and_count_departments(),
         "group_and_count_event_types": Dashboard.group_and_count_event_types(),
         "group_and_count_emails": Dashboard.group_and_count_emails(),
-        "group_and_count_countries": Dashboard.group_and_count_countries()
+        "group_and_count_countries": Dashboard.group_and_count_countries(),
+        "group_and_count_plugins": get_valid_plugins()
     }
     return render_template('admin_dashboard.html', **stats)
 
@@ -1112,3 +1118,42 @@ def celery_status():
         celery_running = False
 
     return jsonify(celery_running=celery_running, status=200)
+
+
+def get_valid_plugins():
+    Plugin = namedtuple("Plugin", ["name", "route"])
+
+    plugins_path = os.path.join(current_app.root_path, "plugins")
+    plugin_directories = os.listdir(plugins_path)
+
+    plugins = []
+
+    for dir in plugin_directories:
+        if os.path.isfile(os.path.join(plugins_path, dir, "config.json")):
+            path = os.path.join(plugins_path, dir, "config.json")
+            with open(path) as f:
+                plugin_json_data = json.loads(f.read())
+                if type(plugin_json_data) is list:
+                    for plugin_json in plugin_json_data:
+                        p = Plugin(
+                            name=plugin_json.get("name"),
+                            route=plugin_json.get("route"),
+                        )
+                        plugins.append(p)
+                else:
+                    p = Plugin(
+                        name=plugin_json_data.get("name"),
+                        route=plugin_json_data.get("route"),
+                    )
+                    plugins.append(p)
+        elif os.path.isfile(os.path.join(plugins_path, dir, "config.html")):
+            p = Plugin(name=dir, route="/admin/plugins/{}".format(dir))
+            plugins.append(p)
+
+    return plugins
+
+
+@admin.route("/plugins", methods=["GET", "POST"])
+def plugins():
+    plugins = get_valid_plugins()
+    return render_template('plugin/index.html', plugins=plugins)

@@ -206,6 +206,27 @@
         </a>
     </div>
     {% endif %}
+    <!-- Plugins card -->
+    <!-- TODO add plugin permission -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.plugins') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Plugins
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_plugins | count }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-plugin h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
     {% if current_user.permission('admin.settings', crud='read') %}
     <!-- Settings card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
