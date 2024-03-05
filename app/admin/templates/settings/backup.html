@@ -45,9 +45,9 @@
                 {{ app_name }} instance and all your data will be replaced by the imported data.
 					You should only import data that you trust!</p>
 
-				<div class="alert alert-warning" role="alert">
+				<div class="alert alert-warning h5" role="alert">
 					<small class="text-muted text-right">
-						<i class="fas fa-exclamation pr-2"></i>
+                        <i class="bi bi-exclamation-diamond-fill pr-2"></i>
                         Importing a {{ app_name }} export will completely wipe your existing data
 					</small>
 				</div>
@@ -65,9 +65,9 @@
             		{% endwith %}
 		</div>
 		<div role="tabpanel" class="tab-pane" id="save-csv">
-			<div class="alert alert-warning" role="alert">
+			<div class="alert alert-warning h5" role="alert">
 				<small class="text-muted text-right">
-					<i class="fas fa-exclamation pr-2"></i>
+                    <i class="bi bi-exclamation-diamond-fill pr-2"></i>
                     CSVs exported from {{ app_name }} are not guaranteed to import back in via the Import CSV functionality. See <a href="https://osportal.com" target="_blank">CSV Importing instructions</a> for details.
 				</small>
 			</div>
@@ -88,10 +88,11 @@
 			{% set endpoint = 'admin.import_csv' %}
   			{% call f.form_tag(endpoint, form=form, fid="import-csv-form", enctype='multipart/form-data') %}
 			    <div class="form-group">
-			    	<div class="alert alert-info" role="alert">
+			    	<div class="alert alert-info h5" role="alert">
 			    		<small class="text-muted text-right">
+                            <i class="bi bi-info-circle-fill pr-2"></i>
 			    			<a href="https://osportal.com" target="_blank">
-			    				<i class="far fa-question-circle pr-2"></i>Instructions and CSV templates
+                                Instructions and CSV templates
 			    			</a>
 			    		</small>
 			    	</div>
