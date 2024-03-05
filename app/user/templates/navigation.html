@@ -3,7 +3,7 @@
 {% block content %}
 <ul class="nav nav-tabs"> 
     {% for view, text, icon in user_profile_links(user=user)  %}
-    {{ navlink(view, text, icon, active, {"username": user.username}) }}
+    {{ navlink(view, text, icon, active, {"id": user.id}) }}
     {% endfor %}
 </ul>
 {% endblock %}

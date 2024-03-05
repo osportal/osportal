@@ -17,7 +17,7 @@
         {{ avatar_img(post.user, size='44', id='profileImg') }}
         <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-2" href="{{ url_for(profile_endpoint, username=post.username) }}">{{ post.username }}</a>
+                <a class="mr-2" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.username }}</a>
                 <small class="text-muted">{{ post.date_posted.strftime('%e %b %Y at %H:%M') }}</small>
             </div>
 			<h4><a class="article-title btn-link" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.name }}</a></h4>

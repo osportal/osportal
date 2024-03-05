@@ -37,8 +37,8 @@
     {% for user in users.items %}
     <tr>
         <td>
-            <a class="mr-3" href="{{ url_for(profile_endpoint, username=user.username) }}">{{ avatar_img(user, size='80', id='profileImg') }}</a>
-            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, username=user.username) }}">{{ user.username }}</a></span>
+            <a class="mr-3" href="{{ url_for(profile_endpoint, id=user.id) }}">{{ avatar_img(user, size='80', id='profileImg') }}</a>
+            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, id=user.id) }}">{{ user.username }}</a></span>
         </td>
         <td style="vertical-align: middle;">
             {{ user.email }}

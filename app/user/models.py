@@ -499,7 +499,7 @@ class User(UserMixin, ResourceMixin):
                 'id': f'@{self.username}',
                 'userId': self.id,
                 'name': self.username,
-                'link': url_for('user.profile', username=self.username)
+                'link': url_for('user.profile', id=self.id)
                 }
 
     def add_notification(self, data, endpoint):

@@ -177,26 +177,26 @@ def mentions():
     return jsonify([user.serialize() for user in users])
 
 
-@user.route('/user/<string:username>', methods=['GET', 'POST'])
-def profile(username):
-    user = User.query.filter(User.username==username).first_or_404()
+@user.route('/user/<int:id>', methods=['GET', 'POST'])
+def profile(id):
+    user = User.query.get_or_404(id)
     return render_template('profile.html', user=user)
 
 
-@user.route('/user/<string:username>/posts', defaults={'page': 1}, methods=['GET', 'POST'])
-@user.route('/user/<string:username>/posts/page/<int:page>', methods=['GET', 'POST'])
-def posts(username, page):
-    user = User.query.filter(User.username==username).first_or_404()
+@user.route('/user/<int:id>/posts', defaults={'page': 1}, methods=['GET', 'POST'])
+@user.route('/user/<int:id>/posts/page/<int:page>', methods=['GET', 'POST'])
+def posts(id, page):
+    user = User.query.get_or_404(id)
     paginated_posts = user.posts \
             .order_by(Post.created_at.desc()) \
             .paginate(page, get_settings_value('posts_per_page'), True)
     return render_template('profile_posts.html', posts=paginated_posts, user=user)
 
 
-@user.route('/user/<string:username>/comments', defaults={'page': 1}, methods=['GET', 'POST'])
-@user.route('/user/<string:username>/comments/page/<int:page>', methods=['GET', 'POST'])
-def comments(username, page):
-    user = User.query.filter(User.username==username).first_or_404()
+@user.route('/user/<int:id>/comments', defaults={'page': 1}, methods=['GET', 'POST'])
+@user.route('/user/<int:id>/comments/page/<int:page>', methods=['GET', 'POST'])
+def comments(id, page):
+    user = User.query.get_or_404(id)
     paginated_comments = user.comments \
             .order_by(Comment.created_at.desc()) \
             .paginate(page, get_settings_value('comments_per_page'), True)

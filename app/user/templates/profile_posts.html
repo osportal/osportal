@@ -2,7 +2,7 @@
 {%- import "macros/pagination.html" as items  -%}
 {% extends "profile_base.html" %}
 
-{% set kwargs = {'username': user.username} %}
+{% set kwargs = {'id': user.id} %}
 
 {% block profile_content %}
     {{ profile_table(posts.items, 'post', 'posts.post') }}

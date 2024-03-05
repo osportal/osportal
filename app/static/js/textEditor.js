@@ -27,7 +27,7 @@ ClassicEditor
 function SetMentionData(editor, obj_id, obj_username){
     //editor.setData('<a class="mention" data-mention="@{obj.user.username}" data-user-id="{obj.user.id}" href="/user/testuser">@{obj.user.username}</a>&nbsp;');
     document.getElementById('editor-form').scrollIntoView({top: -600});
-    editor.setData('<a class="mention" data-mention="' + `${obj_username}` + '" data-user-id="' + `${obj_id}` + '" href="/user/' + `${obj_username}`+ '">@' + `${obj_username}` + '</a>&nbsp;');
+    editor.setData('<a class="mention" data-mention="' + `${obj_username}` + '" data-user-id="' + `${obj_id}` + '" href="/user/' + `${obj_id}`+ '">@' + `${obj_username}` + '</a>&nbsp;');
     editor.focus();
     editor.model.change( writer => {
         writer.setSelection( writer.createPositionAt( editor.model.document.getRoot(), 'end' ) );

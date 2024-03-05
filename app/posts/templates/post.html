@@ -23,12 +23,12 @@
 
 {% block content %}
     <article class="media content-section">
-        <a href="{{ url_for(profile_endpoint, username=post.user.username) }}">
+        <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">
             {{ avatar_img(post.user, size='44', id='profileImg') }}
         </a>
         <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-1" href="{{ url_for(profile_endpoint, username=post.user.username) }}">{{ post.user.username }}</a>
+                <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user.username }}</a>
                 <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
                 {% if post.updated_at %}
                 <small class="text-muted ml-1">(Last Modified: {{ post.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
@@ -63,12 +63,12 @@
 {% for c in comments.items %}
 <div id="#cid{{ c.id}}" class="comment mb-4">
     <article class="media content-section">
-            <a href="{{ url_for(profile_endpoint, username=c.user.username) }}">
+            <a href="{{ url_for(profile_endpoint, id=c.user.id) }}">
                 {{ avatar_img(c.user, size='44', id='profileImg') }}
             </a>
             <div class="media-body">
 				<div class="article-metadata">
-					<a class="mr-1" href="{{ url_for(profile_endpoint, username=c.user.username) }}">{{ c.user.username }}</a>
+					<a class="mr-1" href="{{ url_for(profile_endpoint, id=c.user.id) }}">{{ c.user.username }}</a>
                     <small class="text-muted"><span title="{{ c.created_at.strftime("%-d %b %Y %H:%M") }}">{{ c.pretty_date(c.created_at) }}</span></small>
                     {% if c.updated_at %}
                         <small class="text-muted ml-1">(Last Modified: {{ c.updated_at.strftime("%-d %b %Y %H:%M") }})</small>

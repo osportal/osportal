@@ -2,7 +2,7 @@
 {%- from "macros/pagination.html" import paginate -%}
 {% extends "profile_base.html" %}
 
-{% set args = {'username': user.username} %}
+{% set args = {'id': user.id} %}
 
 {% block profile_content %}
     {{ profile_table(comments.items, 'comment', 'posts.comment') }}
