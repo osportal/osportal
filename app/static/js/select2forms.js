@@ -1,4 +1,4 @@
-$("#manager,#role,#ltype,#country,#authoriser,#reg_user_country,#reg_user_role").select2({
+$("#manager,#user,#role,#ltype,#country,#authoriser,#reg_user_country,#reg_user_role").select2({
     tags: true,
     width: '100%'
 });

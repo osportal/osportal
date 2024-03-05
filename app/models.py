@@ -37,7 +37,7 @@ def get_class_by_tablename(tablename):
                 return c
 
 
-class Country(db.Model, ResourceMixin):
+class Country(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(StripStr(5), unique=True)
     name = db.Column(StripStr(100), unique=True, nullable=False)
@@ -75,7 +75,7 @@ class Country(db.Model, ResourceMixin):
         return delete_count
 
 
-class PublicHoliday(db.Model, ResourceMixin):
+class PublicHoliday(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(200), nullable=False)
     active = db.Column(db.Boolean, default=True)

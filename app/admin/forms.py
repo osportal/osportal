@@ -3,6 +3,7 @@ from app.department.models import Department, DepartmentMembers
 from app.extensions import db
 from app.event.models import Event
 from app.models import Country, PublicHoliday
+from app.posts.forms import PostForm
 from app.user.forms import UserForm
 from app.user.models import User, Role, Permission
 from app.user.validations import check_username_exists, check_email_exists, check_authoriser
@@ -44,6 +45,17 @@ class LDAPForm(ModelForm):
     ldap_firstname_field = StringField('LDAP First Name Field', validators=[DataRequired(), Length(1,500)])
     ldap_lastname_field = StringField('LDAP Last Name Field', validators=[DataRequired(), Length(1,500)])
     ldap_email_field = StringField('LDAP User Email Field', validators=[DataRequired(), Length(1,500)])
+
+
+class AdminPostForm(PostForm):
+    locked = BooleanField()
+    is_pin = BooleanField('Pin Post')
+    user = QuerySelectField('Author',
+                            query_factory=lambda: User.query.filter(User.active).all(),
+                            widget=Select2Widget(),
+                            allow_blank=False,
+                            validators=[DataRequired()]
+                            )
 
 
 class CountryForm(ModelForm):

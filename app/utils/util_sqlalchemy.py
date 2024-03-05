@@ -1,6 +1,6 @@
 from app.extensions import db
 import datetime
-from flask import Markup
+from flask import Markup, abort
 from sqlalchemy import func
 from sqlalchemy.types import TypeDecorator
 
@@ -35,18 +35,17 @@ class FmtString(TypeDecorator):
 
 
 
-class ResourceMixin(object):
+class ResourceMixin(db.Model):
+    __abstract__ = True
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=func.now())
-    locked = db.Column(db.Boolean, default=False, nullable=True) # TODO change nullable to False
+    locked = db.Column(db.Boolean, default=False, nullable=True)
 
     def save(self):
         """
         Save model instance and
         return model instance
         """
-        if self.locked:
-            raise Exception('Cannot edit locked object')
         db.session.add(self)
         db.session.commit()
         return self
@@ -56,8 +55,6 @@ class ResourceMixin(object):
         Delete model instance and
         return result
         """
-        if self.locked:
-            raise Exception('Cannot delete locked object')
         db.session.delete(self)
         return db.session.commit()
 
@@ -82,6 +79,10 @@ class ResourceMixin(object):
             direction = 'asc'
 
         return field, direction
+
+    def is_locked(self):
+        if self.locked:
+            return abort(403)
 
     def pretty_date(self, time):
         """ if time is less than 24 hours pretty print timestamp

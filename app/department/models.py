@@ -5,7 +5,7 @@ from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from sqlalchemy import or_
 
 
-class DepartmentMembers(db.Model, ResourceMixin):
+class DepartmentMembers(ResourceMixin):
     __tablename__ = 'department_members'
     id = db.Column(db.Integer, nullable=True) # used in import zip job
     user_id = db.Column(db.Integer, db.ForeignKey('user.id',
@@ -23,7 +23,7 @@ class DepartmentMembers(db.Model, ResourceMixin):
         return f'{user.username} ({user.email})'
 
 
-class Department(db.Model, ResourceMixin):
+class Department(ResourceMixin):
     __tablename__ = 'department'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(65), unique=True, nullable=False)

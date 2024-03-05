@@ -6,7 +6,7 @@ from flask import request, current_app
 from sqlalchemy import text, or_
 
 
-class Post(db.Model, ResourceMixin):
+class Post(ResourceMixin):
     __tablename__ = 'post'
     __searchable__ = ['title', 'content']
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +50,7 @@ class Post(db.Model, ResourceMixin):
         return comments
 
 
-class Comment(db.Model, ResourceMixin):
+class Comment(ResourceMixin):
     __tablename__ = 'comment'
     __searchable__ = ['text']
     id = db.Column(db.Integer, primary_key=True)

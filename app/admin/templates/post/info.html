@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Post Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/form.html' as forms with context %}
+{% set active = 'admin.posts' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_post_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">
+            {{ post.name }}
+        </div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.post', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.posts_edit', id=post.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.post', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ post.id,
+              url=url_for('admin.posts_delete', id=post.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+
+<div class="row">
+  <div class="col-md-5 well">
+    	<div class="form-group">
+	        <div class="mb-2">
+                {% if post.locked %}
+                    <i class="bi bi-lock-fill h3" title="Locked"></i>
+                {% endif %}
+                {% if post.is_pin %}
+                    <i title="Pinned post" class="bi bi-pin-angle-fill h3 text-gray-300"></i>
+                {% endif %}
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Author</strong></div>
+	        	<div>{{ post.user }}</div>
+	        </div>
+	        <div class="mb-2">
+	        	<div><strong>Content</strong></div>
+	        	<div>{{ post.content | safe }}</div>
+	        </div>
+        </div>
+  </div>
+</div>
+{% include "partials/confirm_dialog.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

@@ -13,7 +13,6 @@ main = Blueprint('main', __name__)
 # img height and width globals to be passed into templates
 @main.before_app_request
 def before_request():
-    print(request)
     settings = Settings.query.first_or_404()
     g.site_name = settings.site_name # used in title headings
     g.guest_registration = settings.user_registration

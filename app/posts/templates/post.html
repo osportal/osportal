@@ -37,10 +37,16 @@
             <div>{{ post.content | safe }}</div>
             </div>
         </div>
-        {% if current_user.role.superuser == True or post.user == current_user %}
+        {% if post.locked %}
             <div>
-                {% include "post_actions.html" %}
+                <i class="bi bi-lock-fill" title="Locked"></i>
             </div>
+        {% else %}
+            {% if current_user.role.superuser == True or post.user == current_user %}
+                <div>
+                    {% include "post_actions.html" %}
+                </div>
+            {% endif %}
         {% endif %}
     </article>
 {% if comments.items %}
@@ -85,23 +91,25 @@
 </div><!-- END OF COMMENT SECTION DIV -->
 {% endif %}<!-- endif comments -->
 
-<!-- If user has permission to create comments show the create comment form -->
-{% if current_user.permission('comment', crud='create') %}
-<!-- Comment Form -->
-<div class="mt-4">
-{% call f.form_tag(endpoint, form=form, fid='editor-form', **args) %}
+{% if not post.locked %}
+    <!-- If user has permission to create comments show the create comment form -->
+    {% if current_user.permission('comment', crud='create') %}
+    <!-- Comment Form -->
+    <div class="mt-4">
+    {% call f.form_tag(endpoint, form=form, fid='editor-form', **args) %}
 
-  {% call f.form_group(form.text, css_class='sm-margin-bottom') %}
-  {% endcall %}
-<!-- Submit buttons -->
-<div class="row">
-  <div class="col-md-6">
-      <button onclick="getMentions()" type="button" class="btn btn-primary mr-3">{{ button }}</button>
-  </div>
-</div>
-{% endcall %}<!-- End of Comment Form -->
-</div>
-{% endif %}<!-- End of Permission check -->
+      {% call f.form_group(form.text, css_class='sm-margin-bottom') %}
+      {% endcall %}
+    <!-- Submit buttons -->
+    <div class="row">
+      <div class="col-md-6">
+          <button onclick="getMentions()" type="button" class="btn btn-primary mr-3">{{ button }}</button>
+      </div>
+    </div>
+    {% endcall %}<!-- End of Comment Form -->
+    </div>
+    {% endif %}<!-- End of Permission check -->
+{% endif %}<!-- End of lock check -->
 
 {% endblock content %}
 

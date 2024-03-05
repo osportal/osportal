@@ -41,7 +41,6 @@ from app.plugins import init_plugins
 CELERY_TASK_LIST = [
     'app.email',
     'app.user.tasks',
-    'app.posts.tasks',
     'app.pages.tasks',
     'app.event.tasks',
     'app.department.tasks',

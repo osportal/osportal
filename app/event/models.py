@@ -4,7 +4,7 @@ import datetime
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 
-class EventType(db.Model, ResourceMixin):
+class EventType(ResourceMixin):
     __tablename__ = 'event_type'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(30), unique=True, nullable=False)
@@ -64,14 +64,14 @@ class EventType(db.Model, ResourceMixin):
         return enable_count
 
 
-class EventActioned(db.Model, ResourceMixin):
+class EventActioned(ResourceMixin):
     __tablename__ = 'event_actioned'
     id = db.Column(db.Integer, nullable=True) # used in import zip job
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), onupdate='CASCADE', primary_key=True)
     authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', primary_key=True)
 
 
-class Event(db.Model, ResourceMixin):
+class Event(ResourceMixin):
     STATUS = ['Pending', 'Approved', 'Declined', 'Revoked']
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(*STATUS, name='status_types', native_enum=False),

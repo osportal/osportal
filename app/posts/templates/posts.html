@@ -62,10 +62,16 @@
             </div>
             <!-- Check post permissions -->
             <!-- If user has no post permissions and is not the post author avoid displaying empty dropdown -->
-            {% if current_user.post_actions_access(post) %}
+            {% if post.locked %}
                 <div>
-                {% include "post_actions.html" %}
+                    <i class="bi bi-lock-fill" title="Locked"></i>
                 </div>
+            {% else %}
+                {% if current_user.post_actions_access(post) %}
+                    <div>
+                    {% include "post_actions.html" %}
+                    </div>
+                {% endif %}
             {% endif %}
         </article>
     </div>

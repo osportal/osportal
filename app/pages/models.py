@@ -1,7 +1,7 @@
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from app.extensions import db
 
-class Page(db.Model, ResourceMixin):
+class Page(ResourceMixin):
     __tablename__ = 'page'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)

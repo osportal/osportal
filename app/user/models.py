@@ -17,7 +17,7 @@ from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class RolePermission(db.Model, ResourceMixin):
+class RolePermission(ResourceMixin):
     __tablename__ = "role_permission"
     id = db.Column(db.Integer, nullable=True) # used in import zip job
     permission_id = db.Column(db.Integer, db.ForeignKey('permission.id',
@@ -31,7 +31,7 @@ class RolePermission(db.Model, ResourceMixin):
                               index=True, primary_key=True)
 
 
-class Permission(db.Model, ResourceMixin):
+class Permission(ResourceMixin):
     __tablename__ = "permission"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(60), unique=True, nullable=False)
@@ -55,7 +55,7 @@ class Permission(db.Model, ResourceMixin):
 
 
 
-class Role(db.Model, ResourceMixin):
+class Role(ResourceMixin):
     __tablename__ = "role"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -124,7 +124,7 @@ class Role(db.Model, ResourceMixin):
         return delete_count
 
 
-class User(db.Model, UserMixin, ResourceMixin):
+class User(UserMixin, ResourceMixin):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -546,7 +546,7 @@ class User(db.Model, UserMixin, ResourceMixin):
 
 
 
-class Notification(db.Model, ResourceMixin):
+class Notification(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     payload_json = db.Column(db.Text)

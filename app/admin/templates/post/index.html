@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set table_name = 'post' %}
+
+{% block title %}Posts - Admin{% endblock %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_post_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.posts') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if posts.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <label for="select_all"></label>
+          <input id="select_all" name="select_all" type="checkbox">
+        </th>
+        <th class="col-header">
+          {{ items.sort('name') }}
+        </th>
+        <th class="col-header">
+            <!-- Pin col -->
+        </th>
+        <th class="col-header">
+            <!-- Lock col -->
+        </th>
+        <th class="col-header">
+          {{ items.sort('user', 'Author') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('created_at', 'Created') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('updated_at', 'Last updated') }}
+        </th>
+        <th>
+        <!-- for edit and delete buttons -->
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for post in posts.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ post.id }}">
+        </td>
+        <td>
+            <a href="{{ url_for('admin.posts_info', id=post.id) }}">
+                <h6>{{ post.name }}</h6>
+            </a>
+        </td>
+        <td>
+            {% if post.is_pin %}
+                <i title="Pinned post" class="bi bi-pin-angle-fill h3 text-gray-300"></i>
+            {% endif %}
+        </td>
+        <td>
+            {% if post.locked %}
+                <i class="bi bi-lock-fill h3" title="Locked"></i>
+            {% endif %}
+        </td>
+        <td>{{ post.user }}</td>
+        <td>
+            {% if post.created_at %}
+          <time class="from-now" data-datetime="{{ post.created_at }}">
+              {{ post.pretty_date(post.created_at) }}
+            <div class="text-muted">{{ post.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+          {% endif %}
+        </td>
+        <td>
+        {% if post.updated_at %}
+          <time class="from-now" data-datetime="{{ post.updated_at }}">
+              {{ post.pretty_date(post.updated_at) }}
+            <div class="text-muted">{{ post.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+        {% endif %}
+        </td>
+        <td>
+            {% if current_user.permission('admin.post', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.posts_edit', id=post.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.post', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete" ~ post.id,
+                    url=url_for('admin.posts_delete', id=post.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{{ items.paginate(posts) }}
+{% include "partials/confirm_dialog.html" %}
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock %}

@@ -20,8 +20,8 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              SettingsForm, PageForm, EventTypeSettingsForm,
                              EventRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
-                             SystemEmailForm, ResetPasswordForm, PublicHolidayYearForm,
-                             LDAPForm)
+                             SystemEmailForm, ResetPasswordForm,
+                             PublicHolidayYearForm, AdminPostForm)
 from app.admin.models import Dashboard, Settings, SystemEmail
 from app.admin.utils import get_settings_value
 from app.department.models import Department, DepartmentMembers
@@ -29,6 +29,7 @@ from app.extensions import db
 from app.models import Country, PublicHoliday, get_class_by_tablename
 from app.event.models import Event, EventType
 from app.pages.models import Page
+from app.posts.models import Post
 #from app.user.auth import ldap_con
 from app.user.decorators import permission_required
 from app.user.models import User, Role, Permission
@@ -56,6 +57,7 @@ def dashboard():
     stats = {
         "celery_version": celery_version,
         "flask_version": flask_version,
+        "group_and_count_posts": Dashboard.group_and_count_posts(),
         "group_and_count_pages": Dashboard.group_and_count_pages(),
         "group_and_count_users": Dashboard.group_and_count_users(),
         "group_and_count_roles": Dashboard.group_and_count_roles(),
@@ -301,6 +303,86 @@ def pages_delete(id):
     else:
         flash(f'Successfully deleted {page.name}', 'success')
     return redirect(url_for('admin.pages'))
+
+
+@admin.route('/posts', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/posts/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.post', crud='read')
+def posts(page):
+    search_form = SearchForm()
+    sort_by = Post.sort_by(request.args.get('sort', 'created_at'),
+                           request.args.get('direction', 'desc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+
+    paginated_posts = Post.query \
+        .filter(Post.search((request.args.get('q', text(''))))) \
+        .order_by(Post.is_pin.desc(), text(order_values)) \
+        .paginate(page, get_settings_value('items_per_admin_page'), True)
+
+    return render_template('post/index.html',
+                           form=search_form,
+                           posts=paginated_posts)
+
+
+@admin.route('/posts/new', methods=['GET', 'POST'])
+@permission_required('admin.post', crud='create')
+def posts_new():
+    post = Post()
+    form = AdminPostForm()
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(post)
+            post.save()
+        except Exception as e:
+            flash(f'{e}', 'danger')
+        else:
+            flash(f'Successfully created.', 'success')
+            return redirect(url_for('admin.posts'))
+    else:
+        for error in form.errors.items():
+            print(error)
+    return render_template('post/edit.html', form=form)
+
+
+@admin.route('/posts/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.post', crud='update')
+def posts_edit(id):
+    post = Post.query.get_or_404(id)
+    form = AdminPostForm(obj=post)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(post)
+        except Exception as e:
+            flash(f'{e}', 'danger')
+        else:
+            post.save()
+            flash('Successfully updated.', 'success')
+            return redirect(url_for('admin.posts'))
+    return render_template('post/edit.html', form=form, post=post)
+
+
+@admin.route('/posts/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.post', crud='read')
+def posts_info(id):
+    post = Post.query.get(id)
+    return render_template('post/info.html', post=post)
+
+
+@admin.route('/posts/<int:id>/delete', methods=['POST'])
+@permission_required('admin.post', crud='delete')
+def posts_delete(id):
+    post = Post.query.get_or_404(id)
+    try:
+        post.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted {post.name}', 'success')
+    return redirect(url_for('admin.posts'))
 
 
 @admin.route('/settings/edit', methods=['GET', 'POST'])

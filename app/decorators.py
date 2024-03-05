@@ -1,6 +1,9 @@
+from app.models import get_class_by_tablename
+from app.posts.models import Post
 from flask import redirect, flash, g, abort, url_for
 from flask_login import current_user
 from functools import wraps
+
 
 def setup_required():
     def decorator(f):

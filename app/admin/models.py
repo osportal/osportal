@@ -2,13 +2,13 @@ from app.models import Country
 from app.department.models import Department
 from app.event.models import EventType
 from app.pages.models import Page
+from app.posts.models import Post
 from app.user.models import db, User, Role, Permission
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from sqlalchemy import func, or_, event
 
 
-
-class SystemEmail(db.Model, ResourceMixin):
+class SystemEmail(ResourceMixin):
     __tablename__ = 'system_email'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), nullable=False)
@@ -33,7 +33,7 @@ class SystemEmail(db.Model, ResourceMixin):
 
 
 
-class Settings(db.Model, ResourceMixin):
+class Settings(ResourceMixin):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
     setup = db.Column(db.Boolean, default=True, nullable=False)
@@ -114,6 +114,10 @@ class Dashboard(object):
     @classmethod
     def group_and_count_pages(cls):
         return Dashboard._group_and_count(Page, Page.active)
+
+    @classmethod
+    def group_and_count_posts(cls):
+        return Dashboard._group_and_count(Post, Post.name)
 
     @classmethod
     def group_and_count_emails(cls):

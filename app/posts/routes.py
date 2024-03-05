@@ -70,10 +70,11 @@ def post_new():
     return render_template('edit.html', form=form)
 
 
-@posts.route("/posts/edit/<int:id>", methods=['GET', 'POST'])
+@posts.route("/posts/<int:id>/edit", methods=['GET', 'POST'])
 @permission_required('admin.post', 'post', crud='update')
 def post_edit(id):
     post = Post.query.get_or_404(id)
+    post.is_locked()
     if post.user_id != current_user.id:
         if not current_user.role.superuser and \
                 not current_user.permission('admin.post', crud='update'):
@@ -92,10 +93,11 @@ def post_edit(id):
     return render_template('edit.html', form=form, post=post)
 
 
-@posts.route("/posts/delete/<int:id>", methods=['POST'])
+@posts.route("/posts/<int:id>/delete", methods=['POST'])
 @permission_required('admin.post', 'post', crud='delete')
 def post_delete(id):
     post = Post.query.get_or_404(id)
+    post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
     if post.user != current_user:
@@ -124,6 +126,8 @@ def post(id, page):
     # if current_user.permission('create_comments'):
     if form.validate_on_submit():
         comment = Comment()
+        # do not allow new comments on locked posts
+        post.is_locked()
         form.populate_obj(comment)
         comment.post_id=post.id
         comment.user_id=current_user.id
@@ -156,6 +160,10 @@ def comment(id):
 @permission_required('admin.comment', 'comment', crud='update')
 def comment_edit(id):
     comment = Comment.query.get_or_404(id)
+    # if post is locked, cannot edit comments
+    post = Post.query.get_or_404(comment.post_id)
+    if post.is_locked():
+        return redirect(403)
     if comment.user_id != current_user.id:
         if not current_user.role.superuser and \
                 not current_user.permission('admin.comment', crud='update'):
@@ -179,6 +187,9 @@ def comment_edit(id):
 @permission_required('admin.comment', 'comment', crud='delete')
 def comment_delete(id):
     comment = Comment.query.get_or_404(id)
+    # if post is locked, cannot delete comments
+    post = Post.query.get_or_404(comment.post_id)
+    post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
     if comment.user_id != current_user.id:
@@ -199,16 +210,25 @@ def comment_delete(id):
 @posts.route("/posts/<int:id>/pin", methods=['GET', 'POST'])
 @permission_required('admin.post', crud='update')
 def pin_post(id):
-    from app.posts.tasks import pin_post_task
-    pin_post_task.delay(id)
-    flash('Pin Post Scheduled', 'info')
+    post = Post.query.get_or_404(id)
+    print("POST", post)
+    try:
+        post.pin()
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    else:
+        flash('Pinned post', 'success')
     return redirect(url_for('posts.index'))
 
 
 @posts.route("/posts/<int:id>/unpin", methods=['GET', 'POST'])
 @permission_required('admin.post', crud='update')
 def unpin_post(id):
-    from app.posts.tasks import unpin_post_task
-    unpin_post_task.delay(id)
-    flash('Unpin Post Scheduled', 'info')
+    post = Post.query.get_or_404(id)
+    try:
+        post.unpin()
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    else:
+        flash('Unpinned post', 'success')
     return redirect(url_for('posts.index'))

@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+
+{% set active = 'admin.posts' %}
+{% set button = 'Save' %}
+
+{% if request.endpoint.endswith('new') %}
+    {% set endpoint = 'admin.posts_new' %}
+    {% set form_kwargs = {} %}
+    {% set legend = 'Create New Post' %}
+{% else %}
+    {% set endpoint = 'admin.posts_edit' %}
+    {% set form_kwargs = {'id': post.id} %}
+    {% set legend = 'Edit ' + post.name %}
+{% endif %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/vendor/ckeditor/ckeditor.js') }}"></script>
+<style>
+.ck-editor__editable {
+    min-height: 430px;
+    max-height: 450px;
+}
+</style>
+{% endblock head %}
+
+{% block content %}
+  {% set extra_setting_links = admin_post_sidebar(user=current_user) %}
+  {% include "menu.html" %}
+  {{ sidebaritems(extra_setting_links) }}
+  <legend>{{ legend }}</legend>
+
+
+  {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+
+      {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.user, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.locked, css_class='sm-margin-bottom') %}
+      <span>
+	  <small class="text-muted">
+       Deny all users, except post admins and superusers, CRUD access incl. comments.
+      </small>
+      </span>
+      {% endcall %}
+
+      {% call f.form_group(form.is_pin, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.content, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+  <!-- Submit buttons -->
+  <hr/>
+  <div class="row">
+    <div class="col-md-6">
+        <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
+    </div>
+    <div class="col-md-6">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.posts') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+  <!-- End of Submit buttons -->
+{% endblock content %}
+
+{% block scripts %}
+<script>var endpoint = "{{ url_for('user.mentions') }}"</script>
+<script src="{{ url_for('static', filename='js/textEditor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}
