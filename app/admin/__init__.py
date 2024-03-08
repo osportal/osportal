@@ -195,10 +195,10 @@ def admin_country_sidebar(user):
     for result in results:
         view = result[0]
         if view=='admin.countries' \
-            and current_user.permission('admin.countries', crud='read'):
+            and current_user.permission('admin.country', crud='read'):
                 yield result
         if view=='admin.countries_new' \
-            and current_user.permission('admin.countries_new', crud='create'):
+            and current_user.permission('admin.country', crud='create'):
                 yield result
 
 

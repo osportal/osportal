@@ -49,8 +49,6 @@ def before_request():
     pass
 
 
-# INDEX PAGES
-
 @admin.route('/')
 @admin_read_required()
 def dashboard():
@@ -108,7 +106,6 @@ def countries(page):
 @admin.route('/countries/<int:id>', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/countries/<int:id>/page/<int:page>', methods=['GET', 'POST'])
 @permission_required('admin.country', crud='read')
-@permission_required('admin.public_holiday', crud='read')
 def country(id, page):
     country = Country.query.get_or_404(id)
     list_years = PublicHoliday.unique_years_by_country(country.id)
@@ -228,7 +225,7 @@ def permissions(page):
     search_form = SearchForm()
     sort_by = Permission.sort_by(request.args.get('sort', 'created_at'),
                            request.args.get('direction', 'desc'))
-    #first order value is in double quotes because 'create' is keyword in postgres
+    # first order value is in double quotes because 'create' is keyword in postgres
     # and throws syntax error
     order_values = '"{0}" {1}'.format(sort_by[0], sort_by[1])
 
@@ -272,7 +269,8 @@ def pages_new():
     return render_template('pages/edit.html', form=form)
 
 
-@admin.route('/pages/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/pages/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.page', crud='update')
 def pages_edit(id):
     page = Page.query.get(id)
     form = PageForm(obj=page)
@@ -398,6 +396,7 @@ def settings_edit():
 
 
 @admin.route('/emails/new', methods=['GET', 'POST'])
+@permission_required('admin.system_email', crud='create')
 def emails_new():
     email = SystemEmail()
     form = SystemEmailForm()
@@ -413,8 +412,8 @@ def emails_new():
     return render_template('email/edit.html', form=form)
 
 
-# EDIT ROUTES
 @admin.route('/emails/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.system_email', crud='update')
 def emails_edit(id):
     email = SystemEmail.query.get_or_404(id)
     form = SystemEmailForm(obj=email)
@@ -432,6 +431,7 @@ def emails_edit(id):
                            form=form,
                            email=email
                            )
+
 
 @admin.route('/emails/<int:id>/delete', methods=['POST'])
 @permission_required('admin.system_email', crud='delete')
@@ -502,6 +502,7 @@ def countries_edit(id):
                            form=form,
                            country=country
                            )
+
 
 @admin.route('/countries/new', methods=['GET', 'POST'])
 @permission_required('admin.country', crud='create')
@@ -746,6 +747,7 @@ def event_bulk_enable():
 
 
 @admin.route('/pages/bulk_disable', methods=['POST'])
+@permission_required('admin.page', crud='update')
 def pages_bulk_disable():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -756,6 +758,7 @@ def pages_bulk_disable():
 
 
 @admin.route('/pages/bulk_enable', methods=['POST'])
+@permission_required('admin.page', crud='update')
 def pages_bulk_enable():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -766,6 +769,7 @@ def pages_bulk_enable():
 
 
 @admin.route('/pages/bulk_delete', methods=['POST'])
+@permission_required('admin.page', crud='delete')
 def pages_bulk_delete():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -808,49 +812,49 @@ def users_new():
 @admin.route('/users/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='read')
 def users_info(id):
-    user = User.query.get(id)
+    user = User.query.get_or_404(id)
     return render_template('user/info.html', user=user)
 
 
 @admin.route('/roles/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.role', crud='read')
 def roles_info(id):
-    role = Role.query.get(id)
+    role = Role.query.get_or_404(id)
     return render_template('role/info.html', role=role)
 
 
 @admin.route('/permissions/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.permission', crud='read')
 def permissions_info(id):
-    perm = Permission.query.get(id)
+    perm = Permission.query.get_or_404(id)
     return render_template('permission/info.html', perm=perm)
 
 
 @admin.route('/departments/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.department', crud='read')
 def departments_info(id):
-    dept = Department.query.get(id)
+    dept = Department.query.get_or_404(id)
     return render_template('department/info.html', dept=dept)
 
 
 @admin.route('/events/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.event_type', crud='read')
 def event_type_info(id):
-    etype = EventType.query.get(id)
+    etype = EventType.query.get_or_404(id)
     return render_template('event_type/info.html', etype=etype)
 
 
 @admin.route('/pages/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.page', crud='read')
 def pages_info(id):
-    page = Page.query.get(id)
+    page = Page.query.get_or_404(id)
     return render_template('pages/info.html', page=page)
 
 
 @admin.route('/emails/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='read')
 def emails_info(id):
-    email = SystemEmail.query.get(id)
+    email = SystemEmail.query.get_or_404(id)
     return render_template('email/info.html', email=email)
 
 
@@ -900,6 +904,7 @@ def users_edit(id):
 
 
 @admin.route('/roles/bulk_delete', methods=['POST'])
+@permission_required('admin.role', crud='delete')
 def roles_bulk_delete():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -910,6 +915,7 @@ def roles_bulk_delete():
 
 
 @admin.route('/users/bulk_delete', methods=['POST'])
+@permission_required('admin.user', crud='delete')
 def users_bulk_delete():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -920,6 +926,7 @@ def users_bulk_delete():
 
 
 @admin.route('/users/bulk_lock', methods=['POST'])
+@permission_required('admin.user', crud='update')
 def users_bulk_lock():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -930,6 +937,7 @@ def users_bulk_lock():
 
 
 @admin.route('/users/bulk_unlock', methods=['POST'])
+@permission_required('admin.user', crud='update')
 def users_bulk_unlock():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -940,6 +948,7 @@ def users_bulk_unlock():
 
 
 @admin.route('/users/bulk_password_reset', methods=['POST'])
+@permission_required('admin.user', crud='update')
 def users_bulk_password_reset():
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
@@ -950,6 +959,7 @@ def users_bulk_password_reset():
 
 
 @admin.route('/users/password_reset/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.user', crud='update')
 def password_reset(id):
     user = User.query.get(id)
     form = ResetPasswordForm()
@@ -966,6 +976,7 @@ def password_reset(id):
 
 
 @admin.route('/permissions/new', methods=['GET', 'POST'])
+@permission_required('admin.permission', crud='create')
 def permissions_new():
     permission = Permission()
     form = PermissionForm()
@@ -982,6 +993,7 @@ def permissions_new():
 
 
 @admin.route('/permissions/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.permission', crud='update')
 def permissions_edit(id):
     permission = Permission.query.get_or_404(id)
     form = PermissionForm(obj=permission)
@@ -1022,6 +1034,7 @@ def permissions_delete(id):
 
 
 @admin.route('/roles/new', methods=['GET', 'POST'])
+@permission_required('admin.role', crud='create')
 def roles_new():
     role = Role()
     form = RoleForm()
@@ -1181,6 +1194,7 @@ def export_zip():
 
 
 @admin.route('/test-email-config/<int:id>', methods=['POST'])
+@permission_required('admin.system_email', crud='read')
 def test_email_config(id):
     from app.email import test_email
     return test_email(id)
@@ -1202,6 +1216,7 @@ def celery_status():
     return jsonify(celery_running=celery_running, status=200)
 
 
+# TODO add plugin permissions
 def get_valid_plugins():
     Plugin = namedtuple("Plugin", ["name", "route"])
 
