@@ -8,8 +8,8 @@ from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from sqlalchemy import func, or_, event
 
 
-class SystemEmail(ResourceMixin):
-    __tablename__ = 'system_email'
+class Email(ResourceMixin):
+    __tablename__ = 'email'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), nullable=False)
     email = db.Column(FmtString(120), unique=True, nullable=False)
@@ -27,7 +27,7 @@ class SystemEmail(ResourceMixin):
     @classmethod
     def search(cls, query):
         search_query = '%{0}%'.format(query)
-        search_chain = (SystemEmail.name.ilike(search_query),)
+        search_chain = (Email.name.ilike(search_query),)
 
         return or_(*search_chain)
 
@@ -66,12 +66,12 @@ class Settings(ResourceMixin):
     user_registration = db.Column(db.Boolean, nullable=True, default=False)
 
     #Email
-    alert_email_id = db.Column(db.Integer, db.ForeignKey('system_email.id'), nullable=True)
-    system_email_id = db.Column(db.Integer, db.ForeignKey('system_email.id'), nullable=True)
+    alert_email_id = db.Column(db.Integer, db.ForeignKey('email.id'), nullable=True)
+    system_email_id = db.Column(db.Integer, db.ForeignKey('email.id'), nullable=True)
 
     # relationships
-    system_email = db.relationship('SystemEmail', foreign_keys=[system_email_id], backref='system_email_ref', uselist=False)
-    alert_email = db.relationship('SystemEmail', foreign_keys=[alert_email_id], backref='alert_email_ref', uselist=False)
+    system_email = db.relationship('Email', foreign_keys=[system_email_id], backref='system_email_ref', uselist=False)
+    alert_email = db.relationship('Email', foreign_keys=[alert_email_id], backref='alert_email_ref', uselist=False)
 
     #LDAP
     #TODO ldap will be migrated to plugin system
@@ -121,7 +121,7 @@ class Dashboard(object):
 
     @classmethod
     def group_and_count_emails(cls):
-        return Dashboard._group_and_count(SystemEmail, SystemEmail.name)
+        return Dashboard._group_and_count(Email, Email.name)
 
     @classmethod
     def group_and_count_countries(cls):

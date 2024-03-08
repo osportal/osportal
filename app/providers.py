@@ -1,5 +1,5 @@
 import smtplib
-from app.admin.models import Settings, SystemEmail
+from app.admin.models import Settings, Email
 from flask import current_app
 from email.message import EmailMessage
 from email.utils import formataddr
@@ -9,7 +9,7 @@ from unittest import TestCase
 
 def get_email(obj_id):
     with current_app.app_context():
-        email = SystemEmail.query.get_or_404(obj_id)
+        email = Email.query.get_or_404(obj_id)
         return email
 
 

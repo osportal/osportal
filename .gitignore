@@ -170,3 +170,4 @@ cython_debug/
 *.db
 *.txt
 !requirements.txt
+migrations/versions/*

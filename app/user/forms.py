@@ -7,11 +7,13 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import (DataRequired, Regexp, ValidationError,
-                                Email, Length, EqualTo, NumberRange,
+                                Length, EqualTo, NumberRange,
                                 Optional)
 from wtforms import (StringField, PasswordField, IntegerField,
                      SubmitField, BooleanField, TextAreaField,
                      SelectField, HiddenField, DateField)
+# import email validator as different name due to naming conflict with admin model Email
+from wtforms.validators import Email as EmailVal
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 
@@ -24,7 +26,7 @@ class UserForm(ModelForm):
                                Length(min=2, max=113),
                                #Regexp(r'^[\w]+$', message=username_message)
                                ])
-    email = StringField('Email', validators=[check_email_exists, DataRequired(), Email()])
+    email = StringField('Email', validators=[check_email_exists, DataRequired(), EmailVal()])
     country = QuerySelectField('Country',
                                query_factory=lambda: Country.query.order_by(Country.name).all(),
                                widget=Select2Widget(),
@@ -56,7 +58,7 @@ class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+                        validators=[DataRequired(), EmailVal()])
     image_file = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     bio = TextAreaField('Bio', validators=[Optional(), Length(min=2,max=255)])
     submit = SubmitField('Update')
@@ -76,7 +78,7 @@ class UpdateAccountForm(FlaskForm):
 
 class ForgotPasswordForm(FlaskForm):
     email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+                        validators=[DataRequired(), EmailVal()])
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()

@@ -3,7 +3,7 @@
 {% import 'macros/pagination.html' as items %}
 {%- from "macros/navigation.html" import navlink with context -%}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
-{% set table_name = 'system_email' %}
+{% set table_name = 'email' %}
 
 {% block title %}Emails - Admin{% endblock %}
 
@@ -81,13 +81,13 @@
         {% endif %}
         </td>
         <td>
-            {% if current_user.permission('admin.system_email', crud='update') %}
+            {% if current_user.permission('admin.email', crud='update') %}
                 <a class="btn btn-sm btn-primary" 
                    href="{{ url_for('admin.emails_edit', id=email.id) }}" type="button">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
             {% endif %}
-            {% if current_user.permission('admin.system_email', crud='delete') %}
+            {% if current_user.permission('admin.email', crud='delete') %}
                 {{ forms.action_confirm(
                     id="delete" ~ email.id,
                     url=url_for('admin.emails_delete', id=email.id),

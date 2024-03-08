@@ -184,7 +184,7 @@
         </a>
     </div>
     {% endif %}
-    {% if current_user.permission('admin.system_email', crud='read') %}
+    {% if current_user.permission('admin.email', crud='read') %}
     <!-- Emails card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
         <a href="{{ url_for('admin.emails') }}">

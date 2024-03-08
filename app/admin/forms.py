@@ -1,4 +1,4 @@
-from app.admin.models import Settings, SystemEmail
+from app.admin.models import Settings, Email
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
 from app.event.models import Event
@@ -26,8 +26,10 @@ from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.widgets import ColorInput
 from wtforms.fields import DateField as DatePickerField
 from wtforms.validators import (DataRequired, Regexp, ValidationError,
-                                Email, Length, EqualTo, NumberRange,
+                                Length, EqualTo, NumberRange,
                                 Optional)
+# import email validator as different name due to naming conflict with admin model Email
+from wtforms.validators import Email as EmailVal
 from wtforms.widgets import HiddenInput, PasswordInput
 
 
@@ -243,13 +245,13 @@ class SettingsForm(FlaskForm):
 
     #Email
     system_email = QuerySelectField('System Email',
-                                    query_factory=lambda: SystemEmail.query.all(),
+                                    query_factory=lambda: Email.query.all(),
                                     get_pk=lambda s: s.id,
                                     allow_blank=True,
                                     validators=[Optional()]
                                     )
     alert_email = QuerySelectField('Alert Email',
-                                   query_factory=lambda: SystemEmail.query.all(),
+                                   query_factory=lambda: Email.query.all(),
                                    get_pk=lambda s: s.id,
                                    allow_blank=True,
                                    validators=[Optional()]
@@ -263,7 +265,7 @@ class SettingsForm(FlaskForm):
     public_holiday_colour = StringField('Public Holiday Colour', widget=ColorInput())
 
 
-class SystemEmailForm(FlaskForm):
+class EmailForm(FlaskForm):
     name = StringField('Display Name', validators=[DataRequired(), Length(1, 50)])
     email = EmailField('Send Email From', validators=[DataRequired()])
     server = StringField('Mail Server', validators=[DataRequired()])
@@ -277,7 +279,7 @@ class SystemEmailForm(FlaskForm):
 
 class UpdateAccountForm(FlaskForm):
     email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+                        validators=[DataRequired(), EmailVal()])
     email_nots = BooleanField('Receive email notifications')
     submit = SubmitField('Update')
 

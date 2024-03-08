@@ -20,9 +20,9 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              SettingsForm, PageForm, EventTypeSettingsForm,
                              EventRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
-                             SystemEmailForm, ResetPasswordForm,
+                             EmailForm, ResetPasswordForm,
                              PublicHolidayYearForm, AdminPostForm)
-from app.admin.models import Dashboard, Settings, SystemEmail
+from app.admin.models import Dashboard, Settings, Email
 from app.admin.utils import get_settings_value
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
@@ -71,14 +71,14 @@ def dashboard():
 
 @admin.route('/emails', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/emails/page/<int:page>', methods=['GET', 'POST'])
-@permission_required('admin.system_email', crud='read')
+@permission_required('admin.email', crud='read')
 def emails(page):
     search_form = SearchForm()
-    sort_by = SystemEmail.sort_by(request.args.get('sort', 'name'),
+    sort_by = Email.sort_by(request.args.get('sort', 'name'),
                               request.args.get('direction', 'asc'))
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
-    paginated_emails = SystemEmail.query \
-        .filter(SystemEmail.search((request.args.get('q', text(''))))) \
+    paginated_emails = Email.query \
+        .filter(Email.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
         .paginate(page, get_settings_value('items_per_admin_page'), True)
     return render_template('email/index.html',
@@ -396,10 +396,10 @@ def settings_edit():
 
 
 @admin.route('/emails/new', methods=['GET', 'POST'])
-@permission_required('admin.system_email', crud='create')
+@permission_required('admin.email', crud='create')
 def emails_new():
-    email = SystemEmail()
-    form = SystemEmailForm()
+    email = Email()
+    form = EmailForm()
     if form.validate_on_submit():
         try:
             form.populate_obj(email)
@@ -413,10 +413,10 @@ def emails_new():
 
 
 @admin.route('/emails/<int:id>/edit', methods=['GET', 'POST'])
-@permission_required('admin.system_email', crud='update')
+@permission_required('admin.email', crud='update')
 def emails_edit(id):
-    email = SystemEmail.query.get_or_404(id)
-    form = SystemEmailForm(obj=email)
+    email = Email.query.get_or_404(id)
+    form = EmailForm(obj=email)
     if form.validate_on_submit():
         try:
             form.populate_obj(email)
@@ -434,9 +434,9 @@ def emails_edit(id):
 
 
 @admin.route('/emails/<int:id>/delete', methods=['POST'])
-@permission_required('admin.system_email', crud='delete')
+@permission_required('admin.email', crud='delete')
 def emails_delete(id):
-    email = SystemEmail.query.get_or_404(id)
+    email = Email.query.get_or_404(id)
     try:
         email.delete()
     except (IntegrityError, PendingRollbackError) as e:
@@ -854,7 +854,7 @@ def pages_info(id):
 @admin.route('/emails/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='read')
 def emails_info(id):
-    email = SystemEmail.query.get_or_404(id)
+    email = Email.query.get_or_404(id)
     return render_template('email/info.html', email=email)
 
 
@@ -1194,7 +1194,7 @@ def export_zip():
 
 
 @admin.route('/test-email-config/<int:id>', methods=['POST'])
-@permission_required('admin.system_email', crud='read')
+@permission_required('admin.email', crud='read')
 def test_email_config(id):
     from app.email import test_email
     return test_email(id)

@@ -17,7 +17,7 @@
     </div>
     <div class="col-auto">
       <div class="btn-toolbar"> 
-      {% if current_user.permission('admin.system_email', crud='update') %}
+      {% if current_user.permission('admin.email', crud='update') %}
           <div class="btn-group mr-2"> 
               <a role="button" 
                  href="{{ url_for('admin.emails_edit', id=email.id) }}"
@@ -25,7 +25,7 @@
               </a>
           </div>
       {% endif %}
-      {% if current_user.permission('admin.system_email', crud='delete') %}
+      {% if current_user.permission('admin.email', crud='delete') %}
           <div class="btn-group mr-2"> 
           {{ forms.action_confirm(
               id="delete" ~ email.id,

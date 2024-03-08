@@ -44,7 +44,7 @@ def admin_settings_menu(user):
                 and current_user.permission('admin.page', crud='read'):
                     yield result
         if (view=='admin.emails') \
-                and current_user.permission('admin.system_email', crud='read'):
+                and current_user.permission('admin.email', crud='read'):
                     yield result
         if (view=='admin.countries') \
                 and current_user.permission('admin.country', crud='read'):
@@ -181,10 +181,10 @@ def admin_emails_sidebar(user):
     for result in results:
         view = result[0]
         if view == 'admin.emails' \
-            and current_user.permission('admin.system_email', crud='read'):
+            and current_user.permission('admin.email', crud='read'):
                 yield result
         if view == 'admin.emails_new' \
-            and current_user.permission('admin.system_email', crud='create'):
+            and current_user.permission('admin.email', crud='create'):
                 yield result
 
 def admin_country_sidebar(user):
