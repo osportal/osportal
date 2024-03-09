@@ -16,6 +16,7 @@ from app.user.validations import (check_username_exists,
                                   check_permission_exists)
 from app.utils.util_wtforms import ModelForm, choices_from_dict
 from app.utils.csv import dump_database_table
+from app.validations import check_country_exists, check_alpha_code_exists
 from collections import OrderedDict
 from flask import request
 from flask_admin.form.widgets import Select2Widget
@@ -68,8 +69,12 @@ class AdminPostForm(PostForm):
 
 
 class CountryForm(ModelForm):
-    code = StringField('Alpha Code', validators=[DataRequired(), Length(1, 5)])
-    name = StringField(validators=[DataRequired(), Length(1, 100)])
+    code = StringField('Alpha Code', validators=[DataRequired(),
+                                                 check_alpha_code_exists,
+                                                 Length(1, 5)])
+    name = StringField(validators=[DataRequired(),
+                                   check_country_exists,
+                                   Length(1, 100)])
     # TODO days need DataRequired validator instead of Optional
     default_annual_allowance = IntegerField('Default Annual Entitlement', validators=[Optional(), NumberRange(min=0,max=100)])
     default_carry_over_days = IntegerField('Default Carry Over Days', validators=[Optional(), NumberRange(min=0, max=100)])

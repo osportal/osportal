@@ -12,7 +12,7 @@ class Email(ResourceMixin):
     __tablename__ = 'email'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), nullable=False)
-    email = db.Column(FmtString(120), unique=True, nullable=False)
+    email = db.Column(FmtString(120), nullable=False)
     server = db.Column(FmtString(120))
     port = db.Column(db.Integer)
     ssl = db.Column(db.Boolean, default=False) # SSL/TLS
