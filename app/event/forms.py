@@ -1,6 +1,5 @@
 from app.event.models import EventType
 from app.event.validations import (check_end_date,
-                                   check_et_exists,
                                    check_leave_year_start,
                                    check_allowance,
                                    check_approval

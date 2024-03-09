@@ -1,6 +1,7 @@
 from app.event.models import EventType
 import datetime
 from flask_login import current_user
+from sqlalchemy import func
 from wtforms_components import DateRange
 from wtforms.validators import ValidationError, StopValidation, DataRequired
 
@@ -36,9 +37,13 @@ def check_end_date(form, field):
 
 
 def check_et_exists(form, field):
-    et = EventType.query.filter(EventType.name==field.data.lower()).first()
+    # checks new and current data when editing existing instance, returns if they are the same
+    if field.object_data: # otherwise we get a NoneType Error when checking for lowercase
+        if field.object_data.lower() == field.data.lower():
+            return
+    et = EventType.query.filter(func.lower(EventType.name)==field.data.lower()).first()
     if et:
-        raise ValidationError('Name already exists')
+        raise ValidationError('Event Type already exists')
 
 
 def check_leave_year_start(form, field):

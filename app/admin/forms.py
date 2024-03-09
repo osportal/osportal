@@ -1,12 +1,19 @@
 from app.admin.models import Settings, Email
 from app.department.models import Department, DepartmentMembers
+from app.department.validations import check_dept_exists
 from app.extensions import db
 from app.event.models import Event
+from app.event.validations import check_et_exists
 from app.models import Country, PublicHoliday
+from app.pages.validations import check_page_route_exists
 from app.posts.forms import PostForm
 from app.user.forms import UserForm
 from app.user.models import User, Role, Permission
-from app.user.validations import check_username_exists, check_email_exists, check_authoriser
+from app.user.validations import (check_username_exists,
+                                  check_email_exists,
+                                  check_authoriser,
+                                  check_role_exists,
+                                  check_permission_exists)
 from app.utils.util_wtforms import ModelForm, choices_from_dict
 from app.utils.csv import dump_database_table
 from collections import OrderedDict
@@ -79,7 +86,7 @@ class PublicHolidayForm(ModelForm):
 
 
 class PageForm(FlaskForm):
-    custom_message = 'Only alphanumeric characters and hyphens are supported.'
+    custom_message = 'Only alphanumeric characters, hyphens, periods, underscores and tildes are supported.'
     name = StringField(validators=[
         DataRequired(),
         Length(1, 25),
@@ -88,8 +95,9 @@ class PageForm(FlaskForm):
     ])
     active = BooleanField('Active')
     route = StringField(validators=[DataRequired(),
+                                    check_page_route_exists,
                                     Length(1,128),
-                                    Regexp(r'^[\w-]+$', message=custom_message)
+                                    Regexp(r'^[_.~\w-]+$', message=custom_message)
                                     ])
     content = TextAreaField('Content', validators=[DataRequired()], render_kw={'id': 'ckeditor'})
 
@@ -119,7 +127,7 @@ class NewUserForm(UserForm):
 
 class NewDepartmentForm(ModelForm):
     name = StringField(validators=[
-        Unique(Department.name),
+        check_dept_exists,
         DataRequired(),
         Length(1, 65),
     ])
@@ -140,6 +148,7 @@ class RoleForm(ModelForm):
     #custom_message = 'Alphanumeric characters only please.'
 
     name = StringField(validators=[DataRequired(),
+                                   check_role_exists,
                                    Length(1, 30),
                                    #Regexp(r'^[\w &]+$', message=custom_message)
                                    ])
@@ -186,6 +195,7 @@ class PermissionForm(ModelForm):
 
     #custom_message = 'Alphanumeric characters only please.'
     name = StringField(validators=[DataRequired(),
+                                   check_permission_exists,
                                    Length(1, 30),
                                    #Regexp(r'^[\w &]+$', message=custom_message)
                                    ])
@@ -198,7 +208,7 @@ class PermissionForm(ModelForm):
 
 
 class EventTypeSettingsForm(ModelForm):
-    name = StringField('Name', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired(), check_et_exists])
     active = BooleanField('Active')
     #hex_colour = StringField('Colour', validators=[DataRequired()])
     hex_colour = StringField('Colour', widget=ColorInput())

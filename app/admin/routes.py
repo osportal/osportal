@@ -868,7 +868,7 @@ def settings():
 @admin.route('/users/edit/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='update')
 def users_edit(id):
-    user = User.query.get(id)
+    user = User.query.get_or_404(id)
     form = NewUserForm(obj=user, departments=user.department)
     if form.validate_on_submit():
         """
