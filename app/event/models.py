@@ -11,8 +11,8 @@ class EventType(ResourceMixin):
     deductable = db.Column(db.Boolean, default=False, nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
     approval = db.Column(db.Boolean, default=True, nullable=False)
-    hex_colour = db.Column(StripStr(10), nullable=True, default='#0066FF') # TODO change nullable=False
-    max_days = db.Column(db.Integer, nullable=True, default=28)
+    hex_colour = db.Column(StripStr(10), nullable=False, default='#0066FF')
+    max_days = db.Column(db.Integer, nullable=True, default=14)
 
     def __repr__(self):
         return self.name

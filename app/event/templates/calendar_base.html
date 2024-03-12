@@ -40,7 +40,6 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
     authoriser = '{{ current_user.authoriser }}';
-    allowance = '{{ current_user.total_holiday_entitlement }}';
     daysLeft = '{{ current_user.days_left }}';// use for pie chart
     daysUsed = '{{ current_user.used_days }}';// use for pie chart
     const selectType = document.querySelector('#event-type-select');

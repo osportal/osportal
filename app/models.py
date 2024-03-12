@@ -42,8 +42,8 @@ class Country(ResourceMixin):
     code = db.Column(StripStr(5), unique=True)
     name = db.Column(StripStr(100), unique=True, nullable=False)
     holidays = db.relationship('PublicHoliday', backref='country', primaryjoin='Country.id==PublicHoliday.country_id', lazy='select')
-    default_annual_allowance = db.Column(db.Integer, nullable=True)#TODO need nullable changing to False
-    default_carry_over_days = db.Column(db.Integer, nullable=True)
+    default_annual_allowance = db.Column(db.Integer, nullable=True, default=25)#TODO need nullable changing to False
+    max_carry_over_days = db.Column(db.Integer, nullable=True, default=10)
 
     def __repr__(self):
         return self.name

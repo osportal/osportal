@@ -24,7 +24,6 @@ function calculate_days_for_user(endpoint, etype_endpoint){
 
     const execute = () => { 
         etype.then((etype_value) => { 
-            console.log(etype_value);
             fetch(endpoint, {
                 method: "GET",
                 headers: {
@@ -35,7 +34,6 @@ function calculate_days_for_user(endpoint, etype_endpoint){
             .then((data) => {
                 daysStr = data;
                 if (data.status){
-                    console.log(data.status);
                     // for invalid date format e.g. too many digits for year
                     if (data.status === 400){
                         document.getElementById('calculate-days-val').innerHTML = data.message;
@@ -45,11 +43,11 @@ function calculate_days_for_user(endpoint, etype_endpoint){
                     if (parseFloat(data) > parseFloat(etype_value.max_days)){
                         document.getElementById('calculate-days-val').innerHTML = "Exceeds the maximum length of days you can request in one occurrence"
                     } 
-                    // if selected event type is deductable, validate allowance
+                    // if selected event type is deductable, validate daysLeft
                     else if (etype_value.deduct === 'True'){
-                        /* data and allowance vars are strings, 
+                        /* data and daysLeft vars are strings, 
                         therefore must be converted in order to compare */
-                        if (parseFloat(data) > parseFloat(allowance)){
+                        if (parseFloat(data) > parseFloat(daysLeft)){
                             document.getElementById('calculate-days-val').innerHTML = "You don't have enough allowance for this request";
                         }
                         else if ( (parseFloat(data) === 0) || (parseFloat(data) <= 0) ){
@@ -112,16 +110,5 @@ function hideCalendar(){
 
 
 function checkAuthoriserExists(target){
-    /* if array is not empty 
-    if (authoriser === 'None' || authoriser == ''){
-        const message = 'You do not have an authoriser assigned. Contact administrator for help.';
-        flash_message(message);
-    }
-    else if (allowance === 'None' || allowance <= 0){
-    	const message = 'You do not have any leave allowance. Contact administrator for help.';
-        flash_message(message);
-    }
-    else {*/
-        $(target).modal('show');
-    //}
+    $(target).modal('show');
 }

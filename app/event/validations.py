@@ -16,6 +16,7 @@ def check_approval(form, field):
             raise ValidationError('''This Type requires an authoriser to be
                                   assigned to your profile. Contact administrator.''')
 
+
 def check_end_date(form, field):
     if hasattr(form, 'half_day'):
         if form.half_day.data == True:

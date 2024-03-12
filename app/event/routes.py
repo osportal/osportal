@@ -171,11 +171,14 @@ def index():
             requested = calculate_requested_days(form, event, current_user)
             #TODO move Error handling to separate function
             etype = EventType.query.get(form.etype.data.id)
+            if requested > etype.max_days:
+                abort(400, 'Exceeds the maximum length of days you can \
+                      request in one occurrence')
             if etype.deductable:
-                if not current_user.total_holiday_entitlement:
+                if not current_user.days_left:
                     abort(400)
-                if requested > current_user.total_holiday_entitlement:
-                    abort(400)
+                if requested > current_user.days_left:
+                    abort(400, 'Not enough allowance for this request')
             form.populate_obj(event)
             event.user_id=current_user.id
             event.etype_id=form.etype.data.id

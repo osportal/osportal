@@ -154,11 +154,11 @@ class User(UserMixin, ResourceMixin):
     # Leave Days
     leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
     annual_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    total_holiday_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    max_carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
     used_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
     days_left = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    #total_holiday_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    #max_carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
 
     # RELATIONSHIPS
     role = db.relationship("Role", foreign_keys=[role_id], backref='user')
@@ -418,13 +418,11 @@ class User(UserMixin, ResourceMixin):
         return self.save()
 
     def deduct_leave_days(self, days):
-        self.used_days += days
-        #self.total_holiday_entitlement -= days
-        self.days_left = self.total_holiday_entitlement - self.used_days
+        self.used_days = self.used_days + days
+        self.days_left = self.days_left - days
 
     def reinstate_allowance_days(self, days):
         self.used_days -= days
-        #self.total_holiday_entitlement += days
         self.days_left += days
 
     def is_active(self):
@@ -533,7 +531,6 @@ class User(UserMixin, ResourceMixin):
         columns = [
             [self.annual_entitlement, 'Annual Entitlement'],
             [self.carry_over_days, 'Days Carried Over From Last Year'],
-            [self.total_holiday_entitlement, 'Total Annual Entitlement'],
             [self.used_days,'Used and Authorised Days'],
             [self.days_left, 'Days Left']
         ]

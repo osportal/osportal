@@ -657,11 +657,10 @@ def departments_bulk_delete():
 @admin.route('/event-type/new', methods=['GET', 'POST'])
 @permission_required('admin.event_type', crud='create')
 def event_type_new():
-    event_type = EventType(active=True, hex_colour='#0066FF')
+    event_type = EventType(active=True, hex_colour='#0066FF', max_days=14)
     form = EventTypeSettingsForm(obj=event_type)
     try:
         if form.validate_on_submit():
-            #event_type = EventType(name=form.name.data, hex_colour=form.hex_colour.data)
             form.populate_obj(event_type)
             event_type.save()
             flash(f'Successfully created {event_type.name}', 'success')
@@ -790,9 +789,7 @@ def users_new():
             #TODO move annual allowance setup into succint method
             # that user.register can also use
             user.annual_entitlement = user.country.default_annual_allowance
-            user.total_holiday_entitlement = user.annual_entitlement
-            user.max_carry_over_days = user.country.default_carry_over_days
-            user.days_left = user.total_holiday_entitlement
+            user.days_left = user.annual_entitlement
             user.save()
             if form.send_activation_account_email.data == True:
                 # send activation email

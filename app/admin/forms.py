@@ -75,9 +75,8 @@ class CountryForm(ModelForm):
     name = StringField(validators=[DataRequired(),
                                    check_country_exists,
                                    Length(1, 100)])
-    # TODO days need DataRequired validator instead of Optional
-    default_annual_allowance = IntegerField('Default Annual Entitlement', validators=[Optional(), NumberRange(min=0,max=100)])
-    default_carry_over_days = IntegerField('Default Carry Over Days', validators=[Optional(), NumberRange(min=0, max=100)])
+    default_annual_allowance = IntegerField('Default Annual Entitlement', validators=[DataRequired(), NumberRange(min=0,max=100)])
+    max_carry_over_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired(), NumberRange(min=0, max=100)])
 
 
 class PublicHolidayYearForm(ModelForm):
@@ -108,7 +107,6 @@ class PageForm(FlaskForm):
 
 
 class NewUserForm(UserForm):
-
     role = QuerySelectField('Role', query_factory=lambda: Role.query.all(), get_pk=lambda r: r.id, allow_blank=True,
                             validators=[Optional()])
     active = BooleanField('Allow this user to sign in')
@@ -121,13 +119,9 @@ class NewUserForm(UserForm):
     job_title = StringField(validators=[Optional(), Length(1, 50)])
     leave_year_start = DateField('Leave Year Start', validators=[Optional()])
     annual_entitlement = DecimalField('Annual Entitlement', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
-    total_holiday_entitlement = DecimalField('Total Holiday Entitlement', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
-    carry_over_days = DecimalField('Carry Over Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
+    carry_over_days = DecimalField('Carried Over Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     used_days = DecimalField('Used Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     days_left = DecimalField('Days Left', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
-    #country = QuerySelectField('Country', query_factory=lambda: Country.query.order_by(Country.name).all(),
-    #                           widget=Select2Widget(), allow_blank=False, validators=[DataRequired()],
-    #                           default=lambda: Country.query.filter(Country.name=='United Kingdom').first())
 
 
 class NewDepartmentForm(ModelForm):
@@ -219,7 +213,7 @@ class EventTypeSettingsForm(ModelForm):
     hex_colour = StringField('Colour', widget=ColorInput())
     deductable = BooleanField('Deduct days from allowance?')
     approval = BooleanField('Approval required?')
-    max_days = IntegerField('Maximum Length (days)', validators=[DataRequired()])
+    max_days = IntegerField('Maximum Length (days)', default=14, validators=[DataRequired()])
 
 
 class EventRequestsForm(ModelForm):

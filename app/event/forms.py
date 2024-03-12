@@ -26,7 +26,7 @@ class EventForm(FlaskForm):
                              query_factory = lambda: EventType.query.filter(EventType.active==True).all(),
                              get_pk=lambda et: et.id, widget=Select2Widget(),
                              allow_blank=False,
-                             validators=[DataRequired(),check_approval],
+                             validators=[DataRequired(), check_approval],
                              render_kw={"id": "event-type-select"}
                              )
     details = TextAreaField('Details',

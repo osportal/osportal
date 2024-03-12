@@ -52,13 +52,14 @@ def create_default_roles():
 def create_default_event_types():
     # default name and deductable values
     types = [
-            ("Holiday", True),
-            ("Sickness", False)
+            ("Holiday", True, 14),
+            ("Sickness", False, 7)
     ]
     for event_type in types:
         params = {
             'name': event_type[0],
-            'deductable': event_type[1]
+            'deductable': event_type[1],
+            'max_days': event_type[2]
         }
         EventType(**params).save()
 
