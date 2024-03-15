@@ -16,6 +16,7 @@ def admin_settings_menu(user):
         ('admin.countries', 'Countries', 'bi bi-globe'),
         ('admin.plugins', 'Plugins', 'bi bi-plugin'),
         ('admin.settings', 'Settings', 'bi bi-tools'),
+        ('admin.backup', 'Data Export/Import', 'bi bi-download'),
     ]
     for result in results:
         view = result[0]
@@ -51,6 +52,9 @@ def admin_settings_menu(user):
                     yield result
         if (view=='admin.plugins') \
                 and current_user.permission('admin.plugin', crud='read'):
+                    yield result
+        if (view=='admin.backup') \
+                and current_user.permission('admin.data', crud='read'):
                     yield result
         if view=='admin.settings' \
                 and current_user.permission('admin.settings', crud='read'):
@@ -216,8 +220,6 @@ def admin_plugins_sidebar(user):
 def admin_settings_sidebar(user):
     results = [
         ('admin.settings', 'Manage', ''),
-        ('admin.backup', 'Import/Export Data', ''),
-        #('admin.ldap_edit', 'LDAP Auth', ''),
     ]
     # TODO need to decide on whether to show then edit settings etc.
     for result in results:
@@ -228,9 +230,6 @@ def admin_settings_sidebar(user):
         #if view == 'admin.ldap_edit' \
         #    and current_user.permission('admin.settings', crud='read'):
         #        yield result
-        if view == 'admin.backup' \
-            and current_user.permission('admin.settings', crud='read'):
-                yield result
 
 
 def update_admin_jinja_globals(app):

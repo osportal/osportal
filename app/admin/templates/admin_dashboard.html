@@ -229,7 +229,7 @@
     </div>
     {% endif %}
     <!-- Plugins card -->
-    <!-- TODO add plugin permission -->
+    {% if current_user.permission('admin.plugin', crud='read') %}
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
         <a href="{{ url_for('admin.plugins') }}">
             <div class="card border-left-warning shadow h-100 py-2">
@@ -249,6 +249,27 @@
             </div>
         </a>
     </div>
+    {% endif %}
+    {% if current_user.permission('admin.data', crud='read') %}
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.backup') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                   Data Export / Import 
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-download h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
     {% if current_user.permission('admin.settings', crud='read') %}
     <!-- Settings card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">

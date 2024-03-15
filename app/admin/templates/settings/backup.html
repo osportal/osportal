@@ -2,33 +2,44 @@
 {% import 'macros/form.html' as f with context %}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 
-{% block title %}Import/Export Data{% endblock %}
+{% block title %}Export/Import Data{% endblock %}
 
 {% block content %}
-{% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
-{% set active = 'admin.settings' %}
+{% set active = 'admin.backup' %}
 {% set button = 'Save' %}
 {% set app_name = 'osPortal' %}
 
 {% include "menu.html" %}
-{{ sidebaritems(extra_setting_links) }}
 
 <div role="tabpanel" class="tab-pane config-section" id="backup">
 	<ul class="nav nav-tabs mb-3" role="tablist">
+        {% if current_user.permission('admin.data', crud='read') %}
 		<li class="nav-item">
 			<a class="nav-link active" href="#export-zip" aria-controls="export-zip" role="tab" data-toggle="tab">Export</a>
 		</li>
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='create') %}
+        {% if current_user.permission('admin.data', crud='update') %}
+        {% if current_user.permission('admin.data', crud='delete') %}
 		<li class="nav-item">
 			<a class="nav-link" href="#import-zip" aria-controls="import-zip" role="tab" data-toggle="tab">Import</a>
 		</li>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='read') %}
 		<li class="nav-item">
 			<a class="nav-link " href="#save-csv" aria-controls="save-csv" role="tab" data-toggle="tab">Download CSV</a>
 		</li>
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='create') %}
 		<li class="nav-item">
 			<a class="nav-link " href="#import-csv" aria-controls="import-csv" role="tab" data-toggle="tab">Import CSV</a>
 		</li>
+        {% endif %}
 	</ul>
 	<div class="tab-content">
+        {% if current_user.permission('admin.data', crud='read') %}
 		<div role="tabpanel" class="tab-pane active" id="export-zip">
 			<div class="form-group">
                 <p>Exports are an archive of {{ app_name }} in its current state. They can be re-imported into other
@@ -39,6 +50,10 @@
 				<a href="{{ url_for('admin.export_zip') }}" id="export-button" class="btn btn-warning">Export</a>
 			</div>
 		</div>
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='create') %}
+        {% if current_user.permission('admin.data', crud='update') %}
+        {% if current_user.permission('admin.data', crud='delete') %}
 		<div role="tabpanel" class="tab-pane" id="import-zip">
 			<div class="form-group">
                 <p>You can import saved {{ app_name }} exports by uploading them below. This will completely wipe your existing
@@ -64,6 +79,10 @@
   			{% endcall %}
             		{% endwith %}
 		</div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='read') %}
 		<div role="tabpanel" class="tab-pane" id="save-csv">
 			<div class="alert alert-warning h5" role="alert">
 				<small class="text-muted text-right">
@@ -83,6 +102,8 @@
   			{% endcall %}
 			{% endwith %}
 		</div>
+        {% endif %}
+        {% if current_user.permission('admin.data', crud='create') %}
 		<div role="tabpanel" class="tab-pane" id="import-csv">
 			{% with form = import_csv_form %}
 			{% set endpoint = 'admin.import_csv' %}
@@ -110,6 +131,7 @@
 			{% endwith %}
 
 		</div>
+        {% endif %}
 	</div>
 </div>
 {% endblock content %}

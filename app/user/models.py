@@ -191,6 +191,8 @@ class User(UserMixin, ResourceMixin):
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         self.password = User.encrypt_password(kwargs.get('password', ''))
+        #self.annual_entitlement = self.country.default_annual_allowance
+        self.days_left = self.annual_entitlement
 
 
     def __repr__(self):

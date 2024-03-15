@@ -788,8 +788,8 @@ def users_new():
             form.populate_obj(user)
             #TODO move annual allowance setup into succint method
             # that user.register can also use
-            user.annual_entitlement = user.country.default_annual_allowance
-            user.days_left = user.annual_entitlement
+            #user.annual_entitlement = user.country.default_annual_allowance
+            #user.days_left = user.annual_entitlement
             user.save()
             if form.send_activation_account_email.data == True:
                 # send activation email
@@ -1082,7 +1082,7 @@ def roles_delete(id):
 
 
 @admin.route('/backup/export/csv/', methods=['POST'])
-@permission_required('admin.settings', crud='read')
+@permission_required('admin.data', crud='read')
 def export_csv_backup():
     table = request.form["table_name"]
     output = dump_csv(name=table)
@@ -1122,9 +1122,9 @@ def export_selected_csv(table):
 
 
 @admin.route("/import/zip", methods=["POST"])
-@permission_required('admin.settings', crud='create')
-@permission_required('admin.settings', crud='update')
-@permission_required('admin.settings', crud='delete')
+@permission_required('admin.data', crud='create')
+@permission_required('admin.data', crud='update')
+@permission_required('admin.data', crud='delete')
 def import_zip():
     backup = request.files["zip_file"]
     try:
@@ -1137,7 +1137,7 @@ def import_zip():
 
 
 @admin.route("/import/csv", methods=["POST"])
-@permission_required('admin.settings', crud='create')
+@permission_required('admin.data', crud='create')
 def import_csv():
     #csv_type = request.form["csv_type"]
     # Try really hard to load data in properly no matter what nonsense Excel gave you
@@ -1171,7 +1171,7 @@ def import_csv():
 
 
 @admin.route("/backup", methods=["GET", "POST"])
-@permission_required('admin.settings', crud='read')
+@permission_required('admin.data', crud='read')
 def backup():
     forms = {
         'export_csv_form': ExportCSVForm(),
@@ -1182,7 +1182,7 @@ def backup():
 
 
 @admin.route('/export_zip', methods=['GET', 'POST'])
-@permission_required('admin.settings', crud='read')
+@permission_required('admin.data', crud='read')
 def export_zip():
     backup = export_zipfile()
     settings = Settings.query.first()
@@ -1213,7 +1213,6 @@ def celery_status():
     return jsonify(celery_running=celery_running, status=200)
 
 
-# TODO add plugin permissions
 def get_valid_plugins():
     Plugin = namedtuple("Plugin", ["name", "route"])
 
@@ -1248,6 +1247,7 @@ def get_valid_plugins():
 
 
 @admin.route("/plugins", methods=["GET", "POST"])
+@permission_required('admin.plugin', crud='read')
 def plugins():
     plugins = get_valid_plugins()
     return render_template('plugin/index.html', plugins=plugins)

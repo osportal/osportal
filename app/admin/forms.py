@@ -188,8 +188,13 @@ class RoleForm(ModelForm):
 
 
 exclusions = ['event_actioned', 'role_permission', 'notification', 'department_members']
+custom = ['plugin', 'data']
+# create dict from above custom list
+additions = {index: element for element, index in enumerate(custom)}
+# combine metadata table dict keys with custom keys
+obj_types = [*additions.keys(), *db.metadata.tables.keys()]
 class PermissionForm(ModelForm):
-    choices = ['admin.' + str(k) for k in db.metadata.tables.keys() if k not in exclusions]
+    choices = ['admin.' + str(k) for k in sorted(obj_types) if k not in exclusions]
     choices += [k for k in  db.metadata.tables.keys() if k=='comment' or k=='post']
 
     #custom_message = 'Alphanumeric characters only please.'
