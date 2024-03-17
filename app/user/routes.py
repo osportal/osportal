@@ -138,6 +138,7 @@ def delete_notifications():
 
 
 @user.route('/notifications/bulk_delete', methods=['POST'])
+@login_required
 def notifications_bulk_delete():
     if request.form.get('checked-items'):
         ids = request.form.get('checked-items').split(",")
@@ -178,13 +179,16 @@ def mentions():
 
 
 @user.route('/user/<int:id>', methods=['GET', 'POST'])
+@login_required
 def profile(id):
-    user = User.query.get_or_404(id)
-    return render_template('profile.html', user=user)
+    user = User.query.filter(User.id==id).filter(User.active).first_or_404()
+    depts = [d for d in user.department if d.active]
+    return render_template('profile.html', user=user, active_depts=depts)
 
 
 @user.route('/user/<int:id>/posts', defaults={'page': 1}, methods=['GET', 'POST'])
 @user.route('/user/<int:id>/posts/page/<int:page>', methods=['GET', 'POST'])
+@login_required
 def posts(id, page):
     user = User.query.get_or_404(id)
     paginated_posts = user.posts \
@@ -195,6 +199,7 @@ def posts(id, page):
 
 @user.route('/user/<int:id>/comments', defaults={'page': 1}, methods=['GET', 'POST'])
 @user.route('/user/<int:id>/comments/page/<int:page>', methods=['GET', 'POST'])
+@login_required
 def comments(id, page):
     user = User.query.get_or_404(id)
     paginated_comments = user.comments \
@@ -204,6 +209,7 @@ def comments(id, page):
 
 
 @user.route('/reset_password', methods=['GET', 'POST'])
+@anonymous_required()
 def reset_request():
     if current_user.is_authenticated:
         return redirect('/')
@@ -245,6 +251,7 @@ def password_reset(token):
 def all_users(page):
     search_form = SearchForm()
     paginated_users = User.query \
+        .filter(User.active) \
         .filter(User.search((request.args.get('q', text(''))))) \
         .order_by(User.username.asc(),) \
         .paginate(page, get_settings_value('users_per_page'), True)

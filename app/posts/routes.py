@@ -44,6 +44,7 @@ def index(page):
                            request.args.get('direction', 'desc'))
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
     paginated_posts = Post.query \
+        .filter(Post.active) \
         .filter(Post.search((request.args.get('q', text(''))))) \
         .order_by(Post.is_pin.desc(), text(order_values)) \
         .paginate(page, get_settings_value('posts_per_page'), True)
@@ -119,7 +120,7 @@ def post_delete(id):
 @posts.route("/posts/<int:id>/page/<int:page>", methods=['GET', 'POST'])
 @permission_required('admin.post', 'post', crud='read')
 def post(id, page):
-    post = Post.query.get_or_404(id)
+    post = Post.query.filter(Post.id==id).filter(Post.active).first_or_404()
     paginated_comments = post.paginated_comments(page)
     form = CommentForm()
     # TODO check if user has permission to create comment

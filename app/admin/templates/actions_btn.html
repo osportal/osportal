@@ -46,7 +46,7 @@
             </span>
         </a>
       </li>
-      {% if request.endpoint != 'admin.departments' %}
+      {% if request.endpoint not in ['admin.countries', 'admin.roles', 'admin.permissions', 'admin.country'] %}
       <li>
         <a onclick="checkArrayLen('#bulkDisable')"
           class="dropdown-item"

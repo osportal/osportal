@@ -20,5 +20,5 @@ def index(route):
     """
     Route in charge or routing users to Custom Pages
     """
-    page = Page.query.filter(Page.route==route).first()
+    page = Page.query.filter(Page.active==True).filter(Page.route==route).first_or_404()
     return render_template('page.html', page=page)

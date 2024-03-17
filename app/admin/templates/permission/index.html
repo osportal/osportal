@@ -135,6 +135,14 @@
     </tbody>
   </table>
 {{ items.paginate(permissions) }}
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected permissions?",
+    url=url_for('admin.bulk_delete', table='permission'),
+    btn_text="Delete")
+}}
 {% include "partials/confirm_dialog.html" %}
 {% endif %}
 

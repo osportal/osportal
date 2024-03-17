@@ -39,12 +39,9 @@ from app.plugins import init_plugins
 
 
 CELERY_TASK_LIST = [
+    'app.tasks',
     'app.email',
     'app.user.tasks',
-    'app.pages.tasks',
-    'app.event.tasks',
-    'app.department.tasks',
-    'app.utils.countries.tasks'
 ]
 
 def create_celery_app(app):

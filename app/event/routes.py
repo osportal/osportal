@@ -217,7 +217,8 @@ def department(id):
     form = event_form()
     # avoid circular import
     from app.department.models import Department
-    department = Department.query.get_or_404(id)
+    department = Department.query.filter(Department.id==id) \
+                                 .filter(Department.active).first_or_404()
     events = department.get_member_events()
     return render_template('department_calendar.html',
                            department=department,

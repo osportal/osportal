@@ -56,29 +56,11 @@ class Country(ResourceMixin):
 
         return or_(*search_chain)
 
-    @classmethod
-    def bulk_delete(cls, ids):
-        """
-        :param ids: List of ids to be deleted
-        :type ids: list
-        :return: int
-        """
-        delete_count = 0
-
-        for id in ids:
-            country = Country.query.get(id)
-            if country is None:
-                continue
-            else:
-                country.delete()
-                delete_count += 1
-        return delete_count
 
 
 class PublicHoliday(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(200), nullable=False)
-    active = db.Column(db.Boolean, default=True)
     start_date = db.Column(db.DateTime, nullable=False)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
 
@@ -104,22 +86,3 @@ class PublicHoliday(ResourceMixin):
     @classmethod
     def filter_year(cls, year):
         return sqlalchemy.extract('year', PublicHoliday.start_date) == year
-
-
-    @classmethod
-    def bulk_delete(cls, ids):
-        """
-        :param ids: List of ids to be deleted
-        :type ids: list
-        :return: int
-        """
-        delete_count = 0
-
-        for id in ids:
-            holiday = PublicHoliday.query.get(id)
-            if holiday is None:
-                continue
-            else:
-                holiday.delete()
-                delete_count += 1
-        return delete_count

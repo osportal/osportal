@@ -38,6 +38,9 @@
           {{ items.sort('head') }}
         </th>
         <th class="col-header">
+          {{ items.sort('active') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
         </th>
         <th class="col-header">
@@ -63,6 +66,9 @@
         </td>
         <td>
             {{ department.head }}
+        </td>
+        <td>
+            {{ department.render(department.active) }}
         </td>
         <td>
 	{% if department.created_at %}
@@ -102,41 +108,39 @@
     {% endfor %}
     </tbody>
   </table>
-<!-- Bulk Delete Modal -->
-<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      The selected departments will be deleted.
-      </p>
-      <p>
-      <strong>Important: This cannot be undone.</strong>
-      </p>
-      <p>
-      Are you sure you want to delete the selected departments?
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.departments_bulk_delete') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Delete</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
 {{ items.paginate(departments) }}
-{% include "partials/confirm_dialog.html" %}
-{% endif %}
 
-{% endblock %}
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected departments?",
+    url=url_for('admin.bulk_delete', table='department'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected departments?",
+    url=url_for('admin.bulk_disable', table='department'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected departments?",
+    url=url_for('admin.bulk_enable', table='department'),
+    btn_text="Enable")
+}}
+{% include "partials/confirm_dialog.html" %}
+
+{% endif %}<!-- end if departments exist -->
+
+{% endblock content %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
-{% endblock %}
+{% endblock scripts %}

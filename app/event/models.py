@@ -25,45 +25,6 @@ class EventType(ResourceMixin):
         return or_(*search_chain)
 
 
-    @classmethod
-    def bulk_delete(cls, ids):
-        delete_count = 0
-
-        for id in ids:
-            et = EventType.query.get(id)
-            if et is None:
-                continue
-            et.delete()
-            delete_count += 1
-        return delete_count
-
-    @classmethod
-    def bulk_disable(cls, ids):
-        disable_count = 0
-
-        for id in ids:
-            et = EventType.query.get(id)
-            if et is None:
-                continue
-            et.active = False
-            et.save()
-            disable_count += 1
-        return disable_count
-
-    @classmethod
-    def bulk_enable(cls, ids):
-        enable_count = 0
-
-        for id in ids:
-            et = EventType.query.get(id)
-            if et is None:
-                continue
-            et.active = True
-            et.save()
-            enable_count += 1
-        return enable_count
-
-
 class EventActioned(ResourceMixin):
     __tablename__ = 'event_actioned'
     id = db.Column(db.Integer, nullable=True) # used in import zip job

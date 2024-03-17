@@ -10,13 +10,14 @@
     {% endif %}
     
     <!-- Departments -->
-    {% if user.department[0] %}
+    {% if active_depts | count > 0 %}
     <div class="mb-4">
         <h5>Departments</h5>
         <p>{{ user.username }} is a member of the following departments:</p>
         <div id="groups-list" style="list-style-type: none">
-            {% for d in user.department %}
-                <li><a class="mr-2" href="{{ url_for('department.info', id=d.id) }}">{{ d }}</a>({{ d.members.count() }} members)
+            {% for d in active_depts %}
+                <li>
+                    <a class="mr-2" href="{{ url_for('department.info', id=d.id) }}">{{ d }}</a>({{ d.members.count() }} members)
                 </li>
             {% endfor %}
         </div>

@@ -131,112 +131,41 @@
     </tbody>
   </table>
 {{ items.paginate(users) }}
-<!-- End of index -->
-<!-- Bulk Delete Modal -->
-<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      User data for the selected users will be removed.
-      </p>
-      <p>
-      <strong>Important: This cannot be undone.</strong>
-      </p>
-      <p>
-      Are you sure you want to delete the selected users?
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.users_bulk_delete') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Delete</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-{#{% endcall %}#}
-<!-- Bulk Reset Password Modal -->
-<div class="modal fade" id="bulkPasswordReset" tabindex="-1" aria-labelledby="bulkPasswordResetLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkPasswordResetLabel">Send Password Reset Email</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to send a password reset email to the selected users?
-      </p>
-      <p>
-      <strong>Please confirm to continue</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.users_bulk_password_reset') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Lock -->
-<div class="modal fade" id="bulkDisable" tabindex="-1" aria-labelledby="bulkDisableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="bulkDisableLabel">Disable Login</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to disable logins for the selected users?
-      </p>
-      <p>
-      <strong>Please confirm to continue</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.users_bulk_lock') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Unlock -->
-<div class="modal fade" id="bulkEnable" tabindex="-1" aria-labelledby="bulkEnableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="bulkEnableLabel">Enable Login</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to enable logins for the selected users?
-      </p>
-      <p>
-      <strong>Please confirm to continue</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.users_bulk_unlock') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
+
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected users?",
+    url=url_for('admin.bulk_delete', table='user'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected users?",
+    url=url_for('admin.bulk_disable', table='user'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected users?",
+    url=url_for('admin.bulk_enable', table='user'),
+    btn_text="Enable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkPasswordReset",
+    label="bulkPasswordResetLabel",
+    title="Send Password Reset Email",
+    text="Are you sure you want to send a password reset email to the selected users?",
+    url=url_for('admin.users_bulk_password_reset'),
+    btn_text="Send")
+}}
+
+{% endif %}<!-- end if users exist -->
 {% include "partials/confirm_dialog.html" %}
 {% endblock content%}
 

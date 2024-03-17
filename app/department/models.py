@@ -27,6 +27,7 @@ class Department(ResourceMixin):
     __tablename__ = 'department'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(65), unique=True, nullable=False)
+    active = db.Column(db.Boolean, default=True)
     description = db.Column(StripStr(350), nullable=True)
     #approvers = db.relationship('User', secondary='department_approvers', backref=db.backref('approvals', lazy='dynamic'), uselist=True)
     members = db.relationship('User', secondary='department_members', backref='department', lazy='dynamic', uselist=True)
@@ -50,15 +51,3 @@ class Department(ResourceMixin):
         search_chain = (Department.name.ilike(search_query),)
 
         return or_(*search_chain)
-
-    @classmethod
-    def bulk_delete(cls, ids):
-        delete_count = 0
-
-        for id in ids:
-            dept = Department.query.get(id)
-            if dept is None:
-                continue
-            dept.delete()
-            delete_count += 1
-        return delete_count

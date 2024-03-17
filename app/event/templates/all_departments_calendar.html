@@ -5,7 +5,7 @@
 {% block content %}
 <div class="mb-3">
     <legend class="d-inline">All Requests</legend>
-    <div class="d-inline"><em> for {{ current_user.department|join(', ') }}</em></div>
+    <div class="d-inline"><em> for {{ current_user.active_departments|join(', ') }}</em></div>
 </div>
 {{ super() }}
 {% endblock content %}

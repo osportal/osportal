@@ -69,6 +69,52 @@ class ResourceMixin(db.Model):
                 rendered = '<span class="text-danger"><i class="bi bi-x fa-lg"></i></span>'
             return Markup(rendered)
 
+    @classmethod
+    def bulk_delete(cls, ids):
+        """
+        :param ids: list of ids to be deleted
+        :type ids: list
+        :return: int
+        """
+        delete_count = 0
+
+        for id in ids:
+            obj = cls.query.get(id)
+            if obj is None:
+                continue
+            else:
+                db.session.delete(obj)
+                delete_count += 1
+        db.session.commit()
+        return delete_count
+
+    @classmethod
+    def bulk_disable(cls, ids):
+        disable_count = 0
+
+        for id in ids:
+            obj = cls.query.get(id)
+            if obj is None:
+                continue
+            obj.active = False
+            db.session.add(obj)
+            disable_count += 1
+        db.session.commit()
+        return disable_count
+
+    @classmethod
+    def bulk_enable(cls, ids):
+        enable_count = 0
+
+        for id in ids:
+            obj = cls.query.get(id)
+            if obj is None:
+                continue
+            obj.active = True
+            db.session.add(obj)
+            enable_count += 1
+        db.session.commit()
+        return enable_count
 
     @classmethod
     def sort_by(cls, field, direction):

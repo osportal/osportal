@@ -21,6 +21,7 @@
         <h3>No results found.</h3>
     {% endif %}
 {% else %}
+{{ request.endpoint }}
 
 {% include "actions_btn.html" %}
   <table class="table table-striped">
@@ -101,6 +102,15 @@
   </table>
 
 {{ items.paginate(roles) }}
+<!-- Bulk Delete Modal -->
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected roles?",
+    url=url_for('admin.bulk_delete', table='role'),
+    btn_text="Delete")
+}}
 {% include "partials/confirm_dialog.html" %}
 
 {% endif %}

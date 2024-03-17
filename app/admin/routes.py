@@ -576,29 +576,6 @@ def public_holiday_delete(cid, id):
     return redirect(url_for('admin.country', id=cid))
 
 
-@admin.route('/countries/<int:id>/public-holidays/bulk_delete', methods=['POST'])
-@permission_required('admin.public_holiday', crud='delete')
-def holidays_bulk_delete(id):
-    country = Country.query.get(id)
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.utils.countries.tasks import delete_holidays
-    delete_holidays.delay(ids)
-    flash('{0} public holidays scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.country', id=country.id))
-
-
-@admin.route('/countries/bulk_delete', methods=['POST'])
-@permission_required('admin.country', crud='delete')
-def countries_bulk_delete():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.utils.countries.tasks import delete_countries
-    delete_countries.delay(ids)
-    flash('{0} countries scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.countries'))
-
-
 @admin.route('/departments/new', methods=['GET', 'POST'])
 @permission_required('admin.department', crud='create')
 def departments_new():
@@ -640,17 +617,6 @@ def departments_delete(id):
         flash(f'{e}', 'danger')
     else:
         flash(f'Successfully deleted department {dept.name}', 'success')
-    return redirect(url_for('admin.departments'))
-
-
-@admin.route('/departments/bulk_delete', methods=['POST'])
-@permission_required('admin.department', crud='delete')
-def departments_bulk_delete():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.department.tasks import delete_departments
-    delete_departments.delay(ids)
-    flash('{0} department(s) scheduled to be deleted.'.format(len(ids)), 'success')
     return redirect(url_for('admin.departments'))
 
 
@@ -710,72 +676,40 @@ def event_status_edit(id):
     return render_template('event/status_edit.html', form=form, event=event)
 
 
-@admin.route('/event-type/bulk_delete', methods=['POST'])
-@permission_required('admin.event_type', crud='delete')
-def event_type_bulk_delete():
+@admin.route('/<table>/bulk_delete', methods=['POST'])
+def bulk_delete(table):
+    if not current_user.permission('admin.'+table, crud='delete'):
+        abort(403)
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
-    from app.event.tasks import delete_event_type
-    delete_event_type.delay(ids)
-    flash('{0} event type(s) scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.event_types'))
+    from app.tasks import delete_obj
+    delete_obj.delay(table, ids)
+    flash('{0} item(s) scheduled to be deleted.'.format(len(ids)), 'success')
+    return redirect(request.referrer)
 
 
-@admin.route('/events/bulk_disable', methods=['POST'])
-@permission_required('admin.event_type', crud='update')
-def event_bulk_disable():
-    ids = request.form.get('checked-items').split(",")
-    print(ids)
-    print(type(ids))
-    # stops circular import error
-    from app.event.tasks import disable_event_type
-    disable_event_type.delay(ids)
-    flash('{0} event type(s) scheduled to be disabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.event_types'))
-
-
-@admin.route('/events/bulk_enable', methods=['POST'])
-@permission_required('admin.event_type', crud='update')
-def event_bulk_enable():
+@admin.route('/<table>/bulk_disable', methods=['POST'])
+def bulk_disable(table):
+    if not current_user.permission('admin.'+table, crud='update'):
+        abort(403)
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
-    from app.event.tasks import enable_event_type
-    enable_event_type.delay(ids)
-    flash('{0} event type(s) scheduled to be enabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.event_types'))
+    from app.tasks import disable_obj
+    disable_obj.delay(table, ids)
+    flash('{0} item(s) scheduled to be disabled.'.format(len(ids)), 'success')
+    return redirect(request.referrer)
 
 
-@admin.route('/pages/bulk_disable', methods=['POST'])
-@permission_required('admin.page', crud='update')
-def pages_bulk_disable():
+@admin.route('/<table>/bulk_enable', methods=['POST'])
+def bulk_enable(table):
+    if not current_user.permission('admin.'+table, crud='update'):
+        abort(403)
     ids = request.form.get('checked-items').split(",")
     # stops circular import error
-    from app.pages.tasks import disable_page
-    disable_page.delay(ids)
-    flash('{0} page(s) scheduled to be disabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.pages'))
-
-
-@admin.route('/pages/bulk_enable', methods=['POST'])
-@permission_required('admin.page', crud='update')
-def pages_bulk_enable():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.pages.tasks import enable_page
-    enable_page.delay(ids)
-    flash('{0} page(s) scheduled to be enabled.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.pages'))
-
-
-@admin.route('/pages/bulk_delete', methods=['POST'])
-@permission_required('admin.page', crud='delete')
-def pages_bulk_delete():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.pages.tasks import delete_page
-    delete_page.delay(ids)
-    flash('{0} page(s) scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.pages'))
+    from app.tasks import enable_obj
+    enable_obj.delay(table, ids)
+    flash('{0} item(s) scheduled to be enabled.'.format(len(ids)), 'success')
+    return redirect(request.referrer)
 
 
 @admin.route('/users/new', methods=['GET', 'POST'])
@@ -899,49 +833,6 @@ def users_edit(id):
                            form=form,
                            user=user)
 
-
-@admin.route('/roles/bulk_delete', methods=['POST'])
-@permission_required('admin.role', crud='delete')
-def roles_bulk_delete():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.user.tasks import delete_roles
-    delete_roles.delay(ids)
-    flash('{0} role(s) scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.roles'))
-
-
-@admin.route('/users/bulk_delete', methods=['POST'])
-@permission_required('admin.user', crud='delete')
-def users_bulk_delete():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.user.tasks import delete_users
-    delete_users.delay(ids)
-    flash('{0} user(s) scheduled to be deleted.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.users'))
-
-
-@admin.route('/users/bulk_lock', methods=['POST'])
-@permission_required('admin.user', crud='update')
-def users_bulk_lock():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.user.tasks import disable_user_login
-    disable_user_login.delay(ids)
-    flash('{0} user(s) scheduled to be disabled for login.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.users'))
-
-
-@admin.route('/users/bulk_unlock', methods=['POST'])
-@permission_required('admin.user', crud='update')
-def users_bulk_unlock():
-    ids = request.form.get('checked-items').split(",")
-    # stops circular import error
-    from app.user.tasks import enable_user_login
-    enable_user_login.delay(ids)
-    flash('{0} user(s) scheduled for activation.'.format(len(ids)), 'success')
-    return redirect(url_for('admin.users'))
 
 
 @admin.route('/users/bulk_password_reset', methods=['POST'])

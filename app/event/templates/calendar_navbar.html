@@ -15,13 +15,13 @@
             <li>
                 <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
             </li>
-            {% if current_user.department| length > 1 %}
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a></li>
-            <li><hr class="dropdown-divider"></li>
+            {% if current_user.active_departments | count > 1 %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a></li>
+                <li><hr class="dropdown-divider"></li>
             {% endif %}
-            {% for dept in current_user.department %}
-            <li><a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a></li>
+            {% for dept in current_user.active_departments %}
+                    <li><a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a></li>
             {% endfor %}
         </ul>
     </li>

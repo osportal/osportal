@@ -43,6 +43,9 @@
           {{ items.sort('user', 'Author') }}
         </th>
         <th class="col-header">
+          {{ items.sort('active') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
         </th>
         <th class="col-header">
@@ -77,6 +80,7 @@
             {% endif %}
         </td>
         <td>{{ post.user }}</td>
+        <td>{{ post.render(post.active) }}</td>
         <td>
             {% if post.created_at %}
           <time class="from-now" data-datetime="{{ post.created_at }}">
@@ -117,6 +121,34 @@
   </table>
 
 {{ items.paginate(posts) }}
+
+<!-- BULK ACTIONS -->
+
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected posts?",
+    url=url_for('admin.bulk_delete', table='post'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected posts?",
+    url=url_for('admin.bulk_disable', table='post'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected posts?",
+    url=url_for('admin.bulk_enable', table='post'),
+    btn_text="Enable")
+}}
+
 {% include "partials/confirm_dialog.html" %}
 
 {% endif %}

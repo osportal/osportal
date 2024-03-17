@@ -111,9 +111,13 @@ class NewUserForm(UserForm):
                             validators=[Optional()])
     active = BooleanField('Allow this user to sign in')
     send_activation_account_email = BooleanField('Send activation account email')
-    department = QuerySelectMultipleField('Departments', query_factory=lambda: Department.query.all(),
-                                          widget=Select2Widget(), allow_blank=True,
-                                          render_kw={"multiple": "multiple"}, validators=[Optional()])
+    department = QuerySelectMultipleField('Departments',
+                                          query_factory=lambda: Department.query.all(),
+                                          get_label=lambda d: d.name + ' (disabled)' if not d.active else d.name,
+                                          widget=Select2Widget(),
+                                          allow_blank=True,
+                                          render_kw={"multiple": "multiple"},
+                                          validators=[Optional()])
     authoriser = QuerySelectField('Leave Authoriser', query_factory=lambda: User.query.all(), widget=Select2Widget(),
                                   allow_blank=True, validators=[Optional(), check_authoriser])
     job_title = StringField(validators=[Optional(), Length(1, 50)])
@@ -259,13 +263,13 @@ class SettingsForm(FlaskForm):
 
     #Email
     system_email = QuerySelectField('System Email',
-                                    query_factory=lambda: Email.query.all(),
+                                    query_factory=lambda: Email.query.filter(Email.active).all(),
                                     get_pk=lambda s: s.id,
                                     allow_blank=True,
                                     validators=[Optional()]
                                     )
     alert_email = QuerySelectField('Alert Email',
-                                   query_factory=lambda: Email.query.all(),
+                                   query_factory=lambda: Email.query.filter(Email.active).all(),
                                    get_pk=lambda s: s.id,
                                    allow_blank=True,
                                    validators=[Optional()]

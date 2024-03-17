@@ -55,6 +55,7 @@ class Permission(ResourceMixin):
 
 
 
+
 class Role(ResourceMixin):
     __tablename__ = "role"
 
@@ -102,26 +103,6 @@ class Role(ResourceMixin):
                     if p.db_name == obj:
                         return getattr(p, access_level)
 
-    @classmethod
-    def bulk_delete(cls, ids):
-        """
-        Override the general bulk_delete method because we need to delete them
-        one at a time while also deleting them on Stripe.
-
-        :param ids: List of ids to be deleted
-        :type ids: list
-        :return: int
-        """
-        delete_count = 0
-
-        for id in ids:
-            role = Role.query.get(id)
-            if role is None:
-                continue
-            else:
-                role.delete()
-                delete_count += 1
-        return delete_count
 
 
 class User(UserMixin, ResourceMixin):
@@ -260,10 +241,24 @@ class User(UserMixin, ResourceMixin):
             return self.leave_year_start.strftime("%-d %b %Y")
         return self.leave_year_start
 
+
+    @hybrid_property
+    def active_departments(self):
+        from app.department.models import Department, DepartmentMembers
+        depts = db.session.query(Department).join(DepartmentMembers) \
+                           .filter(Department.active,
+                                   DepartmentMembers.user_id==self.id) \
+                           .all()
+        return depts
+
+
     def all_departments_events(self):
-        from app.department.models import DepartmentMembers
-        events = db.session.query(Event).join(User) \
-                .filter(DepartmentMembers.user_id==self.id,
+        from app.department.models import Department, DepartmentMembers
+        events = db.session.query(Event) \
+                .join(User) \
+                .join(Department, User.department) \
+                .filter(Department.active,
+                        DepartmentMembers.user_id==self.id,
                         Event.status!='Declined',
                         Event.status!='Revoked')
         return events.all()
@@ -339,58 +334,6 @@ class User(UserMixin, ResourceMixin):
                 if admin_count == 1:
                     return True
         return False
-
-    @classmethod
-    def bulk_delete(cls, ids):
-        """
-        Override the general bulk_delete method because we need to delete them
-        one at a time while also deleting them on Stripe.
-
-        :param ids: List of ids to be deleted
-        :type ids: list
-        :return: int
-        """
-        delete_count = 0
-
-        for id in ids:
-            user = User.query.get(id)
-            if user is None:
-                continue
-            if User.is_last_admin(user):
-                print('Cannot delete the last admin')
-            else:
-                user.delete()
-                delete_count += 1
-        return delete_count
-
-    @classmethod
-    def bulk_disable_login(cls, ids):
-        disable_count = 0
-
-        for id in ids:
-            user = User.query.get(id)
-            if user is None:
-                continue
-            if User.is_last_admin(user):
-                print('Cannot disable the last admin')
-            else:
-                user.active = False
-                user.save()
-                disable_count += 1
-        return disable_count
-
-    @classmethod
-    def bulk_enable_login(cls, ids):
-        active_count = 0
-
-        for id in ids:
-            user = User.query.get(id)
-            if user is None:
-                continue
-            user.active = True
-            user.save()
-            active_count += 1
-        return active_count
 
     @classmethod
     def bulk_password_reset(cls, ids):

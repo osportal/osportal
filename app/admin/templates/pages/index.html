@@ -79,86 +79,40 @@
     </tbody>
 </table>
 {{ items.paginate(pages) }}
-<!-- Bulk Disable Modal -->
-<div class="modal fade" id="bulkDisable" tabindex="-1" aria-labelledby="bulkDisableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDisableLabel">Disable</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to disable the selected pages?
-      </p>
-      <p>
-      <strong>Please confirm to continue.</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_disable') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Enable Modal -->
-<div class="modal fade" id="bulkEnable" tabindex="-1" aria-labelledby="bulkEnableLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkEnableLabel">Enable</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to enable the selected pages?
-      </p>
-      <p>
-      <strong>Please confirm to continue.</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_enable') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Bulk Delete -->
-<div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span style="color: #fff;" aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <p>
-      Are you sure you want to delete the selected pages?
-      </p>
-      <p>
-      <strong>Please confirm to continue.</strong>
-      </p>
-      <form class="bulkforms" action="{{ url_for('admin.pages_bulk_delete') }}" method="POST">
-        <button class="btn btn-primary" type="submit">Confirm</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-      </form>
-      </div>
-    </div>
-  </div>
-</div>
+
+<!-- BULK ACTIONS -->
+
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected pages?",
+    url=url_for('admin.bulk_delete', table='page'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected pages?",
+    url=url_for('admin.bulk_disable', table='page'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected pages?",
+    url=url_for('admin.bulk_enable', table='page'),
+    btn_text="Enable")
+}}
 {% include "partials/confirm_dialog.html" %}
+
 {% endif %}
+
 {% endblock content %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
-{% endblock %}
+{% endblock scripts %}

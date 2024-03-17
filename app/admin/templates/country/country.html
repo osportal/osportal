@@ -60,24 +60,16 @@
         <a href="{{ url_for('admin.public_holiday_new', id=country.id) }}" class="btn btn-sm btn-primary" type="button">Add Holiday</a>
     {% endif %}
     
-    {% include "actions_btn.html" %}
     
+    
+    {% if paginated_holidays %}
+    {% include "actions_btn.html" %}
+
     {% if years %}
         {{ form.year }}
     {% endif %}
     
-    {#
-    {% if years %}
-    <select id='year_filter' class="form-select" aria-label="Select year">
-        {% for year in years %}
-        <option>{{ year }}</option>
-        {% endfor %}
-    </select>
-    {% endif %}
-    #}
-    
-    
-    {% if paginated_holidays %}
+
       <table class="table table-striped">
         <thead>
           <tr>
@@ -90,9 +82,6 @@
             </th>
             <th class="col-header">
               {{ items.sort('start_date', 'Start Date') }}
-            </th>
-            <th class="col-header">
-              {{ items.sort('active') }}
             </th>
             <th class="col-header">
                 {{ items.sort('created_at', 'Created') }}
@@ -115,9 +104,6 @@
             </td>
             <td>
                 {{ holiday.start_date.strftime("%-d %b %Y") }}
-            </td>
-            <td>
-                {{ holiday.render(holiday.active) }}
             </td>
             <td>
                 {{ holiday.created_at }}
@@ -145,34 +131,17 @@
         </tbody>
       </table>
       {{ items.paginate(paginated_holidays, kwargs={'id':country.id, 'year':2023 }) }}
-      <div class="modal fade" id="bulkDelete" tabindex="-1" aria-labelledby="bulkDeleteLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bulkDeleteLabel">Delete</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span style="color: #fff;" aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-            <p>
-            Selected holidays will be removed.
-            </p>
-            <p>
-            <strong>Important: This cannot be undone.</strong>
-            </p>
-            <p>
-            Are you sure you want to delete the selected holidays?
-            </p>
-            <form class="bulkforms" action="{{ url_for('admin.holidays_bulk_delete', id=country.id) }}" method="POST">
-              <button class="btn btn-primary" type="submit">Delete</button>
-              <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-            </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
+
+        {{ forms.modal_bulk_action(
+            id="bulkDelete",
+            label="bulkDeleteLabel",
+            title="Delete",
+            text="Are you sure you want to delete the selected holidays?",
+            url=url_for('admin.bulk_delete', table='public_holiday'),
+            btn_text="Delete")
+        }}
+
+       {% endif %}<!-- End of if paginated holidays exist -->
 
 {% endif %}<!-- End of Public Holiday read permission -->
 
@@ -199,4 +168,4 @@
       });
 </script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
-{% endblock %}
+{% endblock scripts %}

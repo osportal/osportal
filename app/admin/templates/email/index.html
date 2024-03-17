@@ -38,6 +38,9 @@
           {{ items.sort('email') }}
         </th>
         <th class="col-header">
+          {{ items.sort('active') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
         </th>
         <th class="col-header">
@@ -63,6 +66,9 @@
         </td>
         <td>
             {{ email.email }}
+        </td>
+        <td>
+            {{ email.render(email.active) }}
         </td>
         <td>
           {% if email.created_at %}
@@ -103,8 +109,37 @@
     </tbody>
   </table>
 {{ items.paginate(emails) }}
+
+<!-- BULK ACTIONS -->
+
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected emails?",
+    url=url_for('admin.bulk_delete', table='email'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected emails?",
+    url=url_for('admin.bulk_disable', table='email'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected emails?",
+    url=url_for('admin.bulk_enable', table='email'),
+    btn_text="Enable")
+}}
+
 {% include "partials/confirm_dialog.html" %}
-{% endif %}
+
+{% endif %}<!-- Enf if emails exist -->
 
 {% endblock %}
 

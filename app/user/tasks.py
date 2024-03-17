@@ -1,16 +1,7 @@
 from app.celery import celery
-from app.user.models import User, Role
+from app.user.models import User, Role, Permission
 from app.posts.models import Comment
 from flask import url_for
-
-@celery.task()
-def delete_users(ids):
-    """
-    Delete users.
-    type ids: list
-    return: int
-    """
-    return User.bulk_delete(ids)
 
 
 @celery.task()
@@ -23,31 +14,11 @@ def reset_users_passwords(ids):
     return User.bulk_password_reset(ids)
 
 @celery.task()
-def disable_user_login(ids):
-    """
-    Disable user login
-    type ids: list
-    return: int
-    """
-    return User.bulk_disable_login(ids)
-
-@celery.task()
-def enable_user_login(ids):
-    """
-    Re-enable user login
-    type ids: list
-    return: int
-    """
-    return User.bulk_enable_login(ids)
-
-
-@celery.task()
 def new_comment_notification(id):
     comment = Comment.query.get(id)
     endpoint = url_for('posts.post', id=comment.post_id) + '#cid' + str(comment.id)
     html = f'''{comment.user.username} commented on your post: {comment.parent}'''
     comment.parent.user.add_notification(html, endpoint)
-
 
 
 @celery.task()
@@ -88,6 +59,7 @@ def delete_all_notifications(user_id):
     user = User.query.get(user_id)
     return user.delete_all_notifications()
 
+
 @celery.task()
 def bulk_delete_notifications(ids):
     """
@@ -96,12 +68,3 @@ def bulk_delete_notifications(ids):
     return: int
     """
     return User.bulk_delete_notifications(ids)
-
-@celery.task()
-def delete_roles(ids):
-    """
-    Delete roles.
-    type ids: list
-    return: int
-    """
-    return Role.bulk_delete(ids)

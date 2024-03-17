@@ -121,3 +121,29 @@
     </button>
 </form>
 {% endmacro %}
+
+{% macro modal_bulk_action(id, label, title, text, url, btn_text) %}
+<div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ label }}" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="{{ label }}">{{ title }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <p>
+      {{ text }}
+      </p>
+      <form class="bulkforms" action="{{ url }}" method="POST">
+          <button class="btn btn-primary" type="submit">{{ btn_text }}</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+

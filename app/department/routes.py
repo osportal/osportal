@@ -23,6 +23,7 @@ def all(page):
     from app.admin.forms import SearchForm
     search_form = SearchForm()
     paginated_departments = Department.query \
+        .filter(Department.active) \
         .filter(Department.search((request.args.get('q', text(''))))) \
         .order_by(Department.name.asc(),) \
         .paginate(page, get_settings_value('departments_per_page'), True)
@@ -32,6 +33,6 @@ def all(page):
 @department.route('/departments/<int:id>', defaults={'page': 1},  methods=['GET', 'POST'])
 @department.route('/departments/<int:id>/page/<int:page>', methods=['GET', 'POST'])
 def info(id, page):
-    department = Department.query.get_or_404(id)
+    department = Department.query.filter(Department.id==id).filter(Department.active).first_or_404()
     paginated_members = department.members.paginate(page, get_settings_value('users_per_page'), True)
     return render_template('department.html', department=department, members=paginated_members)
