@@ -40,10 +40,10 @@
           {{ items.sort('username') }}
         </th>
         <th class="col-header">
-          {{ items.sort('role') }}
+          {{ items.sort('active') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
+          {{ items.sort('role') }}
         </th>
         <th class="col-header">
           {{ items.sort('last_login_time', 'Last login') }}
@@ -79,10 +79,10 @@
             </a>
         </td>
         <td>
-            {{ user.role }}
+            {{ user.render(user.active) }}
         </td>
         <td>
-            {{ user.render(user.active) }}
+            {{ user.role }}
         </td>
         <td>
         {% if user.current_login_time %}

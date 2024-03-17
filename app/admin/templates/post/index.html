@@ -34,6 +34,9 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
+          {{ items.sort('active') }}
+        </th>
+        <th class="col-header">
             <!-- Pin col -->
         </th>
         <th class="col-header">
@@ -41,9 +44,6 @@
         </th>
         <th class="col-header">
           {{ items.sort('user', 'Author') }}
-        </th>
-        <th class="col-header">
-          {{ items.sort('active') }}
         </th>
         <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
@@ -69,6 +69,7 @@
                 <h6>{{ post.name }}</h6>
             </a>
         </td>
+        <td>{{ post.render(post.active) }}</td>
         <td>
             {% if post.is_pin %}
                 <i title="Pinned post" class="bi bi-pin-angle-fill h3 text-gray-300"></i>
@@ -80,7 +81,6 @@
             {% endif %}
         </td>
         <td>{{ post.user }}</td>
-        <td>{{ post.render(post.active) }}</td>
         <td>
             {% if post.created_at %}
           <time class="from-now" data-datetime="{{ post.created_at }}">

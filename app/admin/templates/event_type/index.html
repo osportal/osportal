@@ -26,13 +26,13 @@
               {{ items.sort('name', 'Event Type') }}
           </th>
           <th class="col-header">
+              {{ items.sort('active') }}
+          </th>
+          <th class="col-header">
               {{ items.sort('deductable') }}
           </th>
           <th class="col-header">
               {{ items.sort('approval', 'Approval required') }}
-          </th>
-          <th class="col-header">
-              {{ items.sort('active') }}
           </th>
         </tr>
     </thead>
@@ -50,13 +50,13 @@
             </a>
         </td>
         <td>
+            {{ etype.render(etype.active) }}
+        </td>
+        <td>
             {{ etype.render(etype.deductable) }}
         </td>
         <td>
             {{ etype.render(etype.approval) }}
-        </td>
-        <td>
-            {{ etype.render(etype.active) }}
         </td>
         <td>
             {% if current_user.permission('admin.event_type', crud='update') %}

@@ -25,7 +25,7 @@
 
 {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
     <div class="row">
-        <div class="col-md-5 well">
+        <div class="col-lg">
             <legend>{{ legend }}</legend>
             {% call f.form_group(form.name) %}
             {% endcall %}
@@ -47,13 +47,13 @@
             {% call f.form_group(form.password) %}
             {% endcall %}
             </div>
-            <div class="row">
-              <div class="col-md-6">
+            <div class="row mb-4">
+              <div class="col">
                 <button type="submit" class="btn btn-primary btn-block">
                   {{ button }}
                 </button>
               </div>
-              <div class="col-md-6">
+              <div class="col">
                 <div class="visible-xs visible-sm sm-margin-top"></div>
                 <a href="{{ url_for('admin.emails') }}"
                     class="btn btn-light bg-opacity-10 btn-block">
@@ -63,11 +63,11 @@
             </div>
         </div><!-- End of col -->
         {% if request.endpoint.endswith('edit') %}
-        <div class="col-md-5 well">
+        <div class="col-sm">
             <div class="alert alert-info">
 			        <i class="fas fa-info pr-1"></i>
 		        <small class="text-muted">
-                    This will attempt an SMTP connection using your saved configuration
+                    'Test Email Config' will attempt an SMTP connection using your saved configuration
                 </small>
             </div>
             <button class="btn btn-primary" type="button" onclick="testEmail()">Test Email Config</button>

@@ -35,10 +35,10 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
-          {{ items.sort('head') }}
+          {{ items.sort('active') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
+          {{ items.sort('head') }}
         </th>
         <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
@@ -65,10 +65,10 @@
             </a>
         </td>
         <td>
-            {{ department.head }}
+            {{ department.render(department.active) }}
         </td>
         <td>
-            {{ department.render(department.active) }}
+            {{ department.head }}
         </td>
         <td>
 	{% if department.created_at %}
