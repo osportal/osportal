@@ -8,33 +8,7 @@ from sqlalchemy.exc import IntegrityError
 import sys
 
 
-def create_default_permissions():
-    post_permission_params = {
-            'name': 'postCRUD',
-            'db_name': 'post',
-            'create': True,
-            'read': True,
-            'update': True,
-            'delete': True
-            }
-    comment_permission_params = {
-            'name': 'commentCRUD',
-            'db_name': 'comment',
-            'create': True,
-            'read': True,
-            'update': True,
-            'delete': True
-            }
-    Permission(**post_permission_params).save()
-    Permission(**comment_permission_params).save()
-
-
 def create_default_roles():
-    create_default_permissions()
-    post_crud = Permission.query \
-                .filter(Permission.name=='postCRUD').first()
-    comment_crud = Permission.query \
-                   .filter(Permission.name=='commentCRUD').first()
     su_params = {
             'name': 'Superuser',
             'description': 'I am God',
@@ -43,7 +17,7 @@ def create_default_roles():
     member_params = {
             'name': 'Member',
             'description': 'Standard User',
-            'permissions': [post_crud, comment_crud]
+            'superuser': False
     }
     Role(**su_params).save()
     Role(**member_params).save()

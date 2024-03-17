@@ -36,7 +36,6 @@ def user_mentions_notification(obj, *args):
 
 @posts.route('/posts', defaults={'page': 1}, methods=['GET', 'POST'])
 @posts.route('/posts/page/<int:page>', methods=['GET', 'POST'])
-@permission_required('admin.post', 'post', crud='read')
 def index(page):
     form = SearchForm()
     pinned_posts = Post.query.filter(Post.is_pin==True).all()
@@ -52,7 +51,6 @@ def index(page):
 
 
 @posts.route('/posts/new', methods=['GET', 'POST'])
-@permission_required('admin.post', 'post', crud='create')
 def post_new():
     post = Post()
     form = PostForm()
@@ -72,7 +70,6 @@ def post_new():
 
 
 @posts.route("/posts/<int:id>/edit", methods=['GET', 'POST'])
-@permission_required('admin.post', 'post', crud='update')
 def post_edit(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
@@ -95,7 +92,6 @@ def post_edit(id):
 
 
 @posts.route("/posts/<int:id>/delete", methods=['POST'])
-@permission_required('admin.post', 'post', crud='delete')
 def post_delete(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
@@ -118,11 +114,11 @@ def post_delete(id):
 
 @posts.route("/posts/<int:id>", defaults={'page': 1}, methods=['GET', 'POST'])
 @posts.route("/posts/<int:id>/page/<int:page>", methods=['GET', 'POST'])
-@permission_required('admin.post', 'post', crud='read')
 def post(id, page):
     post = Post.query.filter(Post.id==id).filter(Post.active).first_or_404()
     paginated_comments = post.paginated_comments(page)
     form = CommentForm()
+    form.text.label.text = 'Your comment'
     # TODO check if user has permission to create comment
     # if current_user.permission('create_comments'):
     if form.validate_on_submit():
@@ -158,7 +154,6 @@ def comment(id):
 
 
 @posts.route("/comments/<int:id>/edit", methods=['GET', 'POST'])
-@permission_required('admin.comment', 'comment', crud='update')
 def comment_edit(id):
     comment = Comment.query.get_or_404(id)
     # if post is locked, cannot edit comments
@@ -185,7 +180,6 @@ def comment_edit(id):
 
 
 @posts.route("/comments/<int:id>/delete", methods=['POST'])
-@permission_required('admin.comment', 'comment', crud='delete')
 def comment_delete(id):
     comment = Comment.query.get_or_404(id)
     # if post is locked, cannot delete comments

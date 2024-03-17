@@ -92,8 +92,6 @@
 {% endif %}<!-- endif comments -->
 
 {% if not post.locked %}
-    <!-- If user has permission to create comments show the create comment form -->
-    {% if current_user.permission('comment', crud='create') %}
     <!-- Comment Form -->
     <div class="mt-4">
     {% call f.form_tag(endpoint, form=form, fid='editor-form', **args) %}
@@ -108,7 +106,6 @@
     </div>
     {% endcall %}<!-- End of Comment Form -->
     </div>
-    {% endif %}<!-- End of Permission check -->
 {% endif %}<!-- End of lock check -->
 
 {% endblock content %}

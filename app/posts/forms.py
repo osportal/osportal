@@ -15,7 +15,7 @@ class PostForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    text = TextAreaField('Your Comment', validators=[DataRequired(), Length(min=2, max=30000)], render_kw={'id': 'ckeditor'})
+    text = TextAreaField('', validators=[DataRequired(), Length(min=2, max=30000)], render_kw={'id': 'ckeditor'})
 
 
 class SearchForm(FlaskForm):

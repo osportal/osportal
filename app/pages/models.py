@@ -4,7 +4,7 @@ from app.extensions import db
 class Page(ResourceMixin):
     __tablename__ = 'page'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), nullable=False)
+    name = db.Column(db.String(45), nullable=False)
     active = db.Column(db.Boolean, default=True)
     route = db.Column(FmtString(128), nullable=False, unique=True)
     auth = db.Column(db.Boolean, default=True)

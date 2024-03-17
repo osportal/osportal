@@ -188,16 +188,14 @@ class User(UserMixin, ResourceMixin):
             return access
 
     def post_actions_access(self, post):
-        return (self.permission('post', crud='delete') and post.user==self) or \
-                (self.permission('admin.post', crud='delete')) or \
-                (self.permission('post', crud='update') and post.user==self) or \
-                (self.permission('admin.post', crud='update'))
+        return post.user==self or \
+               self.permission('admin.post', crud='delete') or \
+               self.permission('admin.post', crud='update')
 
     def comment_actions_access(self, comment):
-        return (self.permission('comment', crud='delete') and comment.user==self) or \
-                (self.permission('admin.comment', crud='delete')) or \
-                (self.permission('comment', crud='update') and comment.user==self) or \
-                (self.permission('admin.comment', crud='update'))
+        return comment.user==self or \
+               self.permission('admin.comment', crud='delete') or \
+               self.permission('admin.comment', crud='update')
 
     def admin_dash_permissions(self):
         if self.role:

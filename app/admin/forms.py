@@ -93,7 +93,7 @@ class PageForm(FlaskForm):
     custom_message = 'Only alphanumeric characters, hyphens, periods, underscores and tildes are supported.'
     name = StringField(validators=[
         DataRequired(),
-        Length(1, 25),
+        Length(1, 45),
         # Part of the Python 3.7.x update included updating flake8 which means
         # we need to explicitly define our regex pattern with r'xxx'.
     ])
@@ -199,13 +199,12 @@ additions = {index: element for element, index in enumerate(custom)}
 obj_types = [*additions.keys(), *db.metadata.tables.keys()]
 class PermissionForm(ModelForm):
     choices = ['admin.' + str(k) for k in sorted(obj_types) if k not in exclusions]
-    choices += [k for k in  db.metadata.tables.keys() if k=='comment' or k=='post']
+    # changing regular user permissions
+    #choices += [k for k in  db.metadata.tables.keys() if k=='comment' or k=='post']
 
-    #custom_message = 'Alphanumeric characters only please.'
     name = StringField(validators=[DataRequired(),
                                    check_permission_exists,
                                    Length(1, 30),
-                                   #Regexp(r'^[\w &]+$', message=custom_message)
                                    ])
     description = StringField(validators=[Optional(), Length(0, 350)])
     db_name = SelectField("Object Type", choices=choices)

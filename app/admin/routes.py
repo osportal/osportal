@@ -13,7 +13,6 @@ from io import BytesIO, StringIO
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from psycopg2.errors import UniqueViolation
-
 from app.admin.decorators import admin_read_required
 from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
@@ -258,7 +257,11 @@ def pages_new():
         try:
             form.populate_obj(page)
             page.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             flash(f'Successfully created.', 'success')
@@ -277,7 +280,11 @@ def pages_edit(id):
     if form.validate_on_submit():
         try:
             form.populate_obj(page)
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             page.save()
@@ -331,7 +338,11 @@ def posts_new():
         try:
             form.populate_obj(post)
             post.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             flash(f'Successfully created.', 'success')
@@ -350,7 +361,11 @@ def posts_edit(id):
     if form.validate_on_submit():
         try:
             form.populate_obj(post)
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             post.save()
@@ -403,8 +418,12 @@ def emails_new():
     if form.validate_on_submit():
         try:
             form.populate_obj(email)
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
-            flash(f'{e}')
+            db.session.rollback()
+            flash(f'{e}', 'danger')
         else:
             email.save()
             flash('Created successfully.', 'success')
@@ -421,7 +440,11 @@ def emails_edit(id):
         try:
             form.populate_obj(email)
             email.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             flash(f'{email.name} has been updated successfully.', 'success')
@@ -492,6 +515,9 @@ def countries_edit(id):
         try:
             form.populate_obj(country)
             country.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
@@ -513,7 +539,11 @@ def countries_new():
         try:
             form.populate_obj(country)
             country.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             flash(f'Successfully created.', 'success')
@@ -532,7 +562,11 @@ def public_holiday_new(id):
             form.populate_obj(holiday)
             holiday.country_id = id
             holiday.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
             flash('Successfully created new public holiday', 'success')
@@ -552,6 +586,9 @@ def public_holiday_edit(country_id, id):
         try:
             form.populate_obj(holiday)
             holiday.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
@@ -582,10 +619,18 @@ def departments_new():
     department = Department()
     form = NewDepartmentForm()
     if form.validate_on_submit():
-        form.populate_obj(department)
-        department.save()
-        flash('Successfully created department', 'success')
-        return redirect(url_for('admin.departments'))
+        try:
+            form.populate_obj(department)
+            department.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Successfully created department', 'success')
+            return redirect(url_for('admin.departments'))
     return render_template('department/edit.html', form=form)
 
 
@@ -595,11 +640,18 @@ def departments_edit(id):
     department = Department.query.get(id)
     form = EditDepartmentForm(obj=department)
     if form.validate_on_submit():
-        form.populate_obj(department)
-        department.save()
-        flash('Department has been saved successfully.', 'success')
-        return redirect(url_for('admin.departments_edit', id=department.id))
-
+        try:
+            form.populate_obj(department)
+            department.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Department has been saved successfully.', 'success')
+            return redirect(url_for('admin.departments_edit', id=department.id))
     return render_template('department/edit.html', form=form, department=department)
 
 
@@ -625,14 +677,19 @@ def departments_delete(id):
 def event_type_new():
     event_type = EventType(active=True, hex_colour='#0066FF', max_days=14)
     form = EventTypeSettingsForm(obj=event_type)
-    try:
-        if form.validate_on_submit():
+    if form.validate_on_submit():
+        try:
             form.populate_obj(event_type)
             event_type.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
             flash(f'Successfully created {event_type.name}', 'success')
             return redirect(url_for('admin.event_types'))
-    except Exception as e:
-        flash(f'{e}', 'danger')
     return render_template('event_type/edit.html', form=form)
 
 
@@ -717,14 +774,21 @@ def bulk_enable(table):
 def users_new():
     user = User()
     form = NewUserForm(active=True, send_activation_account_email=True)
-    try:
-        if form.validate_on_submit():
+    if form.validate_on_submit():
+        try:
             form.populate_obj(user)
             #TODO move annual allowance setup into succint method
             # that user.register can also use
             #user.annual_entitlement = user.country.default_annual_allowance
             #user.days_left = user.annual_entitlement
             user.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
             if form.send_activation_account_email.data == True:
                 # send activation email
                 user = User.query.filter(User.email==form.email.data).first_or_404()
@@ -732,11 +796,6 @@ def users_new():
                 send_activation_email.delay(user)
             flash('Successfully created user', 'success')
             return redirect(url_for('admin.users'))
-        else:
-            for error in form.errors.items():
-                print(error)
-    except Exception as e:
-        flash(f'{e}', 'danger')
     return render_template('user/edit.html', form=form)
 
 
@@ -871,10 +930,14 @@ def permissions_new():
     if form.validate_on_submit():
         try:
             form.populate_obj(permission)
-        except Exception as e:
-            flash(f'{e}')
-        else:
             permission.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
             flash('Created successfully.', 'success')
             return redirect(url_for('admin.permissions'))
     return render_template('permission/edit.html', form=form)
@@ -888,10 +951,14 @@ def permissions_edit(id):
     if form.validate_on_submit():
         try:
             form.populate_obj(permission)
+            permission.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
-            permission.save()
             flash('Updated successfully.', 'success')
             return redirect(url_for('admin.permissions'))
     return render_template('permission/edit.html', form=form, permission=permission)
@@ -911,11 +978,9 @@ def permissions_delete(id):
     except (IntegrityError, PendingRollbackError) as e:
         db.session.rollback()
         flash(f'{e.orig.diag.message_detail}', 'danger')
-        print(e)
     except Exception as e:
         db.session.rollback()
         flash(f'{e}', 'danger')
-        print(e)
     else:
         flash(f'Successfully deleted permission {p.name}', 'success')
     return redirect(url_for('admin.permissions'))
@@ -929,10 +994,14 @@ def roles_new():
     if form.validate_on_submit():
         try:
             form.populate_obj(role)
-        except Exception as e:
-            flash(f'{e}')
-        else:
             role.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
             flash(f'Successfully created role {role.name}', 'success')
             return redirect(url_for('admin.roles'))
     return render_template('role/edit.html', form=form)
@@ -946,10 +1015,14 @@ def roles_edit(id):
     if form.validate_on_submit():
         try:
             form.populate_obj(role)
+            role.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'{e}', 'danger')
         else:
-            role.save()
             flash('Updated successfully.', 'success')
             return redirect(url_for('admin.roles'))
     return render_template('role/edit.html', form=form, role=role)
