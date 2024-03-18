@@ -390,6 +390,12 @@ class User(UserMixin, ResourceMixin):
                 .all()
         return events
 
+    def is_authoriser(self):
+        """ check if user is an authoriser to anyone else """
+        if User.query.filter(User.authoriser==self).first():
+            return True
+        return False
+
     def count_authoriser_requests(self):
         events = db.session.query(Event).join(User) \
                 .filter(User.authoriser==self) \

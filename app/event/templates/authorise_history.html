@@ -80,6 +80,9 @@
     </tbody>
 </table>
 {{ items.paginate(actioned_events) }}
+{% else %}
+    <h3>No authorisation history</h3>
 {% endif %}
+
 
 {% endblock calendar_content %}

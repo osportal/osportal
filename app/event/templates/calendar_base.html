@@ -28,7 +28,9 @@
     {% endblock calendar_content %}
 </div>
 
+{% if request.endpoint not in ['event.authorise', 'event.authorise_history'] %}
 {% include "event_information.html" %}
+{% endif %}
 
 {% endblock content %}
 

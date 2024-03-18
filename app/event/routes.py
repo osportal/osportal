@@ -1,6 +1,7 @@
 from app.admin.utils import get_settings_value
 from app.decorators import setup_required
 from app.extensions import db
+from app.event.decorators import check_authoriser_access
 from app.event.forms import EventForm, EventHalfDayForm, EventDenyForm
 from app.event.models import Event, EventType
 from app.user.models import User
@@ -239,6 +240,7 @@ def history(page):
 
 @event.route('/event/authorise', defaults={'page': 1}, methods=['GET', 'POST'])
 @event.route('/event/authorise/page/<int:page>', methods=['GET', 'POST'])
+@check_authoriser_access()
 def authorise(page):
     form = event_form()
     events = current_user.paginated_pending_authoriser_requests(page)
@@ -251,6 +253,7 @@ def authorise(page):
 
 @event.route('/event/authorise/history', defaults={'page': 1}, methods=['GET', 'POST'])
 @event.route('/event/authorise/history/page/<int:page>', methods=['GET', 'POST'])
+@check_authoriser_access()
 def authorise_history(page):
     form = event_form()
     deny_form = EventDenyForm()
