@@ -9,7 +9,7 @@
 {% block content %}
 <div class="profile-section">
     <div class="row">
-        <div class="col-sm-auto">
+        <div class="col-sm-auto mb-3">
             {{ avatar_img(current_user) }}
         </div>
         <div class="col-md-8 justify-content-between mb-3">
@@ -22,18 +22,19 @@
                     {% call f.form_group(form.email, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
-                    {{ form.image_file(class="mb-3 mt-3") }}
+                    {% call f.form_group(form.image_file, class='form-control-file') %}
+                    {% endcall %}
 
                     {% call f.form_group(form.bio, css_class='sm-margin-bottom') %}
                     {% endcall %}
                     <hr/>
                     <div class="row">
-                      <div class="col-md-6">
+                      <div class="col">
                         <button type="submit" class="btn btn-primary btn-block">
                           {{ button }}
                         </button>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col">
                         <div class="visible-xs visible-sm sm-margin-top"></div>
                         <a href="{{ url_for('user.profile', id=current_user.id) }}"
                             class="btn btn-light bg-opacity-10 btn-block">

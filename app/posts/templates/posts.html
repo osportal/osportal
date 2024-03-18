@@ -13,9 +13,7 @@
 
 {% block content %}
 <legend>{{ heading }}</legend>
-{% if current_user.permission('admin.post', 'post', crud='create') %}
 <a class="btn btn-primary" href="{{ url_for('posts.post_new') }}">Create Post</a>
-{% endif %}
 
 
 {{ forms.search('posts.index') }}
@@ -48,7 +46,7 @@
     {% endif %}
         <article class="media">
             <a href="{{ url_for(profile_endpoint, id=post.user.id) }}">
-                {{ avatar_img(post.user, size='44', id='profileImg') }}
+                {{ avatar_img(post.user, size='48', id='profileImg') }}
             </a>
             <div class="media-body">
                 <div class="article-metadata">

@@ -192,6 +192,7 @@ def profile(id):
 def posts(id, page):
     user = User.query.get_or_404(id)
     paginated_posts = user.posts \
+            .filter(Post.active) \
             .order_by(Post.created_at.desc()) \
             .paginate(page, get_settings_value('posts_per_page'), True)
     return render_template('profile_posts.html', posts=paginated_posts, user=user)

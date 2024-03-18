@@ -13,7 +13,7 @@
   {% endif %}
 {% endmacro %}
 
-{%- macro avatar_img(user, size="125", id=None) -%}
+{%- macro avatar_img(user, size="160", id=None) -%}
     {% set avatar_url = user.avatar %}
-    <img id="{{ id }}" src="{{ avatar_url }}" width="{{ size }}" height="{{ size }}">
+    <img id="{{ id }}" style="object-fit: cover;" src="{{ avatar_url }}" width="{{ size }}" height="{{ size }}">
 {%- endmacro -%}

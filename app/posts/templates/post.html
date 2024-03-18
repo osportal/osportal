@@ -24,7 +24,7 @@
 {% block content %}
     <article class="media content-section">
         <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">
-            {{ avatar_img(post.user, size='44', id='profileImg') }}
+            {{ avatar_img(post.user, size='48', id='profileImg') }}
         </a>
         <div class="media-body">
             <div class="article-metadata">
@@ -53,7 +53,11 @@
 <div class="mt-4"><!-- COMMENT SECTION DIV -->
 <ul class="mb-1 nav align-items-center">
     <li class="nav-item">
-        <h6>{{ post.comments.count() }} Comments</h6>
+        {% if post.comments.count() > 1 %}
+            <h6>{{ post.comments.count() }} Comments</h6>
+        {% else %}
+            <h6>Comments</h6>
+        {% endif %}
     </li>
     <li class="nav-item ml-auto">
         <h6>{{ items.sort('created_at', 'Sort by date') }}</h6>
@@ -64,7 +68,7 @@
 <div id="#cid{{ c.id}}" class="comment mb-4">
     <article class="media content-section">
             <a href="{{ url_for(profile_endpoint, id=c.user.id) }}">
-                {{ avatar_img(c.user, size='44', id='profileImg') }}
+                {{ avatar_img(c.user, size='48', id='profileImg') }}
             </a>
             <div class="media-body">
 				<div class="article-metadata">

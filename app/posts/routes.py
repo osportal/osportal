@@ -64,7 +64,7 @@ def post_new():
             flash(f'{e}', 'danger')
         else:
             user_mentions_notification(post)
-            flash(f'Successfully created new post', 'success')
+            flash(f'Created post', 'success')
             return redirect(url_for('posts.index'))
     return render_template('edit.html', form=form)
 
@@ -173,7 +173,7 @@ def comment_edit(id):
             flash(f'{e}', 'danger')
         else:
             user_mentions_notification(comment)
-            flash(f'comment has been updated', 'success')
+            flash(f'Updated comment', 'success')
             redirect(url_for('posts.post', id=comment.post_id))
     return render_template('update_comment.html', comment=comment,
                            form=form)
@@ -198,7 +198,7 @@ def comment_delete(id):
     except Exception as e:
         flash(f'{e}', 'danger')
     else:
-        flash(f'comment has been deleted', 'success')
+        flash(f'Deleted comment', 'success')
     return redirect(url_for('posts.post', id=comment.post_id))
 
 
