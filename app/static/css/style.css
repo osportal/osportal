@@ -167,6 +167,12 @@ input[type=checkbox].css-checkbox:checked + label.css-label {
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .brand-logo{
+      max-width: 150px !important;
+  }
+}
+
 @media (min-width: 768px) {
   .chart-pie {
     height: calc(20rem - 43px) !important;
