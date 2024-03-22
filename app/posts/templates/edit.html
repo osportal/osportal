@@ -19,7 +19,6 @@
 <style>
 .ck-editor__editable {
     min-height: 430px;
-    max-height: 450px;
 }
 </style>
 {% endblock head %}
@@ -39,10 +38,10 @@
   <!-- Submit buttons -->
   <hr/>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col">
         <button onclick="getMentions()" type="button" class="btn btn-primary btn-block mr-3">{{ button }}</button>
     </div>
-    <div class="col-md-6">
+    <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
       <a href="{{ url_for('posts.index') }}"
           class="btn btn-light bg-opacity-10 btn-block">

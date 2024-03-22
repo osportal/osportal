@@ -1,6 +1,7 @@
 html body {
     background-color: #eef0f1;
 	margin-top: 5rem;
+    word-wrap: break-word;
 }
 
 .container {
@@ -35,9 +36,9 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 12px 10px;
     /*overflow: auto;*/
 }
+
 .pin-section {
 	background: #ffffff;
-	padding: 6px 10px;
 }
 
 .profile-section {
@@ -63,10 +64,6 @@ a.article-title:hover {
 		padding-bottom: 1px;
 		margin-bottom: 4px;
 }
-.post-menu {
-    text-align: right;
-}
-
 
 .article-metadata a:hover {
 	    color: #333;
@@ -77,6 +74,36 @@ a.article-title:hover {
 	    width: 25px;
 		height: 25px;
 		vertical-align: middle;
+}
+
+.post-menu {
+    text-align: right;
+}
+
+.ck-content p {
+}
+
+.ck-content {
+    overflow-x: auto;
+}
+
+figure.image {
+    margin: 0 0 1rem;
+}
+
+.ck-content table {
+    table-layout: fixed;
+}
+
+.ck-content img:hover {
+    cursor: pointer;
+}
+
+.ck-content img {
+    max-width: 564px !important;
+    width: 100% !important;
+    max-height: 581px !important;
+    height: 100% !important;
 }
 
 .account-img {
@@ -246,6 +273,10 @@ th.superuser-icon {
     width: 1% !important;
 }
 
+.table-wrapper {
+    overflow-x: scroll;
+}
+
 .table-hover td, th {
     padding: 12px;
 }
@@ -254,6 +285,7 @@ th.superuser-icon {
     -webkit-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
     box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
 }
+
 .trimmed-cover {
     height: 100%; 
 }

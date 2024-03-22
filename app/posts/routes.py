@@ -7,9 +7,19 @@ from app.posts.models import Post, Comment
 from app.user.decorators import permission_required
 
 from elasticsearch_dsl import Search, Q
-from flask import render_template, request, url_for, redirect, flash, abort, Blueprint, current_app
+from flask import (render_template,
+                   request, url_for,
+                   redirect,
+                   flash,
+                   abort,
+                   Blueprint,
+                   current_app,
+                   send_from_directory,
+                   jsonify)
 from flask_login import login_user, current_user, logout_user, login_required
 import math
+import os
+import secrets
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 
@@ -227,3 +237,19 @@ def unpin_post(id):
     else:
         flash('Unpinned post', 'success')
     return redirect(url_for('posts.index'))
+
+
+@posts.route('/media/<path:filename>')
+def get_uploaded_img(filename):
+    return send_from_directory(current_app.static_folder+'/img/media/', filename)
+
+
+@posts.route("/upload-post-img", methods=['POST'])
+def upload_image():
+    f = request.files.get('upload')
+    random_hex = secrets.token_hex(24)
+    _, f_ext = os.path.splitext(f.filename)
+    new_fn = random_hex + f_ext
+    f.save(os.path.join(current_app.static_folder+'/img/media/', new_fn))
+    url = url_for('posts.get_uploaded_img', filename=new_fn)
+    return jsonify(url=url)

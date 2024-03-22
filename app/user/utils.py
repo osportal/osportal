@@ -26,7 +26,7 @@ def save_picture(form_picture):
     picture_path = os.path.join(current_app.root_path,
                                 current_app.static_folder+'/img/profile_pics',
                                 picture_fn)
-    output_size = (256, 256)
+    output_size = (400, 400)
     image = Image.open(form_picture)
     image.thumbnail(output_size, Image.Resampling.LANCZOS)
     image.save(picture_path, quality=100)

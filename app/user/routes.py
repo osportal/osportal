@@ -49,6 +49,9 @@ def login():
                 flash('This account has been disabled', 'danger')
         else:
             flash(f'Login Unsuccessful! Please check credentials', 'danger')
+    else:
+        for error in form.errors.items():
+            print(error)
     return render_template('login.html', form=form)
 
 

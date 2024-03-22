@@ -3,6 +3,12 @@
 {% extends "layout.html" %}
 
 {% block title %}Profile Update{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename="css/imageModal.css") }}">
+{% endblock %}
+
 {% set endpoint = 'user.account' %}
 {% set button = 'Update' %}
 
@@ -10,7 +16,13 @@
 <div class="profile-section">
     <div class="row">
         <div class="col-sm-auto mb-3">
-            {{ avatar_img(current_user) }}
+            {{ avatar_img(current_user, id='profileImg') }}
+    	    <!-- The Image Modal -->
+    	    <div class="modal" id="imageModal">
+    	      <span class="close">&times;</span>
+    	      <img class="modal-content" id="img01">
+              <div id="caption"></div>
+    	    </div>
         </div>
         <div class="col-md-8 justify-content-between mb-3">
 				<h2>{{ current_user.username }}</h2>
@@ -47,4 +59,8 @@
         </div><!-- End of col -->
     </div> <!-- End row -->
 </div><!-- End profile-section -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/imageModal.js') }}"></script>
 {% endblock %}

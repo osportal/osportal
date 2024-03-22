@@ -361,6 +361,7 @@ def posts_edit(id):
     if form.validate_on_submit():
         try:
             form.populate_obj(post)
+            post.save()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
             flash(f'{e.orig.diag.message_detail}', 'danger')
@@ -368,7 +369,6 @@ def posts_edit(id):
             db.session.rollback()
             flash(f'{e}', 'danger')
         else:
-            post.save()
             flash('Successfully updated.', 'success')
             return redirect(url_for('admin.posts'))
     return render_template('post/edit.html', form=form, post=post)

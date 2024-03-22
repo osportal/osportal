@@ -12,9 +12,17 @@ ClassicEditor
                 }
             ]
         },
+        simpleUpload: {
+            uploadUrl: '/upload-post-img',
+        },
         mediaEmbed: {
                previewsInData:true
         },
+        image: {
+            insert: {
+                type: 'side'
+            }
+        }
     })
     .then(editor => {
         window.editor = editor;
