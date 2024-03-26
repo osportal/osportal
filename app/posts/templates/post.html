@@ -21,33 +21,38 @@
 {% endblock head %}
 
 {% block content %}
+    <div>
+        <h2>{{ post.name }}</h2>
+    </div>
+    {% if post.locked %}
+        <div class="alert alert-info">
+            <i class="bi bi-lock-fill h5" title="Locked"></i>
+            This post and its comments are locked from being edited. It is not currently accepting new comments or
+            interactions.
+        </div>
+    {% endif %}
     <div class="row content-section">
-        <div class="col-sm-auto">
+        <div class="col-sm-auto img-col">
         <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">
             {{ avatar_img(post.user, size='48', id='profileImg') }}
         </a>
         </div>
         <div class="col">
-                <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user.username }}</a>
-                <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
-                {% if post.updated_at %}
+            <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user.username }}</a>
+            <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
+            {% if post.updated_at %}
                 <small class="text-muted ml-1">(Last Modified: {{ post.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
-                {% endif %}
-    		<h2>{{ post.name }}</h2>
+            {% endif %}
             <div class="ck-content">{{ post.content | safe }}</div>
         </div>
-        {% if post.locked %}
-            <div>
-                <i class="bi bi-lock-fill" title="Locked"></i>
-            </div>
-        {% else %}
+        {% if not post.locked %}
             {% if current_user.role.superuser == True or post.user == current_user %}
                 <div>
                     {% include "post_actions.html" %}
                 </div>
             {% endif %}
         {% endif %}
-    </div>
+    </div><!-- End of row -->
 {% if comments.items %}
 <div class="mt-4"><!-- COMMENT SECTION DIV -->
 <ul class="mb-1 nav align-items-center">
@@ -66,7 +71,7 @@
 {% for c in comments.items %}
 <div id="#cid{{ c.id}}" class="comment mb-4">
     <div class="row content-section">
-        <div class="col-sm-auto">
+        <div class="col-sm-auto img-col">
             <a href="{{ url_for(profile_endpoint, id=c.user.id) }}">
                 {{ avatar_img(c.user, size='48', id='profileImg') }}
             </a>
@@ -82,10 +87,12 @@
         <!-- If user has no comment permissions and is not the comment author, avoid displaying empty dropdown -->
         {# TODO {% if current_user.comment_permissions() or c.user == current_user %}
         {% endif %} #}
-        {% if current_user.comment_actions_access(c) %}
-        <div>
-            {% include "comment_actions.html" %}
-        </div>
+        {% if not post.locked %}
+            {% if current_user.comment_actions_access(c) %}
+            <div>
+                {% include "comment_actions.html" %}
+            </div>
+	        {% endif %}
 	    {% endif %}
     </div>
 </div>

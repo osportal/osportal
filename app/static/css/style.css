@@ -30,12 +30,18 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
-/* end of logo stuff */
-
 .content-section {
 	background: #ffffff;
 	padding: 12px 10px;
     /*overflow: auto;*/
+    /* override row margin */
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+.img-col {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
 }
 
 .pin-section {
