@@ -1,8 +1,18 @@
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from datetime import datetime
 from flask import current_app
 import os
 import secrets
+
+
+def is_valid_image_pillow(file_name):
+    try:
+        with Image.open(file_name) as img:
+            img.verify()
+    except (IOError, SyntaxError, UnidentifiedImageError):
+        return False
+    else:
+        return True
 
 
 def delete_picture(form_picture):
@@ -20,6 +30,7 @@ def delete_picture(form_picture):
 
 
 def save_picture(form_picture):
+    #is_valid_image_pillow(form_picture)
     random_hex = secrets.token_hex(16)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext

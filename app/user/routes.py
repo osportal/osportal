@@ -17,6 +17,7 @@ from flask import (render_template, request, url_for, redirect,
                    flash, abort, Blueprint, g, current_app, jsonify)
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy import text
 
 
@@ -160,17 +161,25 @@ def account():
     form = UpdateAccountForm(obj=current_user)
     current_picture = current_user.image_file
     if form.validate_on_submit():
-        form.populate_obj(current_user)
-        if form.image_file.data:
-            # delete existing picture
-            if request.files['image_file']:
-                delete_picture(current_picture)
-                f = request.files['image_file']
-                image = save_picture(f)
-                current_user.image_file = image
-        current_user.save()
-        flash(f'Your account has been updated', 'success')
-        return redirect(url_for('user.account'))
+        try:
+            form.populate_obj(current_user)
+            if form.image_file.data:
+                # delete existing picture
+                if request.files['image_file']:
+                    delete_picture(current_picture)
+                    f = request.files['image_file']
+                    image = save_picture(f)
+                    current_user.image_file = image
+            current_user.save()
+        except UnidentifiedImageError as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Your account has been updated', 'success')
+            return redirect(url_for('user.account'))
     return render_template('profile_settings.html', form=form)
 
 

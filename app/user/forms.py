@@ -5,7 +5,7 @@ from app.utils.util_wtforms import ModelForm, choices_from_dict
 from flask_admin.form.widgets import Select2Widget
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileSize
 from wtforms.validators import (DataRequired, Regexp, ValidationError,
                                 Length, EqualTo, NumberRange,
                                 Optional)
@@ -59,9 +59,15 @@ class UpdateAccountForm(FlaskForm):
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), EmailVal()])
-    image_file = FileField('Update Profile Picture', validators=[FileAllowed(['jpg','jpeg','png','gif'])])
+    image_file = FileField('Update Profile Picture',
+                           validators=[FileAllowed(['jpg','jpeg','png','gif','webp','tiff','bmp']),
+                                       FileSize(max_size=15*1024*1024,
+                                                message='File size should be less than 15MB')
+                                      ]
+                           )
     bio = TextAreaField('Bio', validators=[Optional(), Length(min=2,max=255)])
     submit = SubmitField('Update')
+
 
     def validate_username(self, username):
         if username.data != current_user.username:

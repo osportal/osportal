@@ -54,7 +54,7 @@
 }
 
 /* The Close Button */
-.close {
+.closeAvatar {
     position: fixed;
     right: 0%;
     top: 5%;
@@ -67,8 +67,8 @@
   	transition: 0.3s;
 }
 
-.close:hover,
-.close:focus {
+.closeAvatar:hover,
+.closeAvatar:focus {
   color: white;
   text-decoration: none;
   cursor: pointer;

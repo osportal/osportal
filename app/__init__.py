@@ -153,6 +153,10 @@ def error_templates(app):
     def method_not_allowed(error):
         return render_template('errors/405.html'), 405
 
+    @app.errorhandler(413)
+    def too_large(error):
+        return render_template('errors/413.html'), 413
+
     @app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()

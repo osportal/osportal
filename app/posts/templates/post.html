@@ -121,7 +121,7 @@
 $(document).ready(function() {
     if (location.hash){
         document.getElementById(location.hash).scrollIntoView({top: -600});
-        document.getElementById(location.hash).getElementsByTagName('article')[0].classList.add('highlighted-comment');
+        document.getElementById(location.hash).getElementsByClassName('content-section')[0].classList.add('highlighted-comment');
     }
 });
 $(document).on("click", ".ck-content img", function() {

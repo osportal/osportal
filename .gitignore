@@ -162,11 +162,15 @@ cython_debug/
 
 *.pdf
 *.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+*.bmp
+*.webp
 !default.png
 !cover.png
 !profile.png
-*.jpg
-*.jpeg
 *.db
 *.txt
 !requirements.txt

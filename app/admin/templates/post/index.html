@@ -23,6 +23,7 @@
 {% else %}
 
 {% include "actions_btn.html" %}
+<div class="table-wrapper">
   <table class="table table-striped">
     <thead>
       <tr>
@@ -66,7 +67,7 @@
         </td>
         <td>
             <a href="{{ url_for('admin.posts_info', id=post.id) }}">
-                <h6>{{ post.name }}</h6>
+                <h6>{{ post.name | truncate(70) }}</h6>
             </a>
         </td>
         <td>{{ post.render(post.active) }}</td>
@@ -119,6 +120,7 @@
     {% endfor %}
     </tbody>
   </table>
+</div><!-- End of table wrapper -->
 
 {{ items.paginate(posts) }}
 

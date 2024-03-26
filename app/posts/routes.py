@@ -15,6 +15,7 @@ from flask import (render_template,
                    Blueprint,
                    current_app,
                    send_from_directory,
+                   Response,
                    jsonify)
 from flask_login import login_user, current_user, logout_user, login_required
 import math
@@ -246,10 +247,21 @@ def get_uploaded_img(filename):
 
 @posts.route("/upload-post-img", methods=['POST'])
 def upload_image():
-    f = request.files.get('upload')
-    random_hex = secrets.token_hex(24)
-    _, f_ext = os.path.splitext(f.filename)
-    new_fn = random_hex + f_ext
-    f.save(os.path.join(current_app.static_folder+'/img/media/', new_fn))
-    url = url_for('posts.get_uploaded_img', filename=new_fn)
-    return jsonify(url=url)
+    f = request.files['upload']
+    f.seek(0, os.SEEK_END)
+    size = f.tell()
+    max_upload_bytes = 15 * 1024 * 1024
+    if size > max_upload_bytes:
+        return Response(
+        response='File size should be less than 15MB',
+        status=413,
+        )
+    else:
+        #seek back to image beginning, so you might save it entirely
+        f.seek(0)
+        random_hex = secrets.token_hex(24)
+        _, f_ext = os.path.splitext(f.filename)
+        new_fn = random_hex + f_ext
+        f.save(os.path.join(current_app.static_folder+'/img/media/', new_fn))
+        url = url_for('posts.get_uploaded_img', filename=new_fn)
+        return jsonify(url=url)

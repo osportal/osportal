@@ -2,6 +2,7 @@ html body {
     background-color: #eef0f1;
 	margin-top: 5rem;
     word-wrap: break-word;
+    hyphens: manual;
 }
 
 .container {
