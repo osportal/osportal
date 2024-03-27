@@ -23,6 +23,18 @@
             </span>
         </a>
       </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkWelcomeEmail')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <i class="bi bi-envelope-fill"></i>
+            <span class="align-middle">
+                Send Welcome Email
+            </span>
+        </a>
+      </li>
       {% endif %}
       <li>
           <form id="export-form" action="{{ url_for('admin.export_selected_csv', table=table_name) }}" method="POST">

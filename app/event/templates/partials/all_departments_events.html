@@ -4,11 +4,15 @@
               /* above forloops and slotsappend prevent repeat events if member is a member of multiple departments */
               {% set event_id = e.id | string %}
               {% set del_url = url_for('event.delete', id=event_id) %}
+              {% set edit_url = url_for('event.edit', id=event_id) %}
               {% set approve_url = url_for('event.approve', id=event_id) %}
               {% set decline_url = url_for('event.decline', id=event_id) %}
-              {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">delete</a>' %}
-              {% set approve_btn = '<a class="btn btn-sm btn-success" href="' + approve_url + '">approve</a>' %}
-              {% set decline_btn = '<a class="btn btn-sm btn-danger" href="' + decline_url + '">decline</a>' %}
+              {% set revoke_url = url_for('event.revoke', id=event_id) %}
+              {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
+              {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
+              {% set approve_btn = '<a class="btn btn-sm btn-success" href="' + approve_url + '">Approve</a>' %}
+              {% set decline_btn = '<a class="btn btn-sm btn-danger" href="' + decline_url + '">Decline</a>' %}
+              {% set revoke_btn = '<a class="btn btn-sm btn-danger" href="' + revoke_url + '">Revoke</a>' %}
 
               {
                   id: '{{ e.id }}',
@@ -27,11 +31,15 @@
                         {% if e.status == "Pending" %}
                             <hr>
                             {% if current_user.id == e.user_id %}
+                                {{ edit_btn | safe}}
                                 {{ del_btn | safe}}
                             {% endif %}
                             {% if current_user.id == e.user.authoriser_id %}
                                 {{ approve_btn | safe }} {{ decline_btn | safe }}
                             {% endif %}
+                        {% elif e.status == "Approved" %}
+                            <hr>
+                            {{ revoke_btn | safe }}
                         {% endif %}
                       `, 
                   },

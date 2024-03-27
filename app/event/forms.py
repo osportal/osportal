@@ -43,4 +43,4 @@ class EventHalfDayForm(EventForm):
 
 
 class EventDenyForm(FlaskForm):
-    status_details = TextAreaField('Reason', validators=[DataRequired(), Length(min=5,max=120)])
+    status_details = TextAreaField('Reason', validators=[DataRequired(), Length(min=4,max=120)])

@@ -164,6 +164,14 @@
     url=url_for('admin.users_bulk_password_reset'),
     btn_text="Send")
 }}
+{{ forms.modal_bulk_action(
+    id="bulkWelcomeEmail",
+    label="bulkWelcomeEmailLabel",
+    title="Send Welcome Email",
+    text="Are you sure you want to send a welcome email to the selected users?",
+    url=url_for('admin.users_bulk_welcome_email'),
+    btn_text="Send")
+}}
 
 {% endif %}<!-- end if users exist -->
 {% include "partials/confirm_dialog.html" %}

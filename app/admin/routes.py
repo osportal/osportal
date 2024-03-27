@@ -893,6 +893,15 @@ def users_edit(id):
                            user=user)
 
 
+@admin.route('/users/bulk_welcome_email', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def users_bulk_welcome_email():
+    ids = request.form.get('checked-items').split(",")
+    # stops circular import error
+    from app.user.tasks import send_welcome_email
+    send_welcome_email.delay(ids)
+    flash('{0} user(s) scheduled to be sent a welcome email.'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
 
 @admin.route('/users/bulk_password_reset', methods=['POST'])
 @permission_required('admin.user', crud='update')

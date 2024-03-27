@@ -50,10 +50,10 @@ def send_email(subject, recipients, html_body,
 
 @celery.task(bind=True)
 def send_event_request_status_update_email(self, event_id):
-    #token = user.serialize_token()
+    site_name = get_settings_value('site_name')
     try:
         event = Event.query.get(event_id)
-        send_email(('Update on Your Request'),
+        send_email((f'Update on Your {event.etype} Request - {site_name}'),
                    recipients=[event.user.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -68,9 +68,10 @@ def send_event_request_status_update_email(self, event_id):
 @celery.task(bind=True)
 def send_event_request_email(self, event_id):
     #token = user.serialize_token()
+    site_name = get_settings_value('site_name')
     try:
         event = Event.query.get(event_id)
-        send_email(('Event Request'),
+        send_email((f'{event.etype} Request - {event.user.username} - {site_name}'),
                    recipients=[event.user.authoriser.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -85,8 +86,9 @@ def send_event_request_email(self, event_id):
 @celery.task(bind=True)
 def send_password_reset_email(self, user):
     token = user.serialize_token()
+    site_name = get_settings_value('site_name')
     try:
-        send_email(('Reset Your Password'),
+        send_email((f'Reset Your Password - {site_name}'),
                    recipients=[user.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -102,7 +104,8 @@ def send_password_reset_email(self, user):
 @celery.task()
 def send_activation_email(user):
     token = user.serialize_token()
-    send_email(('Welcome to osPortal'),
+    site_name = get_settings_value('site_name')
+    send_email((f'Welcome to {site_name}'),
                recipients=[user.email],
                html_body=render_template('email/account_creation.html',
                                          user=user, token=token))

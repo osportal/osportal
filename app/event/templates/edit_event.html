@@ -34,11 +34,11 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col">
                 {% call f.form_group(form.submit, css_class="btn btn-primary form-control") %}
                 {% endcall %}
             </div>
-            <div class="col-md-6">
+            <div class="col">
                     <a href="{{ url_for('event.history') }}" role="button" class="btn btn-light btn-block">
                         Cancel
                     </a>

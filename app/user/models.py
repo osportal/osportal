@@ -334,6 +334,19 @@ class User(UserMixin, ResourceMixin):
         return False
 
     @classmethod
+    def bulk_send_welcome_email(cls, ids):
+        welcome_email = 0
+
+        for id in ids:
+            user = User.query.get(id)
+            if user is None:
+                continue
+            from app.email import send_activation_email
+            send_activation_email(user)
+            welcome_email += 1
+        return welcome_email
+
+    @classmethod
     def bulk_password_reset(cls, ids):
         reset_count = 0
 

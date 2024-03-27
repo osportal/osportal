@@ -324,10 +324,12 @@ def approve(id):
     if event.status == 'Approved':
         abort(403) # TODO we don't want event to be approved again if already approved
     try:
+        if event.etype.deductable == True:
+            if event.days > event.user.days_left:
+                raise Exception('User does not have enough allowance for this request')
+            event.user.deduct_leave_days(event.days)
         event.status = 'Approved'
         event.actioned_by=current_user
-        if event.etype.deductable == True:
-            event.user.deduct_leave_days(event.days)
         event.save()
     except Exception as e:
         flash(f'{e}', 'danger')
@@ -373,7 +375,7 @@ def revoke(id):
             from app.email import send_event_request_status_update_email
             send_event_request_status_update_email.delay(id)
             flash('Successfully revoked event request', 'success')
-            return redirect(url_for('event.authorise'))
+            return redirect(url_for('event.authorise_history'))
     return render_template('action_request.html', form=form, event=event)
 
 

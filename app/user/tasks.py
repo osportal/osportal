@@ -3,6 +3,14 @@ from app.user.models import User, Role, Permission
 from app.posts.models import Comment
 from flask import url_for
 
+@celery.task()
+def send_welcome_email(ids):
+    """
+    Send user reset password email.
+    type ids: list
+    return: int
+    """
+    return User.bulk_send_welcome_email(ids)
 
 @celery.task()
 def reset_users_passwords(ids):

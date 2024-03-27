@@ -1,3 +1,51 @@
+<head>
+<style>
+a {
+    text-decoration: none !important;
+}
+
+.btn {
+    display: inline-block !important;
+    font-weight: 400 !important;
+    color: #212529 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+      border-top-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      border-left-color: transparent !important;
+    padding: .375rem .75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: .25rem !important;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s
+        ease-in-out !important;
+}
+
+.btn-group-sm > .btn, .btn-sm {
+  padding: .25rem .5rem !important;
+  font-size: .875rem !important;
+  line-height: 1.5 !important;
+  border-radius: .2rem !important;
+}
+.btn-success {
+  color: #fff !important;
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+.btn-danger {
+  color: #fff !important;
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+</style>
+</head>
 <div>
     <p><strong>Requested by {{ event.user }}</strong></p>
     <p>Requested dates: {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
@@ -6,4 +54,8 @@
     <p>Details: {{ event.details }}</p>
     {% endif %}
     <p>Days: {% if event.half_day %}0.5{% else %}{{ event.calculate_days() }}{% endif %}
+    <div class="btn-toolbar" style="flex-wrap: unset !important;">
+        <a class="btn btn-sm btn-success" href="{{ url_for('event.approve', id=event.id, _external=True) }}">Approve</a>
+        <a class="btn btn-sm btn-danger" href="{{ url_for('event.decline', id=event.id, _external=True) }}">Reject</a>
+    </div>
 </div>

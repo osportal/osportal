@@ -1,7 +1,9 @@
     {% for e in user_events %}
     {% set event_id = e.id | string %}
-    {% set url = url_for('event.delete', id=event_id) %}
-    {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + url + '">delete</a>' %}
+    {% set del_url = url_for('event.delete', id=event_id) %}
+    {% set edit_url = url_for('event.edit', id=event_id) %}
+    {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
+    {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
     {
         id: '{{ e.id }}',
         title : '{{ e.etype.name }} - {{ e.status }}', 
@@ -20,6 +22,7 @@
                 {% endif %}
                 {% if e.status == "Pending" %}
                     <hr>
+                    {{ edit_btn | safe}}
                     {{ del_btn | safe}}
                 {% endif %}
                 `, 

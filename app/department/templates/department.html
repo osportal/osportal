@@ -32,7 +32,7 @@
             {% for member in members.items %}
             <tr>
                 <td>
-                    <a href="{{ url_for(profile_endpoint, id=member.id) }}">{{ avatar_img(member, size='48', id='profileImg') }}</a>
+                    <a class="mr-2" href="{{ url_for(profile_endpoint, id=member.id) }}">{{ avatar_img(member, size='48', id='profileImg') }}</a>
                     <a href="{{ url_for(profile_endpoint, id=member.id) }}">{{ member.username }}</a>
                     {% if department.manager == member %}
                         <span class="badge badge-pill badge-light">Manager</span>

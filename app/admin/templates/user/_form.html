@@ -8,7 +8,7 @@
 {% else %}
   {% set endpoint = 'admin.users_edit' %}
   {% set form_kwargs = {'id': user.id} %}
-  {% set legend = 'Update this user' %}
+  {% set legend = 'Update ' +  user|string %}
   {% set button = 'Save' %}
 {% endif %}
 

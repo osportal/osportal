@@ -164,31 +164,6 @@ class RoleForm(ModelForm):
                                            validators=[Optional()]
                                            )
     superuser = BooleanField('Superuser?')
-    # UserAdmin
-    user_admin_view = BooleanField('Read - Ability to access the User Admin Page')
-    user_admin_add = BooleanField('Create - Ability to add new users')
-    user_admin_edit = BooleanField('Edit - Ability to edit existing user information')
-    user_admin_delete = BooleanField('Delete - Ability to delete users')
-
-    ## Department admin
-    dept_admin_view = BooleanField('Read - Ability to access the Department Admin Page')
-    dept_admin_add = BooleanField('Create - Ability to add new departments')
-    dept_admin_edit = BooleanField('Edit - Ability to edit existing department information')
-    dept_admin_delete = BooleanField('Delete - Ability to delete departments')
-
-    ## System admin
-    #sys_admin_view = db.Column(db.Boolean, default=False)
-    #sys_admin_add = db.Column(db.Boolean, default=False)
-    #sys_admin_edit = db.Column(db.Boolean, default=False)
-    #sys_admin_delete = db.Column(db.Boolean, default=False)
-
-    create_posts = BooleanField('Can Create Posts?')
-    edit_any_post = BooleanField('Edit Any Post?')
-    delete_any_post = BooleanField('Delete Any Post?')
-    pin_posts = BooleanField('Can Pin Posts?')
-    create_comments = BooleanField('Can Create Comments?')
-    edit_any_comment = BooleanField('Edit Any Comment?')
-    delete_any_comment = BooleanField('Delete Any Comment?')
 
 
 exclusions = ['event_actioned', 'role_permission', 'notification', 'department_members']
