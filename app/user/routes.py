@@ -162,6 +162,8 @@ def account():
     current_picture = current_user.image_file
     if form.validate_on_submit():
         try:
+            if current_user.locked:
+                raise Exception('User is locked')
             form.populate_obj(current_user)
             if form.image_file.data:
                 # delete existing picture

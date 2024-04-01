@@ -109,6 +109,7 @@
         {% endif %}
         </td>
         <td>
+	{% if not user.locked %}
             {% if current_user.permission('admin.user', crud='update') %}
                 <a class="btn btn-sm btn-primary" 
                    href="{{ url_for('admin.users_edit', id=user.id) }}" type="button">
@@ -125,6 +126,7 @@
                     target="#confirmModal") 
                 }}
             {% endif %}
+	{% endif %}<!-- End of lock check -->
         </td>
       </tr>
     {% endfor %}

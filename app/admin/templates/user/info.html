@@ -17,30 +17,32 @@
     <div class="col-auto">
         <div class="h2">User {{ user}}</div>
     </div>
-    <div class="col-auto">
-      <div class="btn-toolbar"> 
-      {% if current_user.permission('admin.user', crud='update') %}
-          <div class="btn-group mr-2"> 
-              <a role="button" 
-                 href="{{ url_for('admin.users_edit', id=user.id) }}"
-                 class="btn btn-sm btn-primary">Edit
-              </a>
-          </div>
-      {% endif %}
-      {% if current_user.permission('admin.user', crud='delete') %}
-          <div class="btn-group mr-2"> 
-          {{ forms.action_confirm(
-              id="delete-user-confirm",
-              url=url_for('admin.users_delete', id=user.id),
-              title="Delete", 
-              btn="btn btn-sm btn-warning",
-              icon_only=False,
-              target="#confirmModal") 
-          }}
-          </div>
-      {% endif %}
-      </div><!-- end of toolbar -->
-    </div><!-- end of col toolbar -->
+    {% if not user.locked %}
+    	<div class="col-auto">
+    	  <div class="btn-toolbar"> 
+    	  {% if current_user.permission('admin.user', crud='update') %}
+    	      <div class="btn-group mr-2"> 
+    	          <a role="button" 
+    	             href="{{ url_for('admin.users_edit', id=user.id) }}"
+    	             class="btn btn-sm btn-primary">Edit
+    	          </a>
+    	      </div>
+    	  {% endif %}
+    	  {% if current_user.permission('admin.user', crud='delete') %}
+    	      <div class="btn-group mr-2"> 
+    	      {{ forms.action_confirm(
+    	          id="delete-user-confirm",
+    	          url=url_for('admin.users_delete', id=user.id),
+    	          title="Delete", 
+    	          btn="btn btn-sm btn-warning",
+    	          icon_only=False,
+    	          target="#confirmModal") 
+    	      }}
+    	      </div>
+    	  {% endif %}
+    	  </div><!-- end of toolbar -->
+    	</div><!-- end of col toolbar -->
+    {% endif %}<!-- end of lock check -->
 </div><!-- end of row -->
 
 <div class="row">

@@ -477,6 +477,8 @@ def emails_delete(id):
 @permission_required('admin.user', crud='delete')
 def users_delete(id):
     user = User.query.get_or_404(id)
+    if user.locked:
+        abort(403)
     try:
         if user.is_last_superuser():
             raise Exception('Cannot delete the last remaining superuser')
@@ -861,6 +863,8 @@ def settings():
 @permission_required('admin.user', crud='update')
 def users_edit(id):
     user = User.query.get_or_404(id)
+    if user.locked:
+        abort(403)
     form = NewUserForm(obj=user, departments=user.department)
     if form.validate_on_submit():
         """

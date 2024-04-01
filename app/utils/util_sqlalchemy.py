@@ -86,6 +86,8 @@ class ResourceMixin(db.Model):
                 if cls.__name__ == 'User':
                     if obj.is_last_superuser():
                         continue
+                    if obj.locked:
+                        continue
                 db.session.delete(obj)
                 delete_count += 1
         db.session.commit()
@@ -99,9 +101,15 @@ class ResourceMixin(db.Model):
             obj = cls.query.get(id)
             if obj is None:
                 continue
-            obj.active = False
-            db.session.add(obj)
-            disable_count += 1
+            else:
+                if cls.__name__ == 'User':
+                    if obj.is_last_superuser():
+                        continue
+                    if obj.locked:
+                        continue
+                obj.active = False
+                db.session.add(obj)
+                disable_count += 1
         db.session.commit()
         return disable_count
 
