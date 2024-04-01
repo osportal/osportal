@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.env
+*.git
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+*.bmp
+*.webp
+!default.png
+!cover.png
+!profile.png
+*.db

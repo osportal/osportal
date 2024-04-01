@@ -63,7 +63,7 @@ class AdminPostForm(PostForm):
     user = QuerySelectField('Author',
                             query_factory=lambda: User.query.filter(User.active).all(),
                             widget=Select2Widget(),
-                            allow_blank=False,
+                            allow_blank=True,
                             validators=[DataRequired()]
                             )
 
