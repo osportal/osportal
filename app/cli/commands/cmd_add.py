@@ -1,7 +1,7 @@
 from app import create_app
 from app.extensions import db
-from app.user.models import User
-from app.utils.populate import create_default_countries
+from app.user.models import User, Role
+from app.utils.populate import create_default_countries, create_user
 from app.cli.utils import EmailType
 import click
 from datetime import datetime
@@ -136,11 +136,9 @@ def countries():
         click.secho('[+] Created countries.', fg='cyan')
 
 
-"""
 @click.command()
-def admin():
-    ''' Create an admin user '''
-    click.secho('[+] Creating Admin User...', fg='cyan')
+def user():
+    ''' Create new user '''
     username = click.prompt(click.style('Username', fg='magenta'),
                             type=str)
     email = click.prompt(click.style('Email', fg='magenta'),
@@ -148,31 +146,18 @@ def admin():
     password = click.prompt(click.style('Password', fg='magenta'),
                             hide_input=True,
                             confirmation_prompt=True)
+    roles = [x.name for x in Role.query.all()]
+    role = click.prompt(click.style('Role', fg='magenta'),
+                        type=click.Choice(roles, case_sensitive=False)
+                        )
     try:
-        create_admin_user(username, email, password)
+        create_user(username, email, password, role)
     except Exception as e:
         click.secho(f'{e}', fg='red')
     else:
-        click.secho('[+] Admin user added', fg='green', bold=True)
-"""
+        click.secho('[+] New user added', fg='green', bold=True)
 
-
-"""
-@click.command()
-@click.pass_context
-def all(ctx):
-    '''
-    Generate all data.
-
-    :param ctx:
-    :return: None
-    '''
-    ctx.invoke(users)
-
-    return None
-"""
 
 cli.add_command(users)
+cli.add_command(user)
 cli.add_command(countries)
-#cli.add_command(admin)
-#cli.add_command(all)

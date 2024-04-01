@@ -478,6 +478,8 @@ def emails_delete(id):
 def users_delete(id):
     user = User.query.get_or_404(id)
     try:
+        if user.is_last_superuser():
+            raise Exception('Cannot delete the last remaining superuser')
         user.delete()
     except (IntegrityError, PendingRollbackError) as e:
         db.session.rollback()

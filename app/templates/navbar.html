@@ -34,7 +34,7 @@
 		    	    	<a class="btn btn-outline-dark mr-1" href="{{ url_for('user.notifications') }}">
                             <i class="bi bi-bell"></i>
                             <span id="notification-count"
-                                  class="badge badge-pill badge-danger"
+                                  class="badge badge-danger notification-badge"
                                   style="display: {% if current_user.new_notifications() %}inline-block;{% else %}none;{% endif %}">
                                     {{ current_user.new_notifications() }}
                             </span>

@@ -83,6 +83,9 @@ class ResourceMixin(db.Model):
             if obj is None:
                 continue
             else:
+                if cls.__name__ == 'User':
+                    if obj.is_last_superuser():
+                        continue
                 db.session.delete(obj)
                 delete_count += 1
         db.session.commit()

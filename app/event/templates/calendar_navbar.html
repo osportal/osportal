@@ -33,13 +33,11 @@
     {% if current_user.count_authoriser_requests() %}
     <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
-            <span>
-                <span class="text">Authorise</span>
+                <span class="">Authorise</span>
                 {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
                 {% if authpendingcount > 0 %}
-                    <span class="badge badge-pill badge-danger">{{ authpendingcount }}</span>
+                    <span class="badge badge-danger authorise-badge">{{ authpendingcount }}</span>
                 {% endif %}
-            </span>
         </a>
         <ul class="dropdown-menu">
             <li>
@@ -48,7 +46,7 @@
                         <span class="text" style="vertical-align: middle;">Pending</span>
                         {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
                         {% if authpendingcount > 0 %}
-                            <span class="icon badge badge-pill badge-danger">{{ authpendingcount }}</span>
+                            <span class="icon badge badge-danger">{{ authpendingcount }}</span>
                         {% endif %}
                     </span>
                 </a>

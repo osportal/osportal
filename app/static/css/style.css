@@ -296,3 +296,14 @@ th.superuser-icon {
 .trimmed-cover {
     height: 100%; 
 }
+
+.nav-tabs .authorise-badge {
+    position: relative;
+    top: -1px;
+}
+
+.badge {
+    top: -2px !important;
+}
+
+

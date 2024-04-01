@@ -30,7 +30,7 @@ class UserForm(ModelForm):
     country = QuerySelectField('Country',
                                query_factory=lambda: Country.query.order_by(Country.name).all(),
                                widget=Select2Widget(),
-                               allow_blank=False,
+                               allow_blank=True,
                                validators=[DataRequired()],
                                default=lambda: Country.query.filter(Country.name=='United Kingdom').first()
                                )

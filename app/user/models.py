@@ -503,6 +503,14 @@ class User(UserMixin, ResourceMixin):
             else:
                 yield column
 
+    def is_last_superuser(self):
+        if self.role:
+            if self.role.superuser:
+                user_count = db.session.query(User).join(Role) \
+                        .filter(Role.superuser).count()
+                if user_count == 1:
+                    return True
+
 
 
 class Notification(ResourceMixin):

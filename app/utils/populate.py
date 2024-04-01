@@ -58,12 +58,12 @@ def create_default_settings():
     return Settings(**params).save()
 
 
-"""
-def create_superuser(username, email, password):
+def create_user(username, email, password, role_name):
+    role = Role.query.filter(Role.name==role_name).first()
     params = {
         'username': username,
         'email': email,
-        'password': password
+        'password': password,
+        'role': role
     }
     return User(**params).save()
-"""
