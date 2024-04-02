@@ -51,19 +51,32 @@ def create_default_settings():
     create_default_roles()
     create_default_event_types()
     create_default_countries()
+    # for demo purpose
+    create_user('admin',
+                'demo@osportal.com',
+                'password',
+                'Superuser',
+                'United Kingdom',
+                locked=True)
     params = {
         'id': 1,
-        'site_name': 'osPortal'
+        'site_name': 'osPortal',
+        'user_registration': True,
+        'setup': False
     }
     return Settings(**params).save()
 
 
-def create_user(username, email, password, role_name):
+def create_user(username, email, password, role_name,
+                country=None, locked=False):
     role = Role.query.filter(Role.name==role_name).first()
+    country = Country.query.filter(Country.name==country).first()
     params = {
         'username': username,
         'email': email,
         'password': password,
-        'role': role
+        'role': role,
+        'country': country,
+        'locked': locked
     }
     return User(**params).save()
