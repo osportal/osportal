@@ -43,9 +43,10 @@ POSTGRES_PASSWORD = env('POSTGRES_PASSWORD', default='devpassword')
 POSTGRES_DB = env('POSTGRES_DB', default='osportaldb')
 POSTGRES_HOST = env('POSTGRES_HOST', default='localhost')
 POSTGRES_PORT = env('POSTGRES_PORT', default=5432)
+POSTGRES_URI = env('POSTGRES_URI', default=f'{POSTGRES_HOST}:{POSTGRES_PORT}')
 
 # Database
-DB_URI = env('DB_URI', default=f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}')
+DB_URI = env('DB_URI', default=f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_URI}/{POSTGRES_DB}')
 #if not DB_URI:
 #    DB_URI = 'sqlite:///site.db'
 SQLALCHEMY_DATABASE_URI = DB_URI
