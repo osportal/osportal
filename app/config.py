@@ -28,8 +28,6 @@ DEBUG = env('DEBUG', default=True)
 if DEBUG:
     TESTING = env('TESTING', default=True) # If set to True, emails will be suppressed
     DEBUG_TB_INTERCEPT_REDIRECTS = env('DEBUG_TB_INTERCEPT_REDIRECTS', default=False)
-    # do not set server name in production
-    SERVER_NAME = env('SERVER_NAME', default='localhost:8002')
 
 SESSION_COOKIE_SECURE=env('SESSION_COOKIE_SECURE', default=True)
 REMEMBER_COOKIE_SECURE=env('REMEMBER_COOKIE_SECURE', default=True)
@@ -37,10 +35,10 @@ SESSION_COOKIE_HTTPONLY=env('SESSION_COOKIE_HTTPONLY', default=True)
 REMEMBER_COOKIE_HTTPONLY=env('REMEMBER_COOKIE_HTTPONLY', default=True)
 
 SECRET_KEY = env('SECRET_KEY', default=gen_secret_key())
-SERVER_PORT = env('SERVER_PORT', default=8002)
+SERVER_PORT = env('SERVER_PORT', default=5000)
 POSTGRES_USER = env('POSTGRES_USER', default='postgres')
 POSTGRES_PASSWORD = env('POSTGRES_PASSWORD', default='devpassword')
-POSTGRES_DB = env('POSTGRES_DB', default='osportaldb')
+POSTGRES_DB = env('POSTGRES_DB', default='postgres')
 POSTGRES_HOST = env('POSTGRES_HOST', default='localhost')
 POSTGRES_PORT = env('POSTGRES_PORT', default=5432)
 POSTGRES_URI = env('POSTGRES_URI', default=f'{POSTGRES_HOST}:{POSTGRES_PORT}')
