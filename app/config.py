@@ -37,7 +37,7 @@ REMEMBER_COOKIE_HTTPONLY=env('REMEMBER_COOKIE_HTTPONLY', default=True)
 SECRET_KEY = env('SECRET_KEY', default=gen_secret_key())
 SERVER_PORT = env('SERVER_PORT', default=5000)
 POSTGRES_USER = env('POSTGRES_USER', default='postgres')
-POSTGRES_PASSWORD = env('POSTGRES_PASSWORD', default='devpassword')
+POSTGRES_PASSWORD = env('POSTGRES_PASSWORD', default='postgres')
 POSTGRES_DB = env('POSTGRES_DB', default='postgres')
 POSTGRES_HOST = env('POSTGRES_HOST', default='localhost')
 POSTGRES_PORT = env('POSTGRES_PORT', default=5432)
@@ -51,7 +51,7 @@ SQLALCHEMY_DATABASE_URI = DB_URI
 SQLALCHEMY_TRACK_MODIFICATIONS = env('SQLALCHEMY_TRACK_MODIFICATIONS', default=False)
 
 # CELERY
-CELERY_BROKER_URL = 'redis://:devpassword@redis:6379/0'
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://:devpassword@redis:6379/0')
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['json', 'yaml', 'pickle']
 CELERY_TASK_SERIALIZER = 'pickle'
