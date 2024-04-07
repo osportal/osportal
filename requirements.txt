@@ -14,7 +14,7 @@ flask-wtf==1.0.1
 wtforms==3.0.1
 wtforms-sqlalchemy
 wtforms-alchemy==0.18.0
-celery==5.2.7
+celery==4.4.6
 fake-factory==0.5.7
 click
 pymysql
