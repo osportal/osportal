@@ -42,6 +42,7 @@ POSTGRES_DB = env('POSTGRES_DB', default='postgres')
 POSTGRES_HOST = env('POSTGRES_HOST', default='localhost')
 POSTGRES_PORT = env('POSTGRES_PORT', default=5432)
 POSTGRES_URI = env('POSTGRES_URI', default=f'{POSTGRES_HOST}:{POSTGRES_PORT}')
+UPLOAD_STORAGE_PATH = env('UPLOAD_STORAGE_PATH', default=False)
 
 # Database
 DB_URI = env('DB_URI', default=f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_URI}/{POSTGRES_DB}')

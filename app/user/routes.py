@@ -12,11 +12,14 @@ from app.user.models import User, Notification
 from app.user.utils import save_picture, delete_picture
 from app.user.forms import (LoginForm, RegistrationForm, UpdateAccountForm,
                             ForgotPasswordForm, ResetPasswordForm, UpdateAccountForm)
+from app.utils.storage import upload_folder
 from datetime import datetime
 from flask import (render_template, request, url_for, redirect,
-                   flash, abort, Blueprint, g, current_app, jsonify)
+                   flash, abort, Blueprint, g, current_app, jsonify, send_from_directory)
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+import os
+from pathlib import Path
 from PIL import Image, UnidentifiedImageError
 from sqlalchemy import text
 
@@ -168,9 +171,9 @@ def account():
             if form.image_file.data:
                 # delete existing picture
                 if request.files['image_file']:
-                    delete_picture(current_picture)
                     f = request.files['image_file']
                     image = save_picture(f)
+                    delete_picture(current_picture)
                     current_user.image_file = image
             current_user.save()
         except UnidentifiedImageError as e:
@@ -271,3 +274,9 @@ def all_users(page):
         .order_by(User.username.asc(),) \
         .paginate(page, get_settings_value('users_per_page'), True)
     return render_template('all_users.html', users=paginated_users, form=search_form)
+
+
+@user.route('/profile-pics/<path:filename>')
+def get_uploaded_profile_img(filename):
+    path = Path(os.path.join(upload_folder(), 'profile'))
+    return send_from_directory(path, filename)

@@ -1,7 +1,9 @@
 from PIL import Image, UnidentifiedImageError
+from app.utils.storage import upload_folder
 from datetime import datetime
 from flask import current_app
 import os
+from pathlib import Path
 import secrets
 
 
@@ -17,9 +19,8 @@ def is_valid_image_pillow(file_name):
 
 def delete_picture(form_picture):
     # if image_file exists in user obj, not the default None
-    if form_picture is not None:
-        picture_path = os.path.join(current_app.root_path,
-                                    current_app.static_folder+'/img/profile_pics',
+    if form_picture:
+        picture_path = os.path.join(upload_folder(), 'profile',
                                     form_picture)
         # if there is an image_file string attached to user
         # make sure image_file we are about to delete exists
@@ -34,12 +35,11 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(16)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(current_app.root_path,
-                                current_app.static_folder+'/img/profile_pics',
-                                picture_fn)
+    path = Path(upload_folder(), 'profile')
+    path.mkdir(parents=True, exist_ok=True)
     output_size = (400, 400)
     image = Image.open(form_picture)
     image.thumbnail(output_size, Image.Resampling.LANCZOS)
-    image.save(picture_path, quality=100)
+    image.save(os.path.join(path, picture_fn), quality=100)
 
     return picture_fn

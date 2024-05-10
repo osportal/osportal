@@ -219,19 +219,12 @@ class User(UserMixin, ResourceMixin):
         two paths - one is a root path for checking image exists
         other deform_path returns for use with macro avatar url_for
         """
-        base_path = os.path.join(current_app.static_folder, 'img/profile_pics')
-        deform_path = os.path.join('/static', 'img/profile_pics')
-        default_img = os.path.join(deform_path, 'default.png')
-        # default user image_file is None so provide default image
-        if self.image_file is None:
-            return default_img
-        path = os.path.join(base_path, self.image_file)
-        # if existing image_file has been accidentally deleted etc
-        # if so, provide default image
-        if not os.path.exists(path):
-            return default_img
+        # if no image exists use default image
+        if not self.image_file:
+            return os.path.join('/static/img', 'default.png')
         # otherwise return saved image_file
-        return os.path.join(deform_path, self.image_file)
+        url = url_for('user.get_uploaded_profile_img', filename=self.image_file)
+        return url
 
     @hybrid_property
     def leave_year_start_fmt(self):
