@@ -14,7 +14,7 @@ flask-wtf==1.0.1
 wtforms==3.0.1
 wtforms-sqlalchemy
 wtforms-alchemy==0.18.0
-celery==4.4.6
+celery==5.2.7
 fake-factory==0.5.7
 click
 pymysql
@@ -28,7 +28,7 @@ jsonify
 flask-migrate==2.5.3
 alembic==1.4.3
 flask-script==2.0.6
-markupsafe==2.1.1
+markupsafe==2.1.5
 psycopg2-binary
 python-dotenv
 elasticsearch-dsl==7.4.0

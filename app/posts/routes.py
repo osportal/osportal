@@ -5,6 +5,7 @@ from app.posts.decorators import posts_enabled
 from app.posts.forms import SearchForm, PostForm, CommentForm
 from app.posts.models import Post, Comment
 from app.user.decorators import permission_required
+from app.utils.storage import upload_folder
 
 from elasticsearch_dsl import Search, Q
 from flask import (render_template,
@@ -20,6 +21,7 @@ from flask import (render_template,
 from flask_login import login_user, current_user, logout_user, login_required
 import math
 import os
+from pathlib import Path
 import secrets
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
@@ -242,7 +244,8 @@ def unpin_post(id):
 
 @posts.route('/media/<path:filename>')
 def get_uploaded_img(filename):
-    return send_from_directory(current_app.static_folder+'/img/media/', filename)
+    path = Path(os.path.join(upload_folder(), 'media'))
+    return send_from_directory(path, filename)
 
 
 @posts.route("/upload-post-img", methods=['POST'])
@@ -262,6 +265,8 @@ def upload_image():
         random_hex = secrets.token_hex(24)
         _, f_ext = os.path.splitext(f.filename)
         new_fn = random_hex + f_ext
-        f.save(os.path.join(current_app.static_folder+'/img/media/', new_fn))
+        path = Path(upload_folder(), 'media')
+        path.mkdir(parents=True, exist_ok=True)
+        f.save(os.path.join(path, new_fn))
         url = url_for('posts.get_uploaded_img', filename=new_fn)
         return jsonify(url=url)
