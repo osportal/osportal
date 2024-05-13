@@ -1,6 +1,7 @@
 flask==2.2.5
 flask-admin==1.6.0
 sqlalchemy<2.0
+sqlalchemy-utils
 flask-sqlalchemy==2.5.1
 dataset==1.5.2
 redis==3.4.1
