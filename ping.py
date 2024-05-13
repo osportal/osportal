@@ -3,11 +3,12 @@ Script for checking that a database server is available.
 """
 import time
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.engine.url import make_url
 
 #from app.config import Config
-from app.config import DB_URI
+from app.config import DB_URI, POSTGRES_DB
 
 url = make_url(DB_URI)
 
@@ -21,6 +22,11 @@ url = url._replace(database=None)
 
 # Wait for the database server to be available
 engine = create_engine(url)
+with engine.connect() as conn:
+    conn.execute("COMMIT")
+    cursor = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname = '{POSTGRES_DB}'"))
+    if not cursor.fetchone():
+        conn.execute(text(f"CREATE DATABASE {POSTGRES_DB}"))
 print(f"Waiting for {url.host} to be ready")
 while True:
     try:
