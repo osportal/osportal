@@ -10,6 +10,7 @@
 {% block content %}
 
 <legend>{{ heading }}</legend>
+<div>Total: {{ users.items | count }}</div>
 
 {{ forms.search('user.all_users') }}
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">

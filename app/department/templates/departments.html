@@ -7,6 +7,7 @@
 {% block content %}
 
 <legend>Departments</legend>
+<div>Total: {{ departments.items | count }}</div>
 
 {{ forms.search('department.all') }}
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">

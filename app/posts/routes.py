@@ -47,8 +47,8 @@ def user_mentions_notification(obj, *args):
         user_mentions.delay(obj, ids, args)
 
 
-@posts.route('/posts', defaults={'page': 1}, methods=['GET', 'POST'])
-@posts.route('/posts/page/<int:page>', methods=['GET', 'POST'])
+@posts.route('/', defaults={'page': 1}, methods=['GET', 'POST'])
+@posts.route('/page/<int:page>', methods=['GET', 'POST'])
 def index(page):
     form = SearchForm()
     pinned_posts = Post.query.filter(Post.is_pin==True).all()

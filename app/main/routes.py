@@ -42,8 +42,7 @@ def setup():
             return redirect(url_for('user.login'))
     return render_template('setup.html', form=form)
 
-
-@main.route('/')
+@main.route('/home')
 @login_required
 def index():
-    return render_template('dashboard.html')
+    return redirect(url_for('posts.index'))
