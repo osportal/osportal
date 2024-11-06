@@ -65,7 +65,7 @@
 		             <a class="nav-link waves-effect" href="{{ url_for('user.login') }}">Login</a>
                  </li>
                  <!-- IF REGISTRATION IS ENABLED -->
-                 {% if g.guest_registration %}
+                 {% if g.settings.guest_registration %}
                  <li class="nav-item">
 		             <a class="nav-link" href="{{ url_for('user.register') }}">Register</a>
                  </li>

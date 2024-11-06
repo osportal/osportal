@@ -110,9 +110,11 @@ class User(UserMixin, ResourceMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=True)
+    middle_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     username = db.Column(FmtString(113), unique=True, nullable=False)
     email = db.Column(FmtString(120), unique=True, nullable=False)
+    contact_number = db.Column(db.String(25), unique=False, nullable=True)
     image_file = db.Column(db.String(40), nullable=True, default=None)
     password = db.Column(db.String(128), nullable=False, server_default='')
     active = db.Column(db.Boolean, default=True)

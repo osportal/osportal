@@ -20,6 +20,9 @@
 			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
 		</li>
 		<li class="nav-item">
+			<a class="nav-link" href="#users" aria-controls="users" role="tab" data-toggle="tab">Users</a>
+		</li>
+		<li class="nav-item">
 			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
 		</li>
 		<li class="nav-item">
@@ -32,22 +35,36 @@
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane active" id="general">
 			<div class="form-group">
-                        {% call f.form_group(form.site_name) %}
-                        {% endcall %}
-                        {% call f.form_group(form.company_name) %}
-                        {% endcall %}
-                        {% call f.form_group(form.company_website) %}
-                        {% endcall %}
-                        {% call f.form_group(form.auth_type) %}
-                        {% endcall %}
-                        {% call f.form_group(form.user_registration) %}
-                        {% endcall %}
-                        {% call f.form_group(form.reg_user_role) %}
-                        {% endcall %}
-                        {% call f.form_group(form.reg_user_country) %}
-                        {% endcall %}
+                {% call f.form_group(form.site_name) %}
+                {% endcall %}
+                {% call f.form_group(form.company_name) %}
+                {% endcall %}
+                {% call f.form_group(form.company_website) %}
+                {% endcall %}
+                {% call f.form_group(form.auth_type) %}
+                {% endcall %}
+                {% call f.form_group(form.user_registration) %}
+                {% endcall %}
+                {% call f.form_group(form.reg_user_role) %}
+                {% endcall %}
+                {% call f.form_group(form.reg_user_country) %}
+                {% endcall %}
             </div>
 		</div>
+        <!-- USERS CONFIG -->
+		<div role="tabpanel" class="tab-pane" id="users">
+            <h5>Users can edit the following profile fields:</h5>
+			<div class="form-group">
+                {% call f.form_group(form.user_edit_email) %}
+                {% endcall %}
+                {% call f.form_group(form.user_edit_username) %}
+                {% endcall %}
+                {% call f.form_group(form.user_edit_image_file) %}
+                {% endcall %}
+                {% call f.form_group(form.user_edit_bio) %}
+                {% endcall %}
+			</div>
+        </div>
         <!-- EMAIL CONFIG -->
 		<div role="tabpanel" class="tab-pane" id="email">
 			<div class="form-group">
@@ -103,7 +120,7 @@
   </div>
   <div class="col">
     <div class="visible-xs visible-sm sm-margin-top"></div>
-    <a href="{{ url_for('admin.settings') }}"
+    <a id="info-url" href="{{ url }}"
         class="btn btn-light bg-opacity-10 btn-block">
       Cancel
     </a>
@@ -115,4 +132,17 @@
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+    <script>
+    // on load of the page: switch to the currently selected tab
+    var hash = window.location.hash;
+    var infoURL = document.getElementById('info-url');
+    infoURL.href = '{{ url }}' + hash;
+    $('#settings a[href="' + hash + '"]').tab('show');
+    $("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
+        var id = $(e.target).attr("href").substr(1);
+        window.location.hash = id;
+        infoURL.href = '{{ url }}' + '#' + id;
+    });
+    </script>
+
 {% endblock scripts %}

@@ -2,7 +2,9 @@
 {% import 'macros/form.html' as f with context %}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 
-{% block title %}Settings and Preferences{% endblock %}
+{% set heading = 'Settings and Preferences' %}
+
+{% block title %}{{ heading }}{% endblock %}
 
 {% block content %}
 {% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
@@ -11,22 +13,18 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{% if not settings.sitename %}
-    {% set heading = 'osPortal' %}
-{% else %}
-    {% set heading = settings.sitename %}
-{% endif %}
 
 <div class="row justify-content-between align-items-center mb-3">
     <div class="col-auto">
-        <div class="h2">{{ heading }} Settings</div>
+        <div class="h2">{{ heading }}</div>
     </div>
     <div class="col-auto">
       <div class="btn-toolbar"> 
       {% if current_user.permission('admin.settings', crud='update') %}
           <div class="btn-group mr-2"> 
               <a role="button" 
-                 href="{{ url_for('admin.settings_edit') }}"
+                 id="edit-url"
+                 href="{{ url }}"
                  class="btn btn-sm btn-primary">Edit
               </a>
           </div>
@@ -40,6 +38,9 @@
     	<ul class="nav nav-tabs mb-3" role="tablist">
     		<li class="nav-item">
     			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#users" aria-controls="users" role="tab" data-toggle="tab">Users</a>
     		</li>
     		<li class="nav-item">
     			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
@@ -84,7 +85,29 @@
     			    </div>
                 </div>
     		</div>
-            	<!-- EMAIL CONFIG -->
+            <!-- USERS SETTINGS -->
+    		<div role="tabpanel" class="tab-pane" id="users">
+                <h5>Users can edit the following profile fields:</h5>
+    			<div class="form-group">
+    			    <div class="mb-2">
+    			    	<div><strong>Email</strong></div>
+    			    	<div>{{ settings.user_edit_email }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Username</strong></div>
+    			    	<div>{{ settings.user_edit_username }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Image</strong></div>
+    			    	<div>{{ settings.user_edit_image_file }}</div>
+    			    </div>
+    			    <div class="mb-2">
+    			    	<div><strong>Biography</strong></div>
+    			    	<div>{{ settings.user_edit_bio }}</div>
+    			    </div>
+    			</div>
+            </div>
+            <!-- EMAIL CONFIG -->
     		<div role="tabpanel" class="tab-pane" id="email">
     			<div class="form-group">
     			    <div class="mb-2">
@@ -155,3 +178,18 @@
     </div>
 
 {% endblock content %}
+{% block scripts %}
+    <script>
+    // on load of the page: switch to the currently selected tab
+    var hash = window.location.hash;
+    var editURL = document.getElementById('edit-url');
+    editURL.href = '{{ url }}' + hash;
+    $('#settings a[href="' + hash + '"]').tab('show');
+    $("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
+        var id = $(e.target).attr("href").substr(1);
+        window.location.hash = id;
+        editURL.href = '{{ url }}' + '#' + id;
+    });
+    </script>
+
+{% endblock scripts %}

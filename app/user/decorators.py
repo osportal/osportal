@@ -38,8 +38,8 @@ def registration_enabled():
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if g.guest_registration != True:
-                abort(404)
+            if g.settings.guest_registration != True:
+                abort(403)
             return f(*args, **kwargs)
         return decorated_function
     return decorator

@@ -167,14 +167,20 @@ def account():
         try:
             if current_user.locked:
                 raise Exception('User is locked')
-            form.populate_obj(current_user)
-            if form.image_file.data:
-                # delete existing picture
-                if request.files['image_file']:
-                    f = request.files['image_file']
-                    image = save_picture(f)
-                    delete_picture(current_picture)
-                    current_user.image_file = image
+            if get_settings_value('user_edit_username'):
+                current_user.username = form.username.data
+            if get_settings_value('user_edit_email'):
+                current_user.email = form.email.data
+            if get_settings_value('user_edit_bio'):
+                current_user.bio = form.bio.data
+            if get_settings_value('user_edit_image_file'):
+                if form.image_file.data:
+                    # delete existing picture
+                    if request.files['image_file']:
+                        f = request.files['image_file']
+                        image = save_picture(f)
+                        delete_picture(current_picture)
+                        current_user.image_file = image
             current_user.save()
         except UnidentifiedImageError as e:
             db.session.rollback()

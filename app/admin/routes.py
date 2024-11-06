@@ -401,13 +401,15 @@ def posts_delete(id):
 @admin.route('/settings/edit', methods=['GET', 'POST'])
 @permission_required('admin.settings', crud='update')
 def settings_edit():
+    url = url_for('admin.settings')
     settings = Settings.query.first_or_404()
     form = SettingsForm(obj=settings)
     if form.validate_on_submit():
         form.populate_obj(settings)
         settings.save()
         flash('Settings saved successfully.', 'success')
-    return render_template('settings/edit.html', form=form)
+        return redirect(url_for('admin.settings'))
+    return render_template('settings/edit.html', form=form, url=url)
 
 
 @admin.route('/emails/new', methods=['GET', 'POST'])
@@ -855,8 +857,9 @@ def emails_info(id):
 @admin.route('/settings', methods=['GET', 'POST'])
 @permission_required('admin.settings', crud='read')
 def settings():
+    url = url_for('admin.settings_edit')
     settings = Settings.query.first_or_404(id)
-    return render_template('settings/info.html', settings=settings)
+    return render_template('settings/info.html', settings=settings, url=url)
 
 
 @admin.route('/users/edit/<int:id>', methods=['GET', 'POST'])

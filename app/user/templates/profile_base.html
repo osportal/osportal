@@ -31,9 +31,9 @@
     <div class="row">
     <!-- row for buttons -->
         <div class="col-12 col-sm-auto mb-3">
-        {% if current_user == user %}
-            <a href="{{ url_for('user.account') }}"class="btn btn-primary">Edit Profile</a>
-        {% endif %}
+            {% if current_user == user %}
+                <a href="{{ url_for('user.account') }}"class="btn btn-primary">Edit Profile</a>
+            {% endif %}
         </div>
     </div>
 {% include "navigation.html" %}

@@ -226,6 +226,13 @@ class SettingsForm(FlaskForm):
                                         widget=Select2Widget(), allow_blank=True,
                                         validators=[Optional()]
                                         )
+
+    # User profile fields
+    user_edit_email = BooleanField('Email', validators=[Optional()])
+    user_edit_username = BooleanField('Username', validators=[Optional()])
+    user_edit_image_file = BooleanField('Image', validators=[Optional()])
+    user_edit_bio = BooleanField('Bio', validators=[Optional()])
+
     # Pagination
     items_per_admin_page = IntegerField('Max. items per admin page', validators=[DataRequired(), NumberRange(5, 250)])
     users_per_page = IntegerField('Max. users per page', validators=[DataRequired(), NumberRange(5, 250)])
