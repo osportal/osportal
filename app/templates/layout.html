@@ -4,8 +4,7 @@
         <meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>
-            {% if self.title() %}{% block title %}{% endblock %} | {% endif %}
-            {% if g.settings.site_name %}{{ g.settings.site_name }}{% else %}osPortal{% endif %}
+            {% if self.title() %}{% block title %}{% endblock %} | {% endif %}osPortal
         </title>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-icons/bootstrap-icons.css') }}">

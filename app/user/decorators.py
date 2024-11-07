@@ -1,4 +1,5 @@
-from flask import redirect, flash, g, abort, render_template
+from app.admin.utils import get_settings_value
+from flask import redirect, flash, abort, render_template
 from flask_login import current_user
 from functools import wraps
 
@@ -38,7 +39,7 @@ def registration_enabled():
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if g.settings.guest_registration != True:
+            if get_settings_value('user_registration') != True:
                 abort(403)
             return f(*args, **kwargs)
         return decorated_function

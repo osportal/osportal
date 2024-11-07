@@ -2,7 +2,8 @@
 {% import 'macros/form.html' as f with context %}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 
-{% block title %}Settings and Preferences{% endblock %}
+{% set heading = 'Edit Settings and Preferences' %}
+{% block title %}{{ heading }}{% endblock %}
 
 {% block content %}
 {% set extra_setting_links = admin_settings_sidebar(user=current_user) %}
@@ -14,6 +15,12 @@
 {{ sidebaritems(extra_setting_links) }}
 
 {% call f.form_tag(endpoint, form=form) %}
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <legend>{{ heading }}</legend>
+    </div>
+</div>
+
 <div role="tabpanel" class="tab-pane config-section" id="settings">
 	<ul class="nav nav-tabs mb-3" role="tablist">
 		<li class="nav-item">
@@ -53,7 +60,7 @@
 		</div>
         <!-- USERS CONFIG -->
 		<div role="tabpanel" class="tab-pane" id="users">
-            <h5>Users can edit the following profile fields:</h5>
+            <p>Users can edit the following profile fields:</p>
 			<div class="form-group">
                 {% call f.form_group(form.user_edit_email) %}
                 {% endcall %}

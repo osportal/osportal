@@ -38,6 +38,7 @@ def before_request():
 def login():
     next_url = request.args.get('next')
     form = LoginForm()
+    register = get_settings_value('user_registration')
     if form.validate_on_submit():
         next_url = request.form['next']
         user = auth_user_db(request.form.get('identity'), request.form.get('password'))
@@ -56,7 +57,7 @@ def login():
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, register=register)
 
 
 @user.route('/register', methods=['GET', 'POST'])
@@ -163,6 +164,12 @@ def notifications_bulk_delete():
 def account():
     form = UpdateAccountForm(obj=current_user)
     current_picture = current_user.image_file
+    profile_fields = {
+       'user_edit_username':get_settings_value('user_edit_username'),
+       'user_edit_email':get_settings_value('user_edit_email'),
+       'user_edit_image_file':get_settings_value('user_edit_image_file'),
+       'user_edit_bio':get_settings_value('user_edit_bio')
+    }
     if form.validate_on_submit():
         try:
             if current_user.locked:
@@ -191,7 +198,7 @@ def account():
         else:
             flash('Your account has been updated', 'success')
             return redirect(url_for('user.account'))
-    return render_template('profile_settings.html', form=form)
+    return render_template('profile_settings.html', form=form, profile_fields=profile_fields)
 
 
 @user.route('/users/get_list', methods=['GET'])

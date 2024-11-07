@@ -32,6 +32,10 @@
     </div>
     <br>
     <p><a href="{{ url_for('user.forgot_password') }}">Forgot Password?</a></p>
+    <!-- IF GUEST REGISTRATION IS ENABLED -->
+    {% if register %}
+        <p><a href="{{ url_for('user.register') }}">Register</a></p>
+    {% endif %}
 </div>
 
 

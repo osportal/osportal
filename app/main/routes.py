@@ -9,13 +9,6 @@ from app.posts.models import Post, Comment
 
 main = Blueprint('main', __name__)
 
-
-# img height and width globals to be passed into templates
-@main.before_app_request
-def before_request():
-    g.settings = Settings.query.first_or_404()
-
-
 @main.route('/setup', methods=['GET', 'POST'])
 def setup():
     user = User()
