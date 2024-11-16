@@ -1,4 +1,5 @@
-from app.models import Country
+from app.extensions import db
+from app.models import Company, Site, Country
 from app.user.models import User
 from app.user.validations import check_username_exists, check_email_exists
 from app.utils.util_wtforms import ModelForm, choices_from_dict
@@ -27,12 +28,16 @@ class UserForm(ModelForm):
                                #Regexp(r'^[\w]+$', message=username_message)
                                ])
     email = StringField('Email', validators=[check_email_exists, DataRequired(), EmailVal()])
-    country = QuerySelectField('Country',
-                               query_factory=lambda: Country.query.order_by(Country.name).all(),
+    company = QuerySelectField('Company',
+                               query_factory=lambda: Company.query.order_by(Company.name).all(),
+                               widget=Select2Widget(),
+                               validators=[DataRequired()],
+                               render_kw={'onchange': "myFunction()"})
+    site = QuerySelectField('Site',
+                               query_factory=lambda: Site.query.all(),
                                widget=Select2Widget(),
                                allow_blank=True,
-                               validators=[DataRequired()],
-                               default=lambda: Country.query.filter(Country.name=='United Kingdom').first()
+                               validators=[Optional()]
                                )
 
 

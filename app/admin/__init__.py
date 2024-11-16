@@ -13,6 +13,7 @@ def admin_settings_menu(user):
         ('admin.posts', 'Posts', 'bi bi-pin-angle-fill'),
         ('admin.pages', 'Pages', 'bi bi-file-earmark'),
         ('admin.emails', 'Emails', 'bi bi-envelope'),
+        ('admin.companies', 'Companies', 'bi bi-building'),
         ('admin.countries', 'Countries', 'bi bi-globe'),
         ('admin.plugins', 'Plugins', 'bi bi-plugin'),
         ('admin.settings', 'Settings', 'bi bi-tools'),
@@ -20,6 +21,9 @@ def admin_settings_menu(user):
     ]
     for result in results:
         view = result[0]
+        if view == 'admin.companies' \
+                and current_user.permission('admin.company', crud='read'):
+                    yield result
         if view=='admin.users' \
                 and current_user.permission('admin.user', crud='read'):
                     yield result
@@ -118,6 +122,21 @@ def admin_department_sidebar(user):
                 yield result
         if view == 'admin.departments_new' \
             and current_user.permission('admin.department', crud='create'):
+                yield result
+
+
+def admin_company_sidebar(user):
+    results = [
+        ('admin.companies', 'Manage', ''),
+        ('admin.companies_new', 'New Company', ''),
+    ]
+    for result in results:
+        view = result[0]
+        if view == 'admin.companies' \
+            and current_user.permission('admin.company', crud='read'):
+                yield result
+        if view == 'admin.companies_new' \
+            and current_user.permission('admin.company', crud='create'):
                 yield result
 
 
@@ -244,5 +263,6 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)
     app.jinja_env.globals.update(admin_country_sidebar=admin_country_sidebar)
+    app.jinja_env.globals.update(admin_company_sidebar=admin_company_sidebar)
     app.jinja_env.globals.update(admin_plugins_sidebar=admin_plugins_sidebar)
     app.jinja_env.globals.update(admin_settings_sidebar=admin_settings_sidebar)

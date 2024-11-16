@@ -170,6 +170,12 @@ class User(UserMixin, ResourceMixin):
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
     country = db.relationship('Country', foreign_keys=[country_id], backref='user')
 
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+    company = db.relationship('Company', foreign_keys=[company_id], backref='user')
+
+    site_id = db.Column(db.Integer, db.ForeignKey('site.id'))
+    site = db.relationship('Site', foreign_keys=[site_id], backref='user')
+
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

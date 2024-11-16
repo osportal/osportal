@@ -4,7 +4,7 @@ from app.department.validations import check_dept_exists
 from app.extensions import db
 from app.event.models import Event
 from app.event.validations import check_et_exists
-from app.models import Country, PublicHoliday
+from app.models import Company, Site, Country, PublicHoliday
 from app.pages.validations import check_page_route_exists
 from app.posts.forms import PostForm
 from app.user.forms import UserForm
@@ -16,7 +16,10 @@ from app.user.validations import (check_username_exists,
                                   check_permission_exists)
 from app.utils.util_wtforms import ModelForm, choices_from_dict
 from app.utils.csv import dump_database_table
-from app.validations import check_country_exists, check_alpha_code_exists
+from app.validations import (check_company_exists,
+                             check_site_exists,
+                             check_country_exists,
+                             check_alpha_code_exists)
 from collections import OrderedDict
 from flask import request
 from flask_admin.form.widgets import Select2Widget
@@ -127,6 +130,24 @@ class NewUserForm(UserForm):
     used_days = DecimalField('Used Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     days_left = DecimalField('Days Left', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
 
+
+class CompanyForm(ModelForm):
+    name = StringField(validators=[
+        check_company_exists,
+        DataRequired(),
+        Length(1, 65),
+    ])
+    description = StringField(validators=[Optional(), Length(0, 350)])
+
+class SiteForm(ModelForm):
+    name = StringField(validators=[
+        check_site_exists,
+        DataRequired(),
+        Length(1, 65),
+    ])
+    description = StringField(validators=[Optional(), Length(0, 350)])
+    country = QuerySelectField('Country', query_factory=lambda: Country.query.all(),
+                               widget=Select2Widget(), allow_blank=True, validators=[Optional()])
 
 class NewDepartmentForm(ModelForm):
     name = StringField(validators=[

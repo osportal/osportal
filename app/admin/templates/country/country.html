@@ -64,7 +64,6 @@
     
     {% if paginated_holidays %}
     {% include "actions_btn.html" %}
-
     {% if years %}
         {{ form.year }}
     {% endif %}
@@ -106,7 +105,10 @@
                 {{ holiday.start_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ holiday.created_at }}
+                <time class="from-now" data-datetime="{{ holiday.created_at }}">
+                    {{ holiday.pretty_date(holiday.created_at) }}
+                  <div class="text-muted">{{ holiday.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+                </time>
             </td>
             <td>
                 {% if current_user.permission('admin.public_holiday', crud='update') %}

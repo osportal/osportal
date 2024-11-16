@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Company Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+{% import 'macros/form.html' as forms with context %}
+{% set active = 'admin.companies' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_company_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ company.name }}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.company', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.companies_edit', id=company.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.company', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ company.id,
+              url=url_for('admin.companies_delete', id=company.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+<div class="row">
+  <div class="col-md-5 well">
+    <div class="form-group">
+        <div class="mb-2">
+        	<div><strong>Name</strong></div>
+        	<div>{{ company.name }}</div>
+        </div>
+        {#
+        <div class="mb-2">
+        	<div><strong>Sites</strong></div>
+		{% for site in company.sites %}
+        	<div>{{ member }}</div>
+		{% endfor %}
+        </div>
+        #}
+    </div>
+  </div>
+</div>
+
+{% if current_user.permission('admin.site', crud='read') %}
+
+    {% if current_user.permission('admin.site', crud='create') %}
+        <a href="{{ url_for('admin.site_new', id=company.id) }}" class="btn btn-sm btn-primary" type="button">Add Site</a>
+    {% endif %}
+    
+    
+    
+    {% if paginated_sites.items %}
+    {% include "actions_btn.html" %}
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>
+              <label for="select_all"></label>
+              <input id="select_all" name="select_all" type="checkbox">
+            </th>
+            <th class="col-header">
+              {{ items.sort('name') }}
+            </th>
+            <th class="col-header">
+              {{ items.sort('country') }}
+            </th>
+            <th class="col-header">
+                {{ items.sort('created_at', 'Created') }}
+            </th>
+            <!-- for buttons -->
+            <th>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for site in paginated_sites.items %}
+          <tr>
+            <td>
+              <label for="bulk_ids"></label>
+              <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                     type="checkbox" value="{{ site.id }}">
+            </td>
+            <td>
+                {{ site.name }}
+            </td>
+            <td>
+                {{ site.country }}
+            </td>
+            <td>
+                <time class="from-now" data-datetime="{{ site.created_at }}">
+                    {{ site.pretty_date(site.created_at) }}
+                  <div class="text-muted">{{ site.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+                </time>
+            </td>
+            <td>
+                {% if current_user.permission('admin.site', crud='update') %}
+                    <a class="btn btn-sm btn-primary" 
+                       href="{{ url_for('admin.site_edit', company_id=company.id, id=site.id) }}" type="button">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                {% endif %}
+                {% if current_user.permission('admin.site', crud='delete') %}
+                    {{ forms.action_confirm(
+                        id="delete-" ~ site.id, 
+                        url=url_for('admin.site_delete', company_id=company.id, id=site.id), 
+                        title="Delete", 
+                        btn="btn btn-sm btn-warning",
+                        icon="bi bi-trash",
+                        target="#confirmModal") 
+                    }}
+                {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {{ items.paginate(paginated_sites, kwargs={'id':company.id, 'year':2023 }) }}
+
+        {{ forms.modal_bulk_action(
+            id="bulkDelete",
+            label="bulkDeleteLabel",
+            title="Delete",
+            text="Are you sure you want to delete the selected sites?",
+            url=url_for('admin.bulk_delete', table='site'),
+            btn_text="Delete")
+        }}
+
+       {% endif %}<!-- End of if paginated sites exist -->
+
+{% endif %}<!-- End of Site read permission -->
+{% include "partials/confirm_dialog.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

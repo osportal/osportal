@@ -16,6 +16,7 @@ from psycopg2.errors import UniqueViolation
 from app.admin.decorators import admin_read_required
 from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
+                             CompanyForm, SiteForm,
                              SettingsForm, PageForm, EventTypeSettingsForm,
                              EventRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
@@ -25,7 +26,7 @@ from app.admin.models import Dashboard, Settings, Email
 from app.admin.utils import get_settings_value
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
-from app.models import Country, PublicHoliday, get_class_by_tablename
+from app.models import Company, Site, Country, PublicHoliday, get_class_by_tablename
 from app.event.models import Event, EventType
 from app.pages.models import Page
 from app.posts.models import Post
@@ -60,6 +61,8 @@ def dashboard():
         "group_and_count_roles": Dashboard.group_and_count_roles(),
         "group_and_count_permissions": Dashboard.group_and_count_permissions(),
         "group_and_count_departments": Dashboard.group_and_count_departments(),
+        "group_and_count_companies": Dashboard.group_and_count_companies(),
+        "group_and_count_sites": Dashboard.group_and_count_sites(),
         "group_and_count_event_types": Dashboard.group_and_count_event_types(),
         "group_and_count_emails": Dashboard.group_and_count_emails(),
         "group_and_count_countries": Dashboard.group_and_count_countries(),
@@ -67,6 +70,19 @@ def dashboard():
     }
     return render_template('admin_dashboard.html', **stats)
 
+@admin.route('/get_company_site/<company_id>', methods=['GET', 'POST'])
+def get_company_site(company_id):
+    sites = Site.query.filter(Site.company_id==company_id).all()
+    print('PRINT SITES!!!!!!!!')
+    print(sites)
+    siteArray = []
+    for site in sites:
+        siteObj = {}
+        siteObj['id'] = site.id
+        siteObj['name'] = site.name
+        siteArray.append(siteObj)
+
+    return jsonify({'sites': siteArray})
 
 @admin.route('/emails', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/emails/page/<int:page>', methods=['GET', 'POST'])
@@ -126,6 +142,26 @@ def country(id, page):
                            dropdown_year=dropdown_year,
                            paginated_holidays=paginated_holidays,
                            )
+
+@admin.route('/companies', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/companies/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.company', crud='read')
+def companies(page):
+    search_form = SearchForm()
+
+    sort_by = Company.sort_by(request.args.get('sort', 'created_at'),
+                           request.args.get('direction', 'desc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+
+    paginated_companies = Company.query \
+        .filter(Company.search((request.args.get('q', text(''))))) \
+        .order_by(text(order_values)) \
+        .paginate(page, get_settings_value('items_per_admin_page'), True)
+
+    return render_template('company/index.html',
+                           form=search_form,
+                           companies=paginated_companies)
+
 
 
 @admin.route('/departments', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -557,6 +593,69 @@ def countries_new():
     return render_template('country/edit.html', form=form)
 
 
+@admin.route('/companies/<int:id>/sites/new', methods=['GET', 'POST'])
+@permission_required('admin.site', crud='create')
+def site_new(id):
+    company = Company.query.get_or_404(id)
+    site = Site()
+    form = SiteForm(obj=site)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(site)
+            site.company_id = company.id
+            site.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Successfully created new site', 'success')
+            return redirect(url_for('admin.companies_info', id=company.id))
+    return render_template('company/edit_site.html',
+                           form=form,
+                           company=company)
+
+
+@admin.route('/companies/<int:company_id>/sites/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.site', crud='update')
+def site_edit(company_id, id):
+    company = Company.query.get_or_404(company_id)
+    site = Site.query.get_or_404(id)
+    form = SiteForm(obj=site)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(site)
+            site.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            flash(f'{e}', 'danger')
+        else:
+            flash('Successfully updated', 'success')
+            return redirect(url_for('admin.companies_info', id=company.id))
+    return render_template('company/edit_site.html',
+                           form=form,
+                           company=company,
+                           site=site
+                           )
+
+
+@admin.route('/companies/<int:company_id>/sites/<int:id>/delete', methods=['POST'])
+@permission_required('admin.site', crud='delete')
+def site_delete(company_id, id):
+    site = Site.query.get_or_404(id)
+    try:
+        site.delete()
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted {site.name}', 'success')
+    return redirect(url_for('admin.companies_info', id=company_id))
+
+
 @admin.route('/countries/<int:id>/public-holidays/new', methods=['GET', 'POST'])
 @permission_required('admin.public_holiday', crud='create')
 def public_holiday_new(id):
@@ -619,6 +718,27 @@ def public_holiday_delete(cid, id):
     return redirect(url_for('admin.country', id=cid))
 
 
+@admin.route('/companies/new', methods=['GET', 'POST'])
+@permission_required('admin.company', crud='create')
+def companies_new():
+    company = Company()
+    form = CompanyForm()
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(company)
+            company.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Successfully created company', 'success')
+            return redirect(url_for('admin.companies'))
+    return render_template('company/edit.html', form=form)
+
+
 @admin.route('/departments/new', methods=['GET', 'POST'])
 @permission_required('admin.department', crud='create')
 def departments_new():
@@ -638,6 +758,44 @@ def departments_new():
             flash('Successfully created department', 'success')
             return redirect(url_for('admin.departments'))
     return render_template('department/edit.html', form=form)
+
+
+@admin.route('/companies/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.company', crud='update')
+def companies_edit(id):
+    company = Company.query.get(id)
+    form = CompanyForm(obj=company)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(company)
+            company.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Company has been saved successfully.', 'success')
+            return redirect(url_for('admin.companies_info', id=company.id))
+    return render_template('company/edit.html', form=form, company=company)
+
+
+@admin.route('/companies/<int:id>/delete', methods=['POST'])
+@permission_required('admin.company', crud='delete')
+def companies_delete(id):
+    company = Company.query.get_or_404(id)
+    try:
+        company.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted company {company.name}', 'success')
+    return redirect(url_for('admin.companies'))
 
 
 @admin.route('/departments/<int:id>/edit', methods=['GET', 'POST'])
@@ -824,6 +982,18 @@ def roles_info(id):
 def permissions_info(id):
     perm = Permission.query.get_or_404(id)
     return render_template('permission/info.html', perm=perm)
+
+
+@admin.route('/companies/<int:id>', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/companies/<int:id>/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.company', crud='read')
+def companies_info(id, page):
+    company = Company.query.get_or_404(id)
+    paginated_sites = None
+    form = SiteForm()
+    paginated_sites = Site.query.filter(Site.company_id==company.id) \
+                      .paginate(page, get_settings_value('items_per_admin_page'), True)
+    return render_template('company/info.html', form=form, company=company, paginated_sites=paginated_sites)
 
 
 @admin.route('/departments/<int:id>', methods=['GET', 'POST'])

@@ -30,6 +30,32 @@
         </div>
     </div>
     {% endif %}
+    {% if current_user.permission('admin.company', crud='read') %}
+    <!-- Departments card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.companies') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase">
+                                   Companies
+                                </div>
+                                <div class="h5 mb-3 font-weight-bold text-gray-800">{{ group_and_count_companies.total }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase">
+                                  Sites
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_sites.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-building h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
     {% if current_user.permission('admin.user', crud='read') %}
     <!-- User card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
