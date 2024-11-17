@@ -6,7 +6,7 @@ services:
     image: 'redis:3.0-alpine'
     command: redis-server --requirepass devpassword
     volumes:
-      - 'redis_vol:/var/lib/redis/data'
+      - 'redis_vol:/data'
     ports:
       - '9379:6379'
     networks:
@@ -82,8 +82,12 @@ services:
         - CELERY_BROKER_URL=redis://:devpassword@redis:6379/0
         - FLOWER_PORT=5555
         - FLOWER_BASIC_AUTH=admin:password
+        - FLOWER_PERSISTENT=True
+        - FLOWER_STATE_SAVE_INTERVAL=10000
     ports:
         - 5555:5555
+    volumes:
+      - flower_vol:/data
     depends_on:
         - redis
     networks:
@@ -93,3 +97,4 @@ networks:
 volumes:
   postgres:
   redis_vol:
+  flower_vol:
