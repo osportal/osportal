@@ -23,6 +23,7 @@
     	  {% if current_user.permission('admin.user', crud='update') %}
     	      <div class="btn-group mr-2"> 
     	          <a role="button" 
+                     id="edit-url"
     	             href="{{ url_for('admin.users_edit', id=user.id) }}"
     	             class="btn btn-sm btn-primary">Edit
     	          </a>
@@ -47,10 +48,13 @@
 
 <div class="row">
   <div class="col-md-5 well">
-    <div role="tabpanel" class="tab-pane config-section" id="settings">
+    <div role="tabpanel" class="tab-pane config-section" id="tab-panel">
     	<ul class="nav nav-tabs mb-3" role="tablist">
     		<li class="nav-item">
     			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#work" aria-controls="work" role="tab" data-toggle="tab">Work</a>
     		</li>
     		<li class="nav-item">
     			<a class="nav-link" href="#leaveconfig" aria-controls="leaveconfig" role="tab" data-toggle="tab">Leave Settings</a>
@@ -70,8 +74,58 @@
 			    	<div>{{ user.username }}</div>
 			    </div>
 			    <div class="mb-2">
+			    	<div><strong>First Name</strong></div>
+			    	<div>{{ user.first_name }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Middle Name</strong></div>
+			    	<div>{{ user.middle_name }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Last Name</strong></div>
+			    	<div>{{ user.last_name }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Full Name</strong></div>
+			    	<div>{{ user.full_name }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Display Name</strong></div>
+			    	<div>{{ user.dn }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Date of Birth</strong></div>
+			    	<div>{{ user.fmt_date(user.dob) }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Age</strong></div>
+			    	<div>{{ user.age }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Contact Number</strong></div>
+			    	<div>{{ user.contact_number }}</div>
+			    </div>
+			    <div class="mb-2">
 			    	<div><strong>Role</strong></div>
 			    	<div>{{ user.role }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Active</strong></div>
+			    	<div>{{ user.render(user.active) }}</div>
+			    </div>
+			{% if current_user.permission('admin.user', crud='update') %}
+			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
+			{% endif %}
+                	</div>
+    		</div>
+    		<div role="tabpanel" class="tab-pane" id="work">
+			    <div class="mb-2">
+			    	<div><strong>Start Date</strong></div>
+			    	<div>{{ user.fmt_date(user.start_date) }}</div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Tenure</strong></div>
+			    	<div>{{ user.work_tenure }}</div>
 			    </div>
 			    <div class="mb-2">
 			    	<div><strong>Department</strong></div>
@@ -93,15 +147,7 @@
 			    	<div><strong>Site</strong></div>
 			    	<div>{{ user.site }}</div>
 			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Active</strong></div>
-			    	<div>{{ user.render(user.active) }}</div>
-			    </div>
-			{% if current_user.permission('admin.user', crud='update') %}
-			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
-			{% endif %}
-                	</div>
-    		</div>
+            </div>
     		<div role="tabpanel" class="tab-pane" id="leaveconfig">
     			<div class="form-group">
 			    <div class="mb-2">
@@ -139,4 +185,16 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/userModalWarning.js') }}"></script>
+<script>
+// on load of the page: switch to the currently selected tab
+var hash = window.location.hash;
+var editURL = document.getElementById('edit-url');
+editURL.href = '{{ url }}' + hash;
+$('#tab-panel a[href="' + hash + '"]').tab('show');
+$("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
+    var id = $(e.target).attr("href").substr(1);
+    window.location.hash = id;
+    editURL.href = '{{ url }}' + '#' + id;
+});
+</script>
 {% endblock scripts %}

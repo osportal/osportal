@@ -69,10 +69,13 @@
 
   <div class="col-lg">
     <legend>{{ legend }}</legend>
-    <div role="tabpanel" class="tab-pane config-section" id="settings">
+    <div role="tabpanel" class="tab-pane config-section" id="tab-panel">
     	<ul class="nav nav-tabs mb-3" role="tablist">
     		<li class="nav-item">
     			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
+    		</li>
+    		<li class="nav-item">
+    			<a class="nav-link" href="#work" aria-controls="work" role="tab" data-toggle="tab">Work</a>
     		</li>
     		<li class="nav-item">
     			<a class="nav-link" href="#leaveconfig" aria-controls="leaveconfig" role="tab" data-toggle="tab">Leave Settings</a>
@@ -82,39 +85,61 @@
     	<div class="tab-content">
     		<div role="tabpanel" class="tab-pane active" id="general">
     			<div class="form-group">
-    		{% call f.form_tag(endpoint, form=form, **form_kwargs) %}
-                    	{% call f.form_group(form.email, css_class='sm-margin-bottom',
-                    	                      autofocus='autofocus') %}
-                    	{% endcall %}
+    		    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+                    {% call f.form_group(form.email, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.username, css_class='sm-margin-bottom',
-                    	                      autofocus='autofocus') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.username, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.role, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.first_name, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.department, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
-                    	
-                    	{% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.middle_name, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.job_title, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.last_name, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                        {% call f.form_group(form.company, css_class='sm-margin-bottom') %}
-                        {% endcall %}
+                    {% call f.form_group(form.dn, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                        {% call f.form_group(form.site, css_class='sm-margin-bottom') %}
-                        {% endcall %}
+                    {% call f.form_group(form.dob, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.active) %}
-                    	{% endcall %}
+                    {% call f.form_group(form.contact_number, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.role, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.active) %}
+                    {% endcall %}
 
 			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
                 	</div>
     		</div>
+    		<div role="tabpanel" class="tab-pane" id="work">
+    			<div class="form-group">
+                    {% call f.form_group(form.start_date, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.department, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+                    
+                    {% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.job_title, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.company, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
+                    {% call f.form_group(form.site, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+                </div>
+            </div>
     		<div role="tabpanel" class="tab-pane" id="leaveconfig">
     			<div class="form-group">
                     	<!-- Leave Settings -->
@@ -146,7 +171,7 @@
       </div>
       <div class="col">
         <div class="visible-xs visible-sm sm-margin-top"></div>
-        <a href="{{ url_for('admin.users_info', id=user.id) }}"
+        <a id="info-url" href="{{ url_for('admin.users_info', id=user.id) }}"
             class="btn btn-light bg-opacity-10 btn-block">
           Cancel
         </a>

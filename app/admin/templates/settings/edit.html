@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<div role="tabpanel" class="tab-pane config-section" id="settings">
+<div role="tabpanel" class="tab-pane config-section" id="tab-panel">
 	<ul class="nav nav-tabs mb-3" role="tablist">
 		<li class="nav-item">
 			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
@@ -144,7 +144,7 @@
     var hash = window.location.hash;
     var infoURL = document.getElementById('info-url');
     infoURL.href = '{{ url }}' + hash;
-    $('#settings a[href="' + hash + '"]').tab('show');
+    $('#tab-panel a[href="' + hash + '"]').tab('show');
     $("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
         var id = $(e.target).attr("href").substr(1);
         window.location.hash = id;

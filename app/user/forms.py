@@ -28,15 +28,36 @@ class UserForm(ModelForm):
                                #Regexp(r'^[\w]+$', message=username_message)
                                ])
     email = StringField('Email', validators=[check_email_exists, DataRequired(), EmailVal()])
+    first_name = StringField('First Name', validators=[
+                               Optional(),
+                               Length(min=2, max=50),
+                               ])
+    middle_name = StringField('Middle Name', validators=[
+                               Optional(),
+                               Length(min=2, max=50),
+                               ])
+    last_name = StringField('Last Name', validators=[
+                               Optional(),
+                               Length(min=2, max=50),
+                               ])
+    dn = StringField('Display Name', validators=[
+                               Optional(),
+                               Length(min=2, max=50),
+                               ])
+    contact_number = StringField('Contact Number', validators=[
+                               Optional(),
+                               Length(min=1, max=25),
+                               ])
     company = QuerySelectField('Company',
                                query_factory=lambda: Company.query.order_by(Company.name).all(),
                                widget=Select2Widget(),
-                               validators=[DataRequired()],
+                               validators=[Optional()],
+                               allow_blank=False,
                                render_kw={'onchange': "myFunction()"})
     site = QuerySelectField('Site',
                                query_factory=lambda: Site.query.all(),
                                widget=Select2Widget(),
-                               allow_blank=True,
+                               allow_blank=False,
                                validators=[Optional()]
                                )
 

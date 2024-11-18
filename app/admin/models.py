@@ -76,8 +76,8 @@ class Settings(ResourceMixin):
 
 
     # editable user profile fields
-    user_edit_email = db.Column(db.Boolean, nullable=True, default=True)
-    user_edit_username = db.Column(db.Boolean, nullable=True, default=True)
+    user_edit_email = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_username = db.Column(db.Boolean, nullable=True, default=False)
     user_edit_image_file = db.Column(db.Boolean, nullable=True, default=True)
     user_edit_bio = db.Column(db.Boolean, nullable=True, default=True)
 

@@ -967,7 +967,8 @@ def users_new():
 @permission_required('admin.user', crud='read')
 def users_info(id):
     user = User.query.get_or_404(id)
-    return render_template('user/info.html', user=user)
+    url = url_for('admin.users_edit', id=user.id)
+    return render_template('user/info.html', user=user, url=url)
 
 
 @admin.route('/roles/<int:id>', methods=['GET', 'POST'])
@@ -1036,6 +1037,7 @@ def settings():
 @permission_required('admin.user', crud='update')
 def users_edit(id):
     user = User.query.get_or_404(id)
+    url = url_for('admin.users_info', id=user.id)
     if user.locked:
         abort(403)
     form = NewUserForm(obj=user, departments=user.department)
@@ -1069,7 +1071,8 @@ def users_edit(id):
         return redirect(url_for('admin.users_edit', id=user.id))
     return render_template('user/edit.html',
                            form=form,
-                           user=user)
+                           user=user,
+                           url=url)
 
 
 @admin.route('/users/bulk_welcome_email', methods=['POST'])

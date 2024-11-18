@@ -33,6 +33,9 @@
             <th>Username</th>
             <th>Email</th>
             <th>Job Title</th>
+            <th>Departments</th>
+            <th>Company</th>
+            <th>Site</th>
         </tr>
     </thead>
     {% for user in users.items %}
@@ -45,9 +48,24 @@
             {{ user.email }}
         </td>
         <td style="vertical-align: middle;">
-	{% if user.job_title %}
+    	{% if user.job_title %}
             {{ user.job_title }}
-	{% endif %}
+	    {% endif %}
+        </td>
+        <td style="vertical-align: middle;">
+    	{% if user.department %}
+            {{ user.department }}
+	    {% endif %}
+        </td>
+        <td style="vertical-align: middle;">
+    	{% if user.company %}
+            {{ user.company }}
+	    {% endif %}
+        </td>
+        <td style="vertical-align: middle;">
+    	{% if user.site %}
+            {{ user.site }}
+	    {% endif %}
         </td>
     </tr>
     {% endfor %}

@@ -6,6 +6,7 @@ from app.posts.models import Comment
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from flask_login import UserMixin, logout_user
 from flask import url_for, current_app, request
 import json
@@ -112,6 +113,7 @@ class User(UserMixin, ResourceMixin):
     first_name = db.Column(db.String(50), nullable=True)
     middle_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
+    dn = db.Column(db.String(50), nullable=True)
     username = db.Column(FmtString(113), unique=True, nullable=False)
     email = db.Column(FmtString(120), unique=True, nullable=False)
     contact_number = db.Column(db.String(25), unique=False, nullable=True)
@@ -120,17 +122,22 @@ class User(UserMixin, ResourceMixin):
     active = db.Column(db.Boolean, default=True)
     hidden = db.Column(db.Boolean, unique=False, default=False)
     dob = db.Column(db.DateTime, nullable=True)
+    # TODO create upcoming birthday
     bio = db.Column(db.String(255), nullable=True)
-    job_title = db.Column(StripStr(50))
-    authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
 
     last_notification_read_time = db.Column(db.DateTime)
 
+    # Work
+    job_title = db.Column(StripStr(100))
+    authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    start_date = db.Column(db.Date, nullable=True)
+    #TODO create work_tenure property as years, months, days
+    #TODO create work_anniversary property as day/month/current_year
+    
     # Login Info
     current_login_time = db.Column(db.DateTime, default=datetime.utcnow())
     current_login_ip_address = db.Column(db.String(50))
-
     previous_login_time = db.Column(db.DateTime, default=datetime.utcnow())
     previous_login_ip_address = db.Column(db.String(50))
 
@@ -220,6 +227,56 @@ class User(UserMixin, ResourceMixin):
             permissions = ('create_comments', 'edit_any_comment',
                            'delete_any_comment')
             return self.permission(*permissions)
+
+    @classmethod
+    def calculate_tenure(cls, start_date):
+        today = datetime.today()
+        
+        # Calculate the difference using relativedelta
+        delta = relativedelta(today, start_date)
+        
+        # Extract years, months, and days from the difference
+        years = delta.years
+        months = delta.months
+        days = delta.days
+
+        if years:
+            return f"{years}, {months}, {days}"
+        elif months:
+            return f"{months}, {years}"
+        else:
+            return f"{days}"
+    
+    @classmethod
+    def calculate_age(cls, dob):
+        # Get today's date
+        today = datetime.today()
+        
+        # Calculate the difference in years
+        age = today.year - dob.year
+        
+        # Adjust the age if the birthday hasn't occurred yet this year
+        if (today.month, today.day) < (dob.month, dob.day):
+            age -= 1
+        return age
+
+    @hybrid_property
+    def age(self):
+        if self.dob:
+            return User.calculate_age(self.dob)
+
+    @hybrid_property
+    def work_tenure(self):
+        if self.start_date:
+            User.calculate_tenure(self.start_date)
+
+    @hybrid_property
+    def full_name(self):
+        if self.first_name and self.middle_name and self.last_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+
 
     @hybrid_property
     def avatar(self):
@@ -329,7 +386,10 @@ class User(UserMixin, ResourceMixin):
         """
         if user.role:
             if user.role.superuser:
-                admin_count = User.query.join(Role).filter(Role.superuser == True and User.active == True).count()
+                admin_count = User.query.join(Role) \
+                                .filter(Role.superuser == True 
+                                        and User.active == True) \
+                                .count()
                 if admin_count == 1:
                     return True
         return False

@@ -58,6 +58,11 @@ class ResourceMixin(db.Model):
         db.session.delete(self)
         return db.session.commit()
 
+
+    def fmt_date(self, date):
+        if date:
+            return date.strftime("%-d %b %Y")
+
     def render(self, value):
         if type(value) == bool:
             if value: # if its True

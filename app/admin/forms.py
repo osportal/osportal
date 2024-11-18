@@ -110,10 +110,14 @@ class PageForm(FlaskForm):
 
 
 class NewUserForm(UserForm):
+    dob = DatePickerField('Date of Birth', validators=[Optional()])
     role = QuerySelectField('Role', query_factory=lambda: Role.query.all(), get_pk=lambda r: r.id, allow_blank=True,
                             validators=[Optional()])
-    active = BooleanField('Allow this user to sign in')
+    active = BooleanField('Active')
     send_activation_account_email = BooleanField('Send activation account email')
+
+    # Work
+    start_date = DatePickerField('Start Date', validators=[Optional()])
     department = QuerySelectMultipleField('Departments',
                                           query_factory=lambda: Department.query.all(),
                                           get_label=lambda d: d.name + ' (disabled)' if not d.active else d.name,
@@ -124,6 +128,8 @@ class NewUserForm(UserForm):
     authoriser = QuerySelectField('Leave Authoriser', query_factory=lambda: User.query.all(), widget=Select2Widget(),
                                   allow_blank=True, validators=[Optional(), check_authoriser])
     job_title = StringField(validators=[Optional(), Length(1, 50)])
+
+    # Leave
     leave_year_start = DateField('Leave Year Start', validators=[Optional()])
     annual_entitlement = DecimalField('Annual Entitlement', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     carry_over_days = DecimalField('Carried Over Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
