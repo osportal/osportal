@@ -55,8 +55,6 @@ class Permission(ResourceMixin):
         return or_(*search_chain)
 
 
-
-
 class Role(ResourceMixin):
     __tablename__ = "role"
 
@@ -122,7 +120,6 @@ class User(UserMixin, ResourceMixin):
     active = db.Column(db.Boolean, default=True)
     hidden = db.Column(db.Boolean, unique=False, default=False)
     dob = db.Column(db.DateTime, nullable=True)
-    # TODO create upcoming birthday
     bio = db.Column(db.String(255), nullable=True)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
 
@@ -132,9 +129,7 @@ class User(UserMixin, ResourceMixin):
     job_title = db.Column(StripStr(100))
     authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     start_date = db.Column(db.Date, nullable=True)
-    #TODO create work_tenure property as years, months, days
-    #TODO create work_anniversary property as day/month/current_year
-    
+
     # Login Info
     current_login_time = db.Column(db.DateTime, default=datetime.utcnow())
     current_login_ip_address = db.Column(db.String(50))
@@ -228,33 +223,39 @@ class User(UserMixin, ResourceMixin):
                            'delete_any_comment')
             return self.permission(*permissions)
 
+
     @classmethod
     def calculate_tenure(cls, start_date):
         today = datetime.today()
-        
-        # Calculate the difference using relativedelta
-        delta = relativedelta(today, start_date)
-        
-        # Extract years, months, and days from the difference
-        years = delta.years
-        months = delta.months
-        days = delta.days
 
-        if years:
-            return f"{years}, {months}, {days}"
-        elif months:
-            return f"{months}, {years}"
-        else:
-            return f"{days}"
-    
+        # Calculate the difference using relativedelta
+        difference = relativedelta(today, start_date)
+
+        # Extract years, months, and days from the difference
+        years = difference.years
+        months = difference.months
+        days = difference.days
+
+        # Build a result string, only including non-zero values
+        parts = []
+        if difference.years > 0:
+            parts.append(f"{difference.years} year(s)")
+        if difference.months > 0:
+            parts.append(f"{difference.months} month(s)")
+        if difference.days > 0:
+            parts.append(f"{difference.days} day(s)")
+
+        # Join the non-zero parts with commas
+        result = ', '.join(parts)
+        return result
+
+
     @classmethod
     def calculate_age(cls, dob):
         # Get today's date
         today = datetime.today()
-        
         # Calculate the difference in years
         age = today.year - dob.year
-        
         # Adjust the age if the birthday hasn't occurred yet this year
         if (today.month, today.day) < (dob.month, dob.day):
             age -= 1
@@ -268,7 +269,7 @@ class User(UserMixin, ResourceMixin):
     @hybrid_property
     def work_tenure(self):
         if self.start_date:
-            User.calculate_tenure(self.start_date)
+            return User.calculate_tenure(self.start_date)
 
     @hybrid_property
     def full_name(self):
