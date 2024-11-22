@@ -34,6 +34,9 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
+          {{ items.sort('superuser') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('description') }}
         </th>
         <th class="col-header">
@@ -60,6 +63,7 @@
                 <h6>{{ role.name }}</h6>
             </a>
         </td>
+        <td>{{ role.render(role.superuser) }}</td>
         <td>{{ role.description }}</td>
         <td>
             {% if role.created_at %}

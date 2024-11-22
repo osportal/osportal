@@ -33,9 +33,6 @@
           <label for="select_all"></label>
           <input id="select_all" name="select_all" type="checkbox">
         </th>
-        <th class="superuser-icon">
-            {# superuser status #}
-        </th>
         <th class="col-header">
           {{ items.sort('username') }}
         </th>
@@ -68,13 +65,13 @@
                  type="checkbox" value="{{ user.id }}">
         </td>
         <td>
-            {{ account.role_icon_for(user) }}
-        </td>
-        <td>
             <a href="{{ url_for('admin.users_info', id=user.id) }}">
                     <h4>{{ user.username }}</h4>
                     {% if user.email %}
-                    <p class="text-muted">{{ user.email }}</p>
+                    <div class="text-muted mb-1">{{ user.email }}</div>
+                    {% if user.role.superuser %}
+                        <p><span class="badge text-white bg-danger">superuser</span></p>
+                    {% endif %}
                     {% endif %}
             </a>
         </td>
