@@ -41,6 +41,7 @@ class Settings(ResourceMixin):
     site_name = db.Column(db.String(25), nullable=False)
     company_name = db.Column(db.String(30), nullable=True)
     company_website = db.Column(db.String(40), nullable=True)
+    forgot_password = db.Column(db.Boolean, nullable=False, default=True)
 
     # Calendar
     weekend = db.Column(db.Boolean, nullable=False, default=False)

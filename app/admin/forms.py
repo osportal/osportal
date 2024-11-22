@@ -239,6 +239,7 @@ class SettingsForm(FlaskForm):
     site_name = StringField('Intranet Name/Title', validators=[DataRequired(), Length(2, 25)])
     company_name = StringField('Company Name', validators=[Optional(), Length(2, 30)])
     company_website = StringField('Company Website', validators=[Optional(), Length(3, 40)])
+    forgot_password = BooleanField('Enable Forgotten Password', validators=[Optional()])
 
     # Auth
     auth_type = SelectField(choices=['DB'], validators=[DataRequired()])

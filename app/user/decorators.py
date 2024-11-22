@@ -44,3 +44,14 @@ def registration_enabled():
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+
+def forgot_password_enabled():
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if get_settings_value('forgot_password') != True:
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

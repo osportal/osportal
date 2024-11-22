@@ -6,7 +6,8 @@ from app.admin.forms import SearchForm
 from app.posts.models import Post, Comment
 from app.user.auth import auth_user_db
 from app.user.decorators import (anonymous_required,
-                                 registration_enabled
+                                 registration_enabled,
+                                 forgot_password_enabled
                                  )
 from app.user.models import User, Notification
 from app.user.utils import save_picture, delete_picture
@@ -39,6 +40,7 @@ def login():
     next_url = request.args.get('next')
     form = LoginForm()
     register = get_settings_value('user_registration')
+    forgot = get_settings_value('forgot_password')
     if form.validate_on_submit():
         next_url = request.form['next']
         user = auth_user_db(request.form.get('identity'), request.form.get('password'))
@@ -57,7 +59,7 @@ def login():
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('login.html', form=form, register=register)
+    return render_template('login.html', form=form, register=register, forgot=forgot)
 
 
 @user.route('/register', methods=['GET', 'POST'])
@@ -90,6 +92,7 @@ def logout():
 
 
 @user.route('/forgotpassword', methods=['GET', 'POST'])
+@forgot_password_enabled()
 @anonymous_required()
 def forgot_password():
     form = ForgotPasswordForm()
