@@ -10,13 +10,13 @@ import sys
 
 def create_default_roles():
     su_params = {
-            'name': 'Superuser',
-            'description': 'I am God',
+            'name': 'osportal',
+            'description': 'This role is granted superuser privileges.',
             'superuser': True
     }
     member_params = {
-            'name': 'Member',
-            'description': 'Standard User',
+            'name': 'member',
+            'description': 'Standard user',
             'superuser': False
     }
     Role(**su_params).save()

@@ -72,9 +72,7 @@ class Role(ResourceMixin):
 
 
     def __repr__(self):
-        return "<{} {} {}>".format(self.__class__.__name__,
-                                   self.id,
-                                   self.name)
+        return f"{self.name}"
 
     @classmethod
     def search(cls, query):

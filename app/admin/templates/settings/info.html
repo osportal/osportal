@@ -95,19 +95,19 @@
     			<div class="form-group">
     			    <div class="mb-2">
     			    	<div><strong>Email</strong></div>
-    			    	<div>{{ settings.user_edit_email }}</div>
+    			    	<div>{{ settings.render(settings.user_edit_email) }}</div>
     			    </div>
     			    <div class="mb-2">
     			    	<div><strong>Username</strong></div>
-    			    	<div>{{ settings.user_edit_username }}</div>
+    			    	<div>{{ settings.render(settings.user_edit_username) }}</div>
     			    </div>
     			    <div class="mb-2">
     			    	<div><strong>Image</strong></div>
-    			    	<div>{{ settings.user_edit_image_file }}</div>
+    			    	<div>{{ settings.render(settings.user_edit_image_file) }}</div>
     			    </div>
     			    <div class="mb-2">
     			    	<div><strong>Biography</strong></div>
-    			    	<div>{{ settings.user_edit_bio }}</div>
+    			    	<div>{{ settings.render(settings.user_edit_bio) }}</div>
     			    </div>
     			</div>
             </div>
