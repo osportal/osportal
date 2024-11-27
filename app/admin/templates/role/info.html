@@ -60,11 +60,23 @@
 	        	<div>{{ role.render(role.superuser) }}</div>
 	        </div>
 	        <div class="mb-2">
-	        	<div><strong>Permissions</strong></div>
+	        	<div><strong>Admin Permissions</strong></div>
 		    {% for p in role.permissions %}
 		    <div>{{ p }}</div>
 		    {% endfor %}
 	        </div>
+	        <div class="mb-2">
+	        	<div><strong>General Permissions</strong></div>
+                <div>{{ role.render(role.can_create_posts) }} Create Posts - Users can create new posts</div>
+                <div>{{ role.render(role.can_edit_posts) }} Edit Posts - Users can edit their own posts</div>
+                <div>{{ role.render(role.can_delete_posts) }} Delete Posts - Users can delete their own posts</div>
+                <div>{{ role.render(role.can_create_comments) }} Create Comments - Users can create new comments</div>
+                <div>{{ role.render(role.can_edit_comments) }} Edit Comments - Users can edit their own comments</div>
+                <div>{{ role.render(role.can_delete_comments) }} Delete Comments - Users can delete their own comments</div>
+                <div>{{ role.render(role.user_edit_email) }} Edit Email - Users can edit their email in the profile section</div>
+                <div>{{ role.render(role.user_edit_username) }} Edit Username - Users can edit their username in the profile section</div>
+                <div>{{ role.render(role.user_edit_image_file) }} Edit Image - Users can update their profile picture</div>
+                <div>{{ role.render(role.user_edit_bio) }} Edit Bio - Users can update their biography in the profile section </div>
         </div>
   </div>
 </div>

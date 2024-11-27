@@ -168,22 +168,22 @@ def account():
     form = UpdateAccountForm(obj=current_user)
     current_picture = current_user.image_file
     profile_fields = {
-       'user_edit_username':get_settings_value('user_edit_username'),
-       'user_edit_email':get_settings_value('user_edit_email'),
-       'user_edit_image_file':get_settings_value('user_edit_image_file'),
-       'user_edit_bio':get_settings_value('user_edit_bio')
+       'user_edit_username':current_user.role.user_edit_username,
+       'user_edit_email':current_user.role.user_edit_email,
+       'user_edit_image_file':current_user.role.user_edit_image_file,
+       'user_edit_bio':current_user.role.user_edit_bio
     }
     if form.validate_on_submit():
         try:
             if current_user.locked:
                 raise Exception('User is locked')
-            if get_settings_value('user_edit_username'):
+            if current_user.role.user_edit_username:
                 current_user.username = form.username.data
-            if get_settings_value('user_edit_email'):
+            if current_user.role.user_edit_email:
                 current_user.email = form.email.data
-            if get_settings_value('user_edit_bio'):
+            if current_user.role.user_edit_bio:
                 current_user.bio = form.bio.data
-            if get_settings_value('user_edit_image_file'):
+            if current_user.role.user_edit_image_file:
                 if form.image_file.data:
                     # delete existing picture
                     if request.files['image_file']:

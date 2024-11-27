@@ -4,10 +4,10 @@
       <i class="bi bi-three-dots"></i>
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      {% if (post.user == current_user) or current_user.permission('admin.post', crud='update') %}
+      {% if (post.user == current_user and current_user.role.can_edit_posts) or current_user.permission('admin.post', crud='update') %}
       <a class="dropdown-item" href="{{ url_for('posts.post_edit', id=post.id) }}">Edit</a>
       {% endif %}
-      {% if (post.user == current_user) or current_user.permission('admin.post', crud='delete') %}
+      {% if (post.user == current_user and current_user.role.can_delete_posts) or current_user.permission('admin.post', crud='delete') %}
       <button class="dropdown-item" type="button" data-toggle="modal" 
           data-target="#deletePostModal-{{ post.id }}">Delete
       </button>

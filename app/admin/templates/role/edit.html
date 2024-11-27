@@ -33,15 +33,45 @@
       {% call f.form_group(form.superuser, css_class='sm-margin-bottom') %}
       <span>
 	  <small class="text-muted">
-       Designates that this user has all permissions without explicitly assigning them
+       Designates that this user has all admin permissions without explicitly assigning them
       </small>
       </span>
       {% endcall %}
 
-      <!-- PERMISSIONS -->
+      <!-- ADMIN PERMISSIONS -->
       <br>
 
       {% call f.form_group(form.permissions, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_create_posts, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_edit_posts, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_delete_posts, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_create_comments, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_edit_comments, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.can_delete_comments, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.user_edit_email, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.user_edit_username, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.user_edit_image_file, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.user_edit_bio, css_class='sm-margin-bottom') %}
       {% endcall %}
 
   <!-- Submit buttons -->

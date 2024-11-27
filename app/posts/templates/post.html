@@ -46,7 +46,7 @@
             <div class="ck-content">{{ post.content | safe }}</div>
         </div>
         {% if not post.locked %}
-            {% if current_user.role.superuser == True or post.user == current_user %}
+            {% if current_user.post_actions_access(post) %}
                 <div>
                     {% include "post_actions.html" %}
                 </div>
@@ -101,6 +101,7 @@
 </div><!-- END OF COMMENT SECTION DIV -->
 {% endif %}<!-- endif comments -->
 
+{% if form %}
 {% if not post.locked %}
     <!-- Comment Form -->
     <div class="mt-4">
@@ -117,6 +118,7 @@
     {% endcall %}<!-- End of Comment Form -->
     </div>
 {% endif %}<!-- End of lock check -->
+{% endif %}
 
 {% endblock content %}
 

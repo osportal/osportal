@@ -76,12 +76,6 @@ class Settings(ResourceMixin):
     alert_email = db.relationship('Email', foreign_keys=[alert_email_id], backref='alert_email_ref', uselist=False)
 
 
-    # editable user profile fields
-    user_edit_email = db.Column(db.Boolean, nullable=True, default=False)
-    user_edit_username = db.Column(db.Boolean, nullable=True, default=False)
-    user_edit_image_file = db.Column(db.Boolean, nullable=True, default=True)
-    user_edit_bio = db.Column(db.Boolean, nullable=True, default=True)
-
     #LDAP
     #TODO ldap will be migrated to plugin system
     #ldap_host = db.Column(StripStr(500), nullable=True)

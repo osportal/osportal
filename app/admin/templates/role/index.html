@@ -60,7 +60,7 @@
         </td>
         <td>
             <a href="{{ url_for('admin.roles_info', id=role.id) }}">
-                <h6>{{ role.name }}</h6>
+                {{ role.name }}
             </a>
         </td>
         <td>{{ role.render(role.superuser) }}</td>

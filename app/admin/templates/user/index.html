@@ -40,7 +40,13 @@
           {{ items.sort('active') }}
         </th>
         <th class="col-header">
+          {{ items.sort('email') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('role') }}
+        </th>
+        <!-- superuser -->
+        <th class="col-header">
         </th>
         <th class="col-header">
           {{ items.sort('last_login_time', 'Last login') }}
@@ -66,20 +72,24 @@
         </td>
         <td>
             <a href="{{ url_for('admin.users_info', id=user.id) }}">
-                    <h4>{{ user.username }}</h4>
-                    {% if user.email %}
-                    <div class="text-muted mb-1">{{ user.email }}</div>
-                    {% if user.role.superuser %}
-                        <p><span class="badge text-white bg-danger">superuser</span></p>
-                    {% endif %}
-                    {% endif %}
+                {{ user.username }}
             </a>
         </td>
         <td>
             {{ user.render(user.active) }}
         </td>
         <td>
+            {% if user.email %}
+            {{ user.email }}
+            {% endif %}
+        </td>
+        <td>
             {{ user.role }}
+            {% if user.role.superuser %}
+                <div><span class="badge text-white bg-danger">superuser</span></div>
+            {% endif %}
+        </td>
+        <td>
         </td>
         <td>
         {% if user.current_login_time %}

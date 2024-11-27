@@ -14,8 +14,9 @@ Hi{% if current_user.username %} {{ current_user.username }}{% endif %}!
 </h1>
 
 <legend>{{ heading }}</legend>
+{% if current_user.role.can_create_posts or current_user.permission('admin.post', crud='create') %}
 <a class="btn btn-primary" href="{{ url_for('posts.post_new') }}">Create Post</a>
-
+{% endif %}
 
 {{ forms.search('posts.index') }}
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">

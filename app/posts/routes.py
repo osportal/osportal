@@ -65,6 +65,9 @@ def index(page):
 
 @posts.route('/posts/new', methods=['GET', 'POST'])
 def post_new():
+    if not current_user.role.can_create_posts:
+        if not current_user.permission('admin.post', crud='create'):
+            abort(403)
     post = Post()
     form = PostForm()
     if form.validate_on_submit():
@@ -86,10 +89,9 @@ def post_new():
 def post_edit(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
-    if post.user_id != current_user.id:
-        if not current_user.role.superuser and \
-                not current_user.permission('admin.post', crud='update'):
-                    abort(403)
+    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.role.can_edit_posts):
+        if not current_user.permission('admin.post', crud='update'):
+            abort(403)
     form = PostForm(obj=post)
     if form.validate_on_submit():
         try:
@@ -110,10 +112,9 @@ def post_delete(id):
     post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
-    if post.user != current_user:
-        if not current_user.role.superuser and \
-                current_user.permission('admin.post', crud='delete'):
-                    abort(403)
+    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.role.can_delete_posts): # can this user delete personal posts
+        if not current_user.permission('admin.post', crud='delete'):
+            abort(403)
     try:
         post.delete()
     except (IntegrityError, PendingRollbackError) as e:
@@ -130,26 +131,29 @@ def post_delete(id):
 def post(id, page):
     post = Post.query.filter(Post.id==id).filter(Post.active).first_or_404()
     paginated_comments = post.paginated_comments(page)
-    form = CommentForm()
-    form.text.label.text = 'Your comment'
-    # TODO check if user has permission to create comment
-    # if current_user.permission('create_comments'):
-    if form.validate_on_submit():
-        comment = Comment()
-        # do not allow new comments on locked posts
-        post.is_locked()
-        form.populate_obj(comment)
-        comment.post_id=post.id
-        comment.user_id=current_user.id
-        comment.save()
-        from app.user.tasks import new_comment_notification
-        # TODO fix to use the object instead of int - investigate why it works elsewhere
-        if comment.user_id != post.user_id:
-            new_comment_notification.delay(int(comment.id))
-        user_mentions_notification(comment, post.name)
-        flash(f'Successfully posted', 'success')
-        return redirect(url_for('posts.post', id=post.id))
-    return render_template('post.html', post=post, comments=paginated_comments, form=form)
+    if current_user.permission('admin.comment', crud='create') or current_user.role.can_create_comments:
+        form = CommentForm()
+        form.text.label.text = 'Your comment'
+        # TODO check if user has permission to create comment
+        # if current_user.permission('create_comments'):
+        if form.validate_on_submit():
+            comment = Comment()
+            # do not allow new comments on locked posts
+            post.is_locked()
+            form.populate_obj(comment)
+            comment.post_id=post.id
+            comment.user_id=current_user.id
+            comment.save()
+            from app.user.tasks import new_comment_notification
+            # TODO fix to use the object instead of int - investigate why it works elsewhere
+            if comment.user_id != post.user_id:
+                new_comment_notification.delay(int(comment.id))
+            user_mentions_notification(comment, post.name)
+            flash(f'Successfully posted', 'success')
+            return redirect(url_for('posts.post', id=post.id))
+        return render_template('post.html', post=post, comments=paginated_comments, form=form)
+    else:
+        return render_template('post.html', post=post, comments=paginated_comments)
 
 
 @posts.route("/comments/<int:id>", methods=['GET', 'POST'])
@@ -173,10 +177,9 @@ def comment_edit(id):
     post = Post.query.get_or_404(comment.post_id)
     if post.is_locked():
         return redirect(403)
-    if comment.user_id != current_user.id:
-        if not current_user.role.superuser and \
-                not current_user.permission('admin.comment', crud='update'):
-                    abort(403)
+    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.role.can_edit_comments):
+        if not current_user.permission('admin.comment', crud='update'):
+            abort(403)
     form = CommentForm(obj=comment)
     if form.validate_on_submit():
         try:
@@ -200,10 +203,9 @@ def comment_delete(id):
     post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
-    if comment.user_id != current_user.id:
-        if not current_user.role.superuser and \
-                not current_user.permission('admin.comment', crud='delete'):
-                    abort(403)
+    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.role.can_delete_comments):
+        if not current_user.permission('admin.comment', crud='delete'):
+            abort(403)
     try:
         comment.delete()
     except (IntegrityError, PendingRollbackError) as e:

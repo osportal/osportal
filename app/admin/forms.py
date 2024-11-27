@@ -183,7 +183,23 @@ class RoleForm(ModelForm):
                                    #Regexp(r'^[\w &]+$', message=custom_message)
                                    ])
     description = StringField(validators=[Optional(), Length(0, 120)])
-    permissions = QuerySelectMultipleField('Permissions',
+
+    # General Permissions
+    can_create_posts =  BooleanField('Create Posts - Users can create new posts')
+    can_edit_posts =  BooleanField('Edit Posts - Users can edit their own posts')
+    can_delete_posts =  BooleanField('Delete Posts - Users can delete their own posts')
+    can_create_comments = BooleanField('Create Comments - Users can create new comments')
+    can_edit_comments =  BooleanField('Edit Comments - Users can edit their own comments')
+    can_delete_comments =  BooleanField('Delete Comments - Users can delete their own comments')
+
+    user_edit_email = BooleanField('Edit Email - Users can edit their email in the profile section', validators=[Optional()])
+    user_edit_username = BooleanField('Edit Username - Users can edit their username in the profile section', validators=[Optional()])
+    user_edit_image_file = BooleanField('Edit Image - Users can update their profile picture', validators=[Optional()])
+    user_edit_bio = BooleanField('Edit Bio - Users can update their biography in the profile section', validators=[Optional()])
+
+
+    # Admin Permissions
+    permissions = QuerySelectMultipleField('Admin Permissions',
                                            query_factory=lambda: Permission.query.all(),
                                            widget=Select2Widget(),
                                            allow_blank=True,
@@ -254,12 +270,6 @@ class SettingsForm(FlaskForm):
                                         widget=Select2Widget(), allow_blank=True,
                                         validators=[Optional()]
                                         )
-
-    # User profile fields
-    user_edit_email = BooleanField('Email', validators=[Optional()])
-    user_edit_username = BooleanField('Username', validators=[Optional()])
-    user_edit_image_file = BooleanField('Image', validators=[Optional()])
-    user_edit_bio = BooleanField('Bio', validators=[Optional()])
 
     # Pagination
     items_per_admin_page = IntegerField('Max. items per admin page', validators=[DataRequired(), NumberRange(5, 250)])

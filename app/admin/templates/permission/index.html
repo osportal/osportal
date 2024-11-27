@@ -72,8 +72,8 @@
                  type="checkbox" value="{{ p.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.permissions_info', id=p.id) }}">
-                <h6>{{ p.name }}</h6>
+            <a href="{{ url_for('admin.permissions_info', id=p.id) }}"> 
+                {{ p.name }}
             </a>
         </td>
         <td>

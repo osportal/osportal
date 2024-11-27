@@ -67,7 +67,7 @@
         </td>
         <td>
             <a href="{{ url_for('admin.posts_info', id=post.id) }}">
-                <h6>{{ post.name | truncate(70) }}</h6>
+                {{ post.name | truncate(70) }}
             </a>
         </td>
         <td>{{ post.render(post.active) }}</td>

@@ -7,7 +7,7 @@ from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from flask_login import UserMixin, logout_user
+from flask_login import UserMixin, logout_user, current_user
 from flask import url_for, current_app, request
 import json
 import jwt
@@ -64,6 +64,20 @@ class Role(ResourceMixin):
     # Superuser level permissions override any of the permissions
     superuser = db.Column(db.Boolean, default=False)
 
+    # posts and comments
+    can_create_posts = db.Column(db.Boolean, nullable=False, default=True)
+    can_edit_posts = db.Column(db.Boolean, nullable=False, default=True)
+    can_delete_posts = db.Column(db.Boolean, nullable=False, default=True)
+    can_create_comments = db.Column(db.Boolean, nullable=False, default=True)
+    can_edit_comments = db.Column(db.Boolean, nullable=False, default=True)
+    can_delete_comments = db.Column(db.Boolean, nullable=False, default=True)
+
+    # editable user profile fields
+    user_edit_email = db.Column(db.Boolean, nullable=False, default=False)
+    user_edit_username = db.Column(db.Boolean, nullable=False, default=False)
+    user_edit_image_file = db.Column(db.Boolean, nullable=False, default=True)
+    user_edit_bio = db.Column(db.Boolean, nullable=False, default=True)
+
     permissions = db.relationship('Permission',
                                   secondary='role_permission',
                                   backref='permission_role',
@@ -116,7 +130,7 @@ class User(UserMixin, ResourceMixin):
     image_file = db.Column(db.String(40), nullable=True, default=None)
     password = db.Column(db.String(128), nullable=False, server_default='')
     active = db.Column(db.Boolean, default=True)
-    hidden = db.Column(db.Boolean, unique=False, default=False)
+    hidden = db.Column(db.Boolean, nullable=False, default=False)
     dob = db.Column(db.DateTime, nullable=True)
     bio = db.Column(db.String(255), nullable=True)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
@@ -196,30 +210,15 @@ class User(UserMixin, ResourceMixin):
             return access
 
     def post_actions_access(self, post):
-        return post.user==self or \
+        return (post.user==self and (current_user.role.can_edit_posts or current_user.role.can_delete_posts)) or \
                self.permission('admin.post', crud='delete') or \
                self.permission('admin.post', crud='update')
 
     def comment_actions_access(self, comment):
-        return comment.user==self or \
+        return (comment.user==self and (current_user.role.can_edit_comments or current_user.role.can_delete_comments)) or \
+               (comment.user != self and current_user.role.can_create_comments) or \
                self.permission('admin.comment', crud='delete') or \
                self.permission('admin.comment', crud='update')
-
-    def admin_dash_permissions(self):
-        if self.role:
-            for p in self.role.permissions:
-                if p.read:
-                    return p
-            permissions = ('user_admin_view', 'dept_admin_view',
-                           'leave_admin_view', 'sys_admin_view')
-            return self.permission(*permissions)
-
-
-    def comment_permissions(self):
-        if self.role:
-            permissions = ('create_comments', 'edit_any_comment',
-                           'delete_any_comment')
-            return self.permission(*permissions)
 
 
     @classmethod
