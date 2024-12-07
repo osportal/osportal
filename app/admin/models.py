@@ -1,4 +1,4 @@
-from app.models import Company, Site, Country
+from app.models import Company, Site, Country, PublicHolidayGroup
 from app.department.models import Department
 from app.event.models import EventType
 from app.pages.models import Page
@@ -137,6 +137,10 @@ class Dashboard(object):
     @classmethod
     def group_and_count_countries(cls):
         return Dashboard._group_and_count(Country, Country.name)
+
+    @classmethod
+    def group_and_count_holiday_groups(cls):
+        return Dashboard._group_and_count(PublicHolidayGroup, PublicHolidayGroup.name)
 
     @classmethod
     def _group_and_count(cls, model, field):

@@ -233,7 +233,7 @@
     </div>
     {% endif %}
     {% if current_user.permission('admin.country', crud='read') %}
-    <!-- Settings card -->
+    <!-- Countries card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
         <a href="{{ url_for('admin.countries') }}">
             <div class="card border-left-warning shadow h-100 py-2">
@@ -247,6 +247,27 @@
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-globe h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    <!-- Public Holiday Groups card -->
+    {% if current_user.permission('admin.public_holiday_group', crud='read') %}
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.public_holiday_groups') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                   Public Holiday Groups 
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_holiday_groups.total }}</div>
+                            </div>
+                            <div class="col-auto">
                             </div>
                         </div>
                     </div>

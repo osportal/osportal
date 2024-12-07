@@ -21,12 +21,15 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EventRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
                              EmailForm, ResetPasswordForm,
+                             PublicHolidayGroupForm,
                              PublicHolidayYearForm, AdminPostForm)
 from app.admin.models import Dashboard, Settings, Email
 from app.admin.utils import get_settings_value
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
-from app.models import Company, Site, Country, PublicHoliday, get_class_by_tablename
+from app.models import (Company, Site, Country,
+                        PublicHolidayGroup, PublicHoliday,
+                        get_class_by_tablename)
 from app.event.models import Event, EventType
 from app.pages.models import Page
 from app.posts.models import Post
@@ -66,6 +69,7 @@ def dashboard():
         "group_and_count_event_types": Dashboard.group_and_count_event_types(),
         "group_and_count_emails": Dashboard.group_and_count_emails(),
         "group_and_count_countries": Dashboard.group_and_count_countries(),
+        "group_and_count_holiday_groups": Dashboard.group_and_count_holiday_groups(),
         "group_and_count_plugins": get_valid_plugins()
     }
     return render_template('admin_dashboard.html', **stats)
@@ -716,6 +720,91 @@ def public_holiday_delete(cid, id):
     else:
         flash(f'Successfully deleted {holiday.name}', 'success')
     return redirect(url_for('admin.country', id=cid))
+
+
+@admin.route('/public-holiday-groups', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/public-holiday-groups/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.public_holiday_group', crud='read')
+def public_holiday_groups(page):
+    search_form = SearchForm()
+
+    sort_by = PublicHolidayGroup.sort_by(request.args.get('sort', 'created_at'),
+                           request.args.get('direction', 'desc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+
+    paginated_groups = PublicHolidayGroup.query \
+        .filter(PublicHolidayGroup.search((request.args.get('q', text(''))))) \
+        .order_by(text(order_values)) \
+        .paginate(page, get_settings_value('items_per_admin_page'), True)
+
+    return render_template('public-holiday-group/index.html',
+                           form=search_form,
+                           groups=paginated_groups)
+
+@admin.route('/public-holiday-groups/new', methods=['GET', 'POST'])
+@permission_required('admin.public_holiday_group', crud='create')
+def public_holiday_groups_new():
+    group = PublicHolidayGroup()
+    form = PublicHolidayGroupForm()
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(group)
+            group.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Successfully created Public Holiday Group', 'success')
+            return redirect(url_for('admin.public_holiday_groups'))
+    return render_template('public-holiday-group/edit.html', form=form)
+
+@admin.route('/public-holiday-groups/<int:id>/edit', methods=['GET', 'POST'])
+@permission_required('admin.public_holiday_group', crud='update')
+def public_holiday_groups_edit(id):
+    group = PublicHolidayGroup.query.get(id)
+    form = PublicHolidayGroupForm(obj=group)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(group)
+            group.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Saved successfully.', 'success')
+            return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
+    return render_template('public-holiday-group/edit.html', form=form, group=group)
+
+
+@admin.route('/public-holiday-groups/<int:id>/delete', methods=['POST'])
+@permission_required('admin.public_holiday_group', crud='delete')
+def public_holiday_groups_delete(id):
+    group = PublicHolidayGroup.query.get_or_404(id)
+    try:
+        group.delete()
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted group {group.name}', 'success')
+    return redirect(url_for('admin.public_holiday_groups'))
+
+
+@admin.route('/public-holiday-groups/<int:id>', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/public-holiday-groups/<int:id>/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.public_holiday_group', crud='read')
+def public_holiday_groups_info(id, page):
+    group = PublicHolidayGroup.query.get_or_404(id)
+    return render_template('public-holiday-group/info.html', group=group)
 
 
 @admin.route('/companies/new', methods=['GET', 'POST'])

@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as f with context %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.public_holiday_groups' %}
+
+{% if request.endpoint.endswith('new') %}
+  {% set endpoint = 'admin.public_holiday_groups_new' %}
+  {% set form_kwargs = {} %}
+  {% set legend = 'Add a new Public Holiday Group' %}
+  {% set button = 'Add' %}
+{% else %}
+  {% set endpoint = 'admin.public_holiday_groups_edit' %}
+  {% set form_kwargs = {'id': group.id} %}
+  {% set legend = 'Edit Public Holiday Group' %}
+  {% set button = 'Save' %}
+{% endif %}
+
+
+{% block content %}
+    {% set extra_setting_links = admin_public_holiday_groups_sidebar(user=current_user) %}
+    {% include "menu.html" %}
+    {{ sidebaritems(extra_setting_links) }}
+
+{% if request.endpoint.endswith('new') %}
+  <legend>{{ legend }}</legend>
+  {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+
+  {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
+  {% endcall %}
+
+  {% call f.form_group(form.description, css_class='sm-margin-bottom') %}
+  {% endcall %}
+
+  {% call f.form_group(form.country, css_class='sm-margin-bottom') %}
+  {% endcall %}
+
+  <div class="row">
+    <div class="col">
+        <button type="submit" class="btn btn-primary btn-block">
+          {{ button }}
+        </button>
+    </div>
+    <div class="col">
+      <div class="visible-xs visible-sm sm-margin-top"></div>
+      <a href="{{ url_for('admin.public_holiday_groups') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+        Cancel
+      </a>
+    </div>
+  </div>
+  {% endcall %}
+
+{% else %}
+<!-- Edit Holiday Group -->
+
+  <legend>{{ legend }}</legend>
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+      {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                            autofocus='autofocus') %}
+      {% endcall %}
+
+      <hr/>
+      <div class="row">
+        <div class="col">
+          <button type="submit" class="btn btn-primary btn-block">
+            {{ button }}
+          </button>
+        </div>
+        <div class="col">
+          <div class="visible-xs visible-sm sm-margin-top"></div>
+          <a href="{{ url_for('admin.public_holiday_groups') }}"
+              class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+          </a>
+        </div>
+      </div>
+    {% endcall %}
+{% endif %}
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

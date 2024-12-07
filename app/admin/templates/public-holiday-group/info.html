@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Public Holiday Group Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+{% import 'macros/form.html' as forms with context %}
+{% set active = 'admin.public_holiday_groups' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_public_holiday_groups_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ group.name }}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.public_holiday_group', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.public_holiday_groups_edit', id=group.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.public_holiday_group', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ group.id,
+              url=url_for('admin.public_holiday_groups_delete', id=group.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+<div class="row">
+  <div class="col-md-5 well">
+    <div class="form-group">
+        <div class="mb-2">
+        	<div><strong>Name</strong></div>
+        	<div>{{ group.name }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Description</strong></div>
+        	<div>{{ group.description }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Country</strong></div>
+        	<div>{{ group.country }}</div>
+        </div>
+        {#
+        <div class="mb-2">
+        	<div><strong>Sites</strong></div>
+		{% for site in group.sites %}
+        	<div>{{ member }}</div>
+		{% endfor %}
+        </div>
+        #}
+    </div>
+  </div>
+</div>
+
+{% if current_user.permission('admin.public_holiday', crud='read') %}
+
+    {% if current_user.permission('admin.public_holiday', crud='create') %}
+    {#
+        <a href="{{ url_for('admin.public_holiday_new') }}" class="btn btn-sm btn-primary" type="button">Add Public Holiday</a>
+    #}
+    {% endif %}
+    
+
+{% endif %}<!-- End of Public Holiday read permission -->
+
+{% include "partials/confirm_dialog.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

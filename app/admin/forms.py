@@ -82,6 +82,12 @@ class CountryForm(ModelForm):
     max_carry_over_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired(), NumberRange(min=0, max=100)])
 
 
+class PublicHolidayGroupForm(ModelForm):
+    name = StringField(validators=[DataRequired(), Length(2, 100)])
+    description = TextAreaField('Description', validators=[Optional(), Length(min=2, max=500)])
+    country = QuerySelectField('Country', query_factory=lambda: Country.query.all(),
+                               widget=Select2Widget(), allow_blank=True, validators=[DataRequired()])
+
 class PublicHolidayYearForm(ModelForm):
     year = SelectField("Filter by Year", choices=[], render_kw={'id': 'year_filter'})
 

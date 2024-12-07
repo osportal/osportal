@@ -15,6 +15,7 @@ def admin_settings_menu(user):
         ('admin.emails', 'Emails', 'bi bi-envelope'),
         ('admin.companies', 'Companies', 'bi bi-building'),
         ('admin.countries', 'Countries', 'bi bi-globe'),
+        ('admin.public_holiday_groups', 'Public Holiday Groups', ''),
         ('admin.plugins', 'Plugins', 'bi bi-plugin'),
         ('admin.settings', 'Settings', 'bi bi-tools'),
         ('admin.backup', 'Data Export/Import', 'bi bi-download'),
@@ -53,6 +54,9 @@ def admin_settings_menu(user):
                     yield result
         if (view=='admin.countries') \
                 and current_user.permission('admin.country', crud='read'):
+                    yield result
+        if (view=='admin.public_holiday_groups') \
+                and current_user.permission('admin.public_holiday_group', crud='read'):
                     yield result
         if (view=='admin.plugins') \
                 and current_user.permission('admin.plugin', crud='read'):
@@ -210,6 +214,7 @@ def admin_emails_sidebar(user):
             and current_user.permission('admin.email', crud='create'):
                 yield result
 
+
 def admin_country_sidebar(user):
     results = [
         ('admin.countries', 'Manage', ''),
@@ -222,6 +227,21 @@ def admin_country_sidebar(user):
                 yield result
         if view=='admin.countries_new' \
             and current_user.permission('admin.country', crud='create'):
+                yield result
+
+
+def admin_public_holiday_groups_sidebar(user):
+    results = [
+        ('admin.public_holiday_groups', 'Manage', ''),
+        ('admin.public_holiday_groups_new', 'New Public Holiday Group', '')
+    ]
+    for result in results:
+        view = result[0]
+        if view=='admin.public_holiday_groups' \
+            and current_user.permission('admin.public_holiday_group', crud='read'):
+                yield result
+        if view=='admin.public_holiday_groups_new' \
+            and current_user.permission('admin.public_holiday_group', crud='create'):
                 yield result
 
 
@@ -263,6 +283,7 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)
     app.jinja_env.globals.update(admin_country_sidebar=admin_country_sidebar)
+    app.jinja_env.globals.update(admin_public_holiday_groups_sidebar=admin_public_holiday_groups_sidebar)
     app.jinja_env.globals.update(admin_company_sidebar=admin_company_sidebar)
     app.jinja_env.globals.update(admin_plugins_sidebar=admin_plugins_sidebar)
     app.jinja_env.globals.update(admin_settings_sidebar=admin_settings_sidebar)

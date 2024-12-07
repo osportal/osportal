@@ -94,7 +94,24 @@ class Country(ResourceMixin):
 
 
 
+class PublicHolidayGroup(ResourceMixin):
+    __tablename__ = "public_holiday_group"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(StripStr(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
+    country = db.relationship("Country", foreign_keys=[country_id])
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (PublicHolidayGroup.name.ilike(search_query),)
+
+        return or_(*search_chain)
+
+
 class PublicHoliday(ResourceMixin):
+    __tablename__ = "public_holiday"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(200), nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)

@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+{% import 'macros/form.html' as forms with context %}
+{% import 'macros/pagination.html' as items %}
+{%- from "macros/navigation.html" import navlink with context -%}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set table_name = 'public_holiday_group' %}
+
+{% block title %}Public Holiday Groups - Admin{% endblock %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_public_holiday_groups_sidebar(user=current_user) %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{{ forms.search('admin.public_holiday_groups') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if groups.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
+{% include "actions_btn.html" %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          <label for="select_all"></label>
+          <input id="select_all" name="select_all" type="checkbox">
+        </th>
+        <th class="col-header">
+          {{ items.sort('name') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('created_at', 'Created') }}
+        </th>
+        <th class="col-header">
+          {{ items.sort('updated_at', 'Last updated') }}
+        </th>
+        <th>
+        <!-- for edit and delete buttons -->
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for group in groups.items %}
+      <tr>
+        <td>
+          <label for="bulk_ids"></label>
+          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                 type="checkbox" value="{{ group.id }}">
+        </td>
+        <td>
+            <a href="{{ url_for('admin.public_holiday_groups_info', id=group.id) }}">
+                {{ group.name }}
+            </a>
+        </td>
+        <td>
+	    {% if group.created_at %}
+          <time class="from-now" data-datetime="{{ group.created_at }}">
+              {{ group.pretty_date(group.created_at) }}
+            <div class="text-muted">{{ group.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+	    {% endif %}
+        </td>
+        <td>
+        {% if group.updated_at %}
+          <time class="from-now" data-datetime="{{ group.updated_at }}">
+              {{ group.pretty_date(group.updated_at) }}
+            <div class="text-muted">{{ group.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+          </time>
+        {% endif %}
+        </td>
+        <td>
+            {% if current_user.permission('admin.public_holiday_group', crud='update') %}
+                <a class="btn btn-sm btn-primary" 
+                   href="{{ url_for('admin.public_holiday_groups_edit', id=group.id) }}" type="button">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            {% endif %}
+            {% if current_user.permission('admin.public_holiday_group', crud='delete') %}
+                {{ forms.action_confirm(
+                    id="delete" ~ group.id,
+                    url=url_for('admin.public_holiday_groups_delete', id=group.id),
+                    title="Delete", 
+                    btn="btn btn-sm btn-warning",
+                    icon="bi bi-trash",
+                    target="#confirmModal") 
+                }}
+            {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{{ items.paginate(groups) }}
+
+{{ forms.modal_bulk_action(
+    id="bulkDelete",
+    label="bulkDeleteLabel",
+    title="Delete",
+    text="Are you sure you want to delete the selected groups?",
+    url=url_for('admin.bulk_delete', table='public_holiday_group'),
+    btn_text="Delete")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkDisable",
+    label="bulkDisableLabel",
+    title="Disable",
+    text="Are you sure you want to disable the selected groups?",
+    url=url_for('admin.bulk_disable', table='public_holiday_group'),
+    btn_text="Disable")
+}}
+{{ forms.modal_bulk_action(
+    id="bulkEnable",
+    label="bulkEnableLabel",
+    title="Enable",
+    text="Are you sure you want to enable the selected groups?",
+    url=url_for('admin.bulk_enable', table='public_holiday_group'),
+    btn_text="Enable")
+}}
+{% include "partials/confirm_dialog.html" %}
+
+{% endif %}<!-- end if groups exist -->
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}
