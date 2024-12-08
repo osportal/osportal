@@ -3,13 +3,13 @@
                     <i class="bi bi-three-dots"></i>
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      {% if (current_user.permission('admin.comment', crud='create') and c.user != current_user) or ( c.user != current_user and current_user.role.can_create_comments ) %}
+      {% if (current_user.permission('admin.comment', crud='create') and c.user != current_user) or ( c.user != current_user and current_user.can_permission('can_create_comments')) %}
       <button onclick="SetMentionData(window.editor, '{{ c.id }}', '{{ c.user.username }}')" type="button" class="dropdown-item" href="">Reply</button>
       {% endif %}
-      {% if (c.user == current_user and current_user.role.can_edit_comments) or current_user.permission('admin.comment', crud='update') %}
+      {% if (c.user == current_user and current_user.can_permission('can_edit_comments')) or current_user.permission('admin.comment', crud='update') %}
       <a class="dropdown-item" href="{{ url_for('posts.comment_edit', id=c.id) }}">Edit</a>
       {% endif %}
-      {% if (c.user == current_user and current_user.role.can_delete_comments) or current_user.permission('admin.comment', crud='delete') %}
+      {% if (c.user == current_user and current_user.can_permission('can_delete_comments')) or current_user.permission('admin.comment', crud='delete') %}
       <button class="dropdown-item" type="button" data-toggle="modal" data-target="#deleteCommentModal-{{c.id}}">Delete</button>
       {% endif %}
   </div>
@@ -18,23 +18,23 @@
 
 <!-- Modal Delete Comment has to be included inside the for loop -->
 <div class="modal fade" id="deleteCommentModal-{{c.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-				<div class="modal-content">
-						<div class="modal-header">
-								<h5 class="modal-title" id="deleteCommentModalLabel">Delete Comment</h5>
-							    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								    <span aria-hidden="true">&times;</span>
-							    </button>
-						</div>
-						<div class="modal-body">
-						Are you sure you want to delete?
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-							<form action="{{ url_for('posts.comment_delete', id=c.id)  }}" method="POST">
-									<input class="btn btn-danger" type="submit" value="Delete">
-							</form>
-						</div>
-				</div>
-	 	</div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="deleteCommentModalLabel">Delete Comment</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				    <span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+			Are you sure you want to delete?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<form action="{{ url_for('posts.comment_delete', id=c.id)  }}" method="POST">
+						<input class="btn btn-danger" type="submit" value="Delete">
+				</form>
+			</div>
+		</div>
+	</div>
 </div>

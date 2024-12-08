@@ -64,19 +64,20 @@ class Role(ResourceMixin):
     # Superuser level permissions override any of the permissions
     superuser = db.Column(db.Boolean, default=False)
 
-    # posts and comments
-    can_create_posts = db.Column(db.Boolean, nullable=False, default=True)
-    can_edit_posts = db.Column(db.Boolean, nullable=False, default=True)
-    can_delete_posts = db.Column(db.Boolean, nullable=False, default=True)
-    can_create_comments = db.Column(db.Boolean, nullable=False, default=True)
-    can_edit_comments = db.Column(db.Boolean, nullable=False, default=True)
-    can_delete_comments = db.Column(db.Boolean, nullable=False, default=True)
+    # Permissions
+    # posts and comment Permissions
+    can_create_posts = db.Column(db.Boolean, nullable=True, default=True)
+    can_edit_posts = db.Column(db.Boolean, nullable=True, default=True)
+    can_delete_posts = db.Column(db.Boolean, nullable=True, default=True)
+    can_create_comments = db.Column(db.Boolean, nullable=True, default=True)
+    can_edit_comments = db.Column(db.Boolean, nullable=True, default=True)
+    can_delete_comments = db.Column(db.Boolean, nullable=True, default=True)
 
     # editable user profile fields
-    user_edit_email = db.Column(db.Boolean, nullable=False, default=False)
-    user_edit_username = db.Column(db.Boolean, nullable=False, default=False)
-    user_edit_image_file = db.Column(db.Boolean, nullable=False, default=True)
-    user_edit_bio = db.Column(db.Boolean, nullable=False, default=True)
+    user_edit_email = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_username = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_image_file = db.Column(db.Boolean, nullable=True, default=True)
+    user_edit_bio = db.Column(db.Boolean, nullable=True, default=True)
 
     permissions = db.relationship('Permission',
                                   secondary='role_permission',
@@ -96,6 +97,10 @@ class Role(ResourceMixin):
         return or_(*search_chain)
 
 
+    def check_permissions(self, permission):
+        return getattr(self, permission)
+
+
     def check_admin_dash_access(self):
         if self.superuser:
             return self.superuser
@@ -104,7 +109,7 @@ class Role(ResourceMixin):
                 return getattr(p, 'read')
 
 
-    def check_access(self, obj_type, access_level):
+    def check_admin_access(self, obj_type, access_level):
         # if user is superuser no need to check for any other permission
         if self.superuser:
             return self.superuser
@@ -204,21 +209,30 @@ class User(UserMixin, ResourceMixin):
     def __str__(self):
         return self.username + f' ({self.email})'
 
+
+    def can_permission(self, permission):
+        if self.role:
+            access = self.role.check_permissions(permission)
+            return access
+
+    # admin permission
     def permission(self, *obj, crud):
         if self.role:
-            access = self.role.check_access(obj, crud)
+            access = self.role.check_admin_access(obj, crud)
             return access
 
     def post_actions_access(self, post):
-        return (post.user==self and (current_user.role.can_edit_posts or current_user.role.can_delete_posts)) or \
-               self.permission('admin.post', crud='delete') or \
-               self.permission('admin.post', crud='update')
+        if self.role:
+            return (post.user==self and (current_user.can_permission('can_edit_posts') or current_user.can_permission('can_delete_posts'))) or \
+                   self.permission('admin.post', crud='delete') or \
+                   self.permission('admin.post', crud='update')
 
     def comment_actions_access(self, comment):
-        return (comment.user==self and (current_user.role.can_edit_comments or current_user.role.can_delete_comments)) or \
-               (comment.user != self and current_user.role.can_create_comments) or \
-               self.permission('admin.comment', crud='delete') or \
-               self.permission('admin.comment', crud='update')
+        if self.role:
+            return (comment.user==self and (current_user.can_permission('can_edit_comments') or current_user.can_permission('can_delete_comments'))) or \
+                   (comment.user != self and current_user.can_permission('can_create_comments')) or \
+                   self.permission('admin.comment', crud='delete') or \
+                   self.permission('admin.comment', crud='update')
 
 
     @classmethod

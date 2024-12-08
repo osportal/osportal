@@ -65,7 +65,7 @@ def index(page):
 
 @posts.route('/posts/new', methods=['GET', 'POST'])
 def post_new():
-    if not current_user.role.can_create_posts:
+    if not current_user.can_permission('can_create_posts'):
         if not current_user.permission('admin.post', crud='create'):
             abort(403)
     post = Post()
@@ -89,7 +89,7 @@ def post_new():
 def post_edit(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
-    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.role.can_edit_posts):
+    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.can_permission('can_edit_posts')):
         if not current_user.permission('admin.post', crud='update'):
             abort(403)
     form = PostForm(obj=post)
@@ -112,7 +112,7 @@ def post_delete(id):
     post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
-    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.role.can_delete_posts): # can this user delete personal posts
+    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.can_permission('can_delete_posts')): # can this user delete personal posts
         if not current_user.permission('admin.post', crud='delete'):
             abort(403)
     try:
@@ -131,7 +131,7 @@ def post_delete(id):
 def post(id, page):
     post = Post.query.filter(Post.id==id).filter(Post.active).first_or_404()
     paginated_comments = post.paginated_comments(page)
-    if current_user.permission('admin.comment', crud='create') or current_user.role.can_create_comments:
+    if current_user.permission('admin.comment', crud='create') or current_user.can_permission('can_create_comments'):
         form = CommentForm()
         form.text.label.text = 'Your comment'
         # TODO check if user has permission to create comment
@@ -177,7 +177,7 @@ def comment_edit(id):
     post = Post.query.get_or_404(comment.post_id)
     if post.is_locked():
         return redirect(403)
-    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.role.can_edit_comments):
+    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.can_permission('can_edit_comments')):
         if not current_user.permission('admin.comment', crud='update'):
             abort(403)
     form = CommentForm(obj=comment)
@@ -203,7 +203,7 @@ def comment_delete(id):
     post.is_locked()
     # checks if non-author has admin permission to delete because
     # permission required does not prevent another user from accessing route
-    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.role.can_delete_comments):
+    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.can_permission('can_delete_comments')):
         if not current_user.permission('admin.comment', crud='delete'):
             abort(403)
     try:

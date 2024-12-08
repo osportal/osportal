@@ -168,10 +168,10 @@ def account():
     form = UpdateAccountForm(obj=current_user)
     current_picture = current_user.image_file
     profile_fields = {
-       'user_edit_username':current_user.role.user_edit_username,
-       'user_edit_email':current_user.role.user_edit_email,
-       'user_edit_image_file':current_user.role.user_edit_image_file,
-       'user_edit_bio':current_user.role.user_edit_bio
+       'user_edit_username':current_user.can_permission('user_edit_username'),
+       'user_edit_email':current_user.can_permission('user_edit_email'),
+       'user_edit_image_file':current_user.can_permission('user_edit_image_file'),
+       'user_edit_bio':current_user.can_permission('user_edit_bio')
     }
     if form.validate_on_submit():
         try:
