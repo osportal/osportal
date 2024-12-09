@@ -1,4 +1,4 @@
-from app.models import Company, Country, Entt, Site
+from app.models import Country, Entt, Site
 from sqlalchemy import func
 from wtforms.validators import ValidationError
 
@@ -11,16 +11,6 @@ def check_entt_exists(form, field):
     entt = Entt.query.filter(func.lower(Entt.name)==field.data.lower()).first()
     if entt:
         raise ValidationError('Entitlement Template already exists')
-
-
-def check_company_exists(form, field):
-    # checks new and current data when editing existing instance, returns if they are the same
-    if field.object_data: # otherwise we get a NoneType Error when checking for lowercase
-        if field.object_data.lower() == field.data.lower():
-            return
-    company = Company.query.filter(func.lower(Company.name)==field.data.lower()).first()
-    if company:
-        raise ValidationError('Company already exists')
 
 
 def check_site_exists(form, field):

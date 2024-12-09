@@ -46,7 +46,7 @@ class Entt(ResourceMixin):
                             nullable=True)
     public_holiday_group = db.relationship("PublicHolidayGroup",
                                            foreign_keys=[ph_group_id])
-    
+
     def __repr__(self):
         return self.name
 
@@ -58,28 +58,10 @@ class Entt(ResourceMixin):
         return or_(*search_chain)
 
 
-class Company(ResourceMixin):
-    __tablename__ = 'company'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(StripStr(65), unique=True, nullable=False)
-    active = db.Column(db.Boolean, default=True)
-    sites = db.relationship('Site', backref='company', primaryjoin='Company.id==Site.company_id', lazy='select')
-
-    def __repr__(self):
-        return self.name
-
-    @classmethod
-    def search(cls, query):
-        search_query = '%{0}%'.format(query)
-        search_chain = (Company.name.ilike(search_query),)
-
-        return or_(*search_chain)
-
 
 class Site(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(200), nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
 
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=True)
     country = db.relationship("Country", foreign_keys=[country_id])

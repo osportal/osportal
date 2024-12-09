@@ -40,9 +40,6 @@
   {% call f.form_group(form.job_title, css_class='sm-margin-bottom') %}
   {% endcall %}
 
-  {% call f.form_group(form.company, css_class='sm-margin-bottom') %}
-  {% endcall %}
-
   {% call f.form_group(form.site, css_class='sm-margin-bottom') %}
   {% endcall %}
 
@@ -139,9 +136,6 @@
                     {% call f.form_group(form.job_title, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
-                    {% call f.form_group(form.company, css_class='sm-margin-bottom') %}
-                    {% endcall %}
-
                     {% call f.form_group(form.site, css_class='sm-margin-bottom') %}
                     {% endcall %}
                 </div>
@@ -190,22 +184,5 @@
 </div>
 {% endif %}
 {% block scripts %}
-<script>
-    var company_select = document.getElementById('company');
-    var site_select = document.getElementById('site');
-    function myFunction(){
-        var company = company_select.value;
-
-        fetch('/admin/get_company_site/' + company).then(function(response){
-            response.json().then(function(data){
-                var optionHTML = '';
-                for (let site of data.sites){
-                    optionHTML += '<option value="' + site.id + '">' + site.name + '</option>';
-                }
-                site_select.innerHTML = optionHTML;
-            });
-        })
-    }
-</script>
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
 {% endblock %}

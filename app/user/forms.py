@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models import Company, Site, Country
+from app.models import Site, Country
 from app.user.models import User
 from app.user.validations import check_username_exists, check_email_exists
 from app.utils.util_wtforms import ModelForm, choices_from_dict
@@ -48,16 +48,10 @@ class UserForm(ModelForm):
                                Optional(),
                                Length(min=1, max=25),
                                ])
-    company = QuerySelectField('Company',
-                               query_factory=lambda: Company.query.order_by(Company.name).all(),
-                               widget=Select2Widget(),
-                               validators=[Optional()],
-                               allow_blank=False,
-                               render_kw={'onchange': "myFunction()"})
     site = QuerySelectField('Site',
                                query_factory=lambda: Site.query.all(),
                                widget=Select2Widget(),
-                               allow_blank=False,
+                               allow_blank=True,
                                validators=[Optional()]
                                )
 

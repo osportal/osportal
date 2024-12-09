@@ -3,21 +3,21 @@
 {% import 'macros/pagination.html' as items %}
 {%- from "macros/navigation.html" import navlink with context -%}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
-{% set table_name = 'company' %}
+{% set table_name = 'site' %}
 
-{% block title %}Companies - Admin{% endblock %}
+{% block title %}Sites - Admin{% endblock %}
 
 {% block content %}
 
-{% set extra_setting_links = admin_company_sidebar(user=current_user) %}
+{% set extra_setting_links = admin_site_sidebar(user=current_user) %}
 
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{{ forms.search('admin.companies') }}
+{{ forms.search('admin.sites') }}
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 
-{% if companies.total == 0 %}
+{% if sites.total == 0 %}
     {% if request.args.get('q') %}
         <h3>No results found.</h3>
     {% endif %}
@@ -35,6 +35,9 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
+          {{ items.sort('country') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
         </th>
         <th class="col-header">
@@ -46,45 +49,46 @@
       </tr>
     </thead>
     <tbody>
-    {% for company in companies.items %}
+    {% for site in sites.items %}
       <tr>
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                 type="checkbox" value="{{ company.id }}">
+                 type="checkbox" value="{{ site.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.companies_info', id=company.id) }}">
-                {{ company.name }}
+            <a href="{{ url_for('admin.sites_info', id=site.id) }}">
+                {{ site.name }}
             </a>
         </td>
+        <td>{{ site.country }}</td>
         <td>
-	    {% if company.created_at %}
-          <time class="from-now" data-datetime="{{ company.created_at }}">
-              {{ company.pretty_date(company.created_at) }}
-            <div class="text-muted">{{ company.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+	    {% if site.created_at %}
+          <time class="from-now" data-datetime="{{ site.created_at }}">
+              {{ site.pretty_date(site.created_at) }}
+            <div class="text-muted">{{ site.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
           </time>
 	    {% endif %}
         </td>
         <td>
-        {% if company.updated_at %}
-          <time class="from-now" data-datetime="{{ company.updated_at }}">
-              {{ company.pretty_date(company.updated_at) }}
-            <div class="text-muted">{{ company.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+        {% if site.updated_at %}
+          <time class="from-now" data-datetime="{{ site.updated_at }}">
+              {{ site.pretty_date(site.updated_at) }}
+            <div class="text-muted">{{ site.updated_at.strftime("%-d %b %Y %H:%M %z") }}</div>
           </time>
         {% endif %}
         </td>
         <td>
-            {% if current_user.permission('admin.company', crud='update') %}
+            {% if current_user.permission('admin.site', crud='update') %}
                 <a class="btn btn-sm btn-primary" 
-                   href="{{ url_for('admin.companies_edit', id=company.id) }}" type="button">
+                   href="{{ url_for('admin.sites_edit', id=site.id) }}" type="button">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
             {% endif %}
-            {% if current_user.permission('admin.company', crud='delete') %}
+            {% if current_user.permission('admin.site', crud='delete') %}
                 {{ forms.action_confirm(
-                    id="delete" ~ company.id,
-                    url=url_for('admin.companies_delete', id=company.id),
+                    id="delete" ~ site.id,
+                    url=url_for('admin.sites_delete', id=site.id),
                     title="Delete", 
                     btn="btn btn-sm btn-warning",
                     icon="bi bi-trash",
@@ -96,35 +100,35 @@
     {% endfor %}
     </tbody>
   </table>
-{{ items.paginate(companies) }}
+{{ items.paginate(sites) }}
 
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
-    text="Are you sure you want to delete the selected companies?",
-    url=url_for('admin.bulk_delete', table='company'),
+    text="Are you sure you want to delete the selected sites?",
+    url=url_for('admin.bulk_delete', table='site'),
     btn_text="Delete")
 }}
 {{ forms.modal_bulk_action(
     id="bulkDisable",
     label="bulkDisableLabel",
     title="Disable",
-    text="Are you sure you want to disable the selected companies?",
-    url=url_for('admin.bulk_disable', table='company'),
+    text="Are you sure you want to disable the selected sites?",
+    url=url_for('admin.bulk_disable', table='site'),
     btn_text="Disable")
 }}
 {{ forms.modal_bulk_action(
     id="bulkEnable",
     label="bulkEnableLabel",
     title="Enable",
-    text="Are you sure you want to enable the selected companies?",
-    url=url_for('admin.bulk_enable', table='company'),
+    text="Are you sure you want to enable the selected sites?",
+    url=url_for('admin.bulk_enable', table='site'),
     btn_text="Enable")
 }}
 {% include "partials/confirm_dialog.html" %}
 
-{% endif %}<!-- end if companies exist -->
+{% endif %}<!-- end if sites exist -->
 
 {% endblock content %}
 

@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Site Info{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+{% import 'macros/form.html' as forms with context %}
+{% set active = 'admin.sites' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_site_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<div class="row justify-content-between align-items-center mb-3">
+    <div class="col-auto">
+        <div class="h2">{{ site.name }}</div>
+    </div>
+    <div class="col-auto">
+      <div class="btn-toolbar"> 
+      {% if current_user.permission('admin.site', crud='update') %}
+          <div class="btn-group mr-2"> 
+              <a role="button" 
+                 href="{{ url_for('admin.sites_edit', id=site.id) }}"
+                 class="btn btn-sm btn-primary">Edit
+              </a>
+          </div>
+      {% endif %}
+      {% if current_user.permission('admin.site', crud='delete') %}
+          <div class="btn-group mr-2"> 
+          {{ forms.action_confirm(
+              id="delete" ~ site.id,
+              url=url_for('admin.sites_delete', id=site.id),
+              title="Delete", 
+              btn="btn btn-sm btn-warning",
+              icon_only=False,
+              target="#confirmModal") 
+          }}
+          </div>
+      {% endif %}
+      </div><!-- end of toolbar -->
+    </div><!-- end of col toolbar -->
+</div><!-- end of row -->
+
+<div class="row">
+  <div class="col-md-5 well">
+    <div class="form-group">
+        <div class="mb-2">
+        	<div><strong>Name</strong></div>
+        	<div>{{ site.name }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Country</strong></div>
+        	<div>{{ site.country }}</div>
+        </div>
+    </div>
+  </div>
+</div>
+
+{% include "partials/confirm_dialog.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+{% endblock scripts %}

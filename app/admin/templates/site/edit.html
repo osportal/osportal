@@ -5,21 +5,20 @@
 
 {% block content %}
 
-{% set active = 'admin.companies' %}
-{% set extra_setting_links = admin_company_sidebar(user=current_user) %}
+{% set active = 'admin.sites' %}
+{% set extra_setting_links = admin_site_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
 {% if request.endpoint.endswith('new') %}
 
-{% set endpoint = 'admin.site_new' %}
-{% set form_kwargs = {'id': company.id} %}
+{% set endpoint = 'admin.sites_new' %}
 {% set legend = 'Add new site' %}
 {% set button = 'Save' %}
 
 <legend>{{ legend }}</legend>
 
-  {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
+  {% call f.form_tag(endpoint, form=form) %}
       {% call f.form_group(form.name, css_class='sm-margin-bottom') %}
       {% endcall %}
 
@@ -34,7 +33,7 @@
     </div>
     <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
-      <a href="{{ url_for('admin.companies_info', id=company.id) }}"
+      <a href="{{ url_for('admin.sites') }}"
           class="btn btn-light bg-opacity-10 btn-block">
         Cancel
       </a>
@@ -44,8 +43,8 @@
   <!-- End of Submit buttons -->
 {% else %}
 <!-- Edit Site -->
-{% set endpoint = 'admin.site_edit' %}
-{% set form_kwargs = {'company_id': company.id, 'id': site.id} %}
+{% set endpoint = 'admin.sites_edit' %}
+{% set form_kwargs = {'id': site.id} %}
 {% set legend = 'Edit' %}
 {% set button = 'Save' %}
 
@@ -65,7 +64,7 @@
     </div>
     <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
-      <a href="{{ url_for('admin.companies', id=company.id) }}"
+      <a href="{{ url_for('admin.sites', id=site.id) }}"
           class="btn btn-light bg-opacity-10 btn-block">
         Cancel
       </a>
@@ -75,3 +74,7 @@
 
 {% endif %}
 {% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

@@ -14,17 +14,17 @@ def admin_settings_menu(user):
         ('admin.posts', 'Posts', 'bi bi-pin-angle-fill'),
         ('admin.pages', 'Pages', 'bi bi-paperclip'),
         ('admin.emails', 'Emails', 'bi bi-envelope'),
-        ('admin.companies', 'Companies', 'bi bi-building'),
+        ('admin.sites', 'Sites', 'bi bi-building'),
         ('admin.countries', 'Countries', 'bi bi-globe'),
-        ('admin.public_holiday_groups', 'Public Holiday Groups', ''),
+        ('admin.public_holiday_groups', 'Public Holiday Groups', 'bi bi-brightness-high-fill'),
         ('admin.plugins', 'Plugins', 'bi bi-plugin'),
         ('admin.settings', 'Settings', 'bi bi-tools'),
         ('admin.backup', 'Data Export/Import', 'bi bi-download'),
     ]
     for result in results:
         view = result[0]
-        if view == 'admin.companies' \
-                and current_user.permission('admin.company', crud='read'):
+        if view == 'admin.sites' \
+                and current_user.permission('admin.site', crud='read'):
                     yield result
         if view=='admin.users' \
                 and current_user.permission('admin.user', crud='read'):
@@ -133,18 +133,18 @@ def admin_department_sidebar(user):
                 yield result
 
 
-def admin_company_sidebar(user):
+def admin_site_sidebar(user):
     results = [
-        ('admin.companies', 'Manage', ''),
-        ('admin.companies_new', 'New Company', ''),
+        ('admin.sites', 'Manage', ''),
+        ('admin.sites_new', 'New Site', ''),
     ]
     for result in results:
         view = result[0]
-        if view == 'admin.companies' \
-            and current_user.permission('admin.company', crud='read'):
+        if view == 'admin.sites' \
+            and current_user.permission('admin.site', crud='read'):
                 yield result
-        if view == 'admin.companies_new' \
-            and current_user.permission('admin.company', crud='create'):
+        if view == 'admin.sites_new' \
+            and current_user.permission('admin.site', crud='create'):
                 yield result
 
 
@@ -304,6 +304,6 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)
     app.jinja_env.globals.update(admin_country_sidebar=admin_country_sidebar)
     app.jinja_env.globals.update(admin_public_holiday_groups_sidebar=admin_public_holiday_groups_sidebar)
-    app.jinja_env.globals.update(admin_company_sidebar=admin_company_sidebar)
+    app.jinja_env.globals.update(admin_site_sidebar=admin_site_sidebar)
     app.jinja_env.globals.update(admin_plugins_sidebar=admin_plugins_sidebar)
     app.jinja_env.globals.update(admin_settings_sidebar=admin_settings_sidebar)
