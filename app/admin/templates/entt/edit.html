@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block title %}Admin - Entitlement Template{% endblock %}
+
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% set active = 'admin.entts' %}
+{% set extra_setting_links = admin_entt_sidebar(user=current_user) %}
+
+{% import 'macros/form.html' as f with context %}
+
+{% if request.endpoint.endswith('new') %}
+  {% set endpoint = 'admin.entt_new' %}
+  {% set form_kwargs = {} %}
+  {% set legend = 'Add a new Entitlement Template' %}
+  {% set button = 'Add' %}
+{% else %}
+  {% set endpoint = 'admin.entt_edit' %}
+  {% set form_kwargs = {'id': entt.id} %}
+  {% set legend = 'Update this Entitlement Template' %}
+  {% set button = 'Save' %}
+{% endif %}
+
+{% block content %}
+
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+{% if request.endpoint.endswith('new') %}
+  {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+    <legend>{{ legend }}</legend>
+    {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                          autofocus='autofocus') %}
+    {% endcall %}
+
+    {% call f.form_group(form.description, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.public_holiday_group, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    {% call f.form_group(form.active, css_class='sm-margin-bottom') %}
+    {% endcall %}
+
+    <div class="row">
+      <div class="col">
+        <button type="submit" class="btn btn-primary btn-block">
+          {{ button }}
+        </button>
+      </div>
+      <div class="col">
+        <div class="visible-xs visible-sm sm-margin-top"></div>
+        <a href="{{ url_for('admin.entts') }}"
+            class="btn btn-light bg-opacity-10 btn-block">
+          Cancel
+        </a>
+      </div>
+    </div>
+  {% endcall %}
+
+{% else %}
+
+    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+      <legend>{{ legend }}</legend>
+
+      {% call f.form_group(form.name, css_class='sm-margin-bottom',
+                            autofocus='autofocus') %}
+      {% endcall %}
+
+      {% call f.form_group(form.description, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.public_holiday_group, css_class='sm-margin-bottom') %}
+      {% endcall %}
+
+      {% call f.form_group(form.active, css_class='sm-margin-bottom') %}
+      {% endcall %}
+      <hr/>
+      <div class="row">
+        <div class="col">
+          <button type="submit" class="btn btn-primary btn-block">
+            {{ button }}
+          </button>
+        </div>
+        <div class="col">
+          <div class="visible-xs visible-sm sm-margin-top"></div>
+          <a href="{{ url_for('admin.entts') }}"
+              class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+          </a>
+        </div>
+      </div>
+    {% endcall %}
+{% endif %}
+
+{% endblock content %}

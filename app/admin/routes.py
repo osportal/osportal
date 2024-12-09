@@ -1,6 +1,7 @@
 from celery import __version__ as celery_version
 # for plugins
 from collections import namedtuple
+from datetime import datetime
 import json
 import os
 #
@@ -17,6 +18,7 @@ from app.admin.decorators import admin_read_required
 from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
                              CompanyForm, SiteForm,
+                             EnttForm,
                              SettingsForm, PageForm, EventTypeSettingsForm,
                              EventRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
@@ -28,6 +30,7 @@ from app.admin.utils import get_settings_value
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
 from app.models import (Company, Site, Country,
+                        Entt,
                         PublicHolidayGroup, PublicHoliday,
                         get_class_by_tablename)
 from app.event.models import Event, EventType
@@ -66,6 +69,7 @@ def dashboard():
         "group_and_count_departments": Dashboard.group_and_count_departments(),
         "group_and_count_companies": Dashboard.group_and_count_companies(),
         "group_and_count_sites": Dashboard.group_and_count_sites(),
+        "group_and_count_entts": Dashboard.group_and_count_entts(),
         "group_and_count_event_types": Dashboard.group_and_count_event_types(),
         "group_and_count_emails": Dashboard.group_and_count_emails(),
         "group_and_count_countries": Dashboard.group_and_count_countries(),
@@ -73,6 +77,7 @@ def dashboard():
         "group_and_count_plugins": get_valid_plugins()
     }
     return render_template('admin_dashboard.html', **stats)
+
 
 @admin.route('/get_company_site/<company_id>', methods=['GET', 'POST'])
 def get_company_site(company_id):
@@ -87,6 +92,7 @@ def get_company_site(company_id):
         siteArray.append(siteObj)
 
     return jsonify({'sites': siteArray})
+
 
 @admin.route('/emails', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/emails/page/<int:page>', methods=['GET', 'POST'])
@@ -127,25 +133,10 @@ def countries(page):
 @permission_required('admin.country', crud='read')
 def country(id, page):
     country = Country.query.get_or_404(id)
-    list_years = PublicHoliday.unique_years_by_country(country.id)
-    paginated_holidays = None
-    form = PublicHolidayYearForm()
-    dropdown_year = request.args.get('year')
-    if list_years:
-        if not dropdown_year:
-            dropdown_year = list_years[0]
-        form.year.choices = list_years
-        paginated_holidays = PublicHoliday.query \
-                .filter(PublicHoliday.country_id==country.id,
-                        PublicHoliday.filter_year(dropdown_year)) \
-                .paginate(page, get_settings_value('items_per_admin_page'), True)
     return render_template('country/country.html',
-                           form=form,
                            country=country,
-                           years=list_years,
-                           dropdown_year=dropdown_year,
-                           paginated_holidays=paginated_holidays,
                            )
+
 
 @admin.route('/companies', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/companies/page/<int:page>', methods=['GET', 'POST'])
@@ -186,6 +177,24 @@ def departments(page):
     return render_template('department/index.html',
                            form=search_form,
                            departments=paginated_departments)
+
+
+@admin.route('/entitlement-templates', defaults={'page':1}, methods=['GET', 'POST'])
+@admin.route('/entitlement-templates/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.entt', crud='read')
+def entts(page):
+    search_form = SearchForm()
+
+    sort_by = Entt.sort_by(request.args.get('sort', 'created_at'),
+                           request.args.get('direction', 'desc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+
+    paginated_entts = Entt.query \
+        .filter(Entt.search((request.args.get('q', text(''))))) \
+        .order_by(text(order_values)) \
+        .paginate(page, get_settings_value('items_per_admin_page'), True)
+
+    return render_template('entt/index.html', entts=paginated_entts)
 
 
 @admin.route('/event-types', defaults={'page':1}, methods=['GET', 'POST'])
@@ -660,16 +669,16 @@ def site_delete(company_id, id):
     return redirect(url_for('admin.companies_info', id=company_id))
 
 
-@admin.route('/countries/<int:id>/public-holidays/new', methods=['GET', 'POST'])
+@admin.route('/public-holiday-groups/<int:id>/public-holidays/new', methods=['GET', 'POST'])
 @permission_required('admin.public_holiday', crud='create')
 def public_holiday_new(id):
-    country = Country.query.get_or_404(id)
+    group = PublicHolidayGroup.query.get_or_404(id)
     holiday = PublicHoliday()
     form = PublicHolidayForm(obj=holiday)
     if form.validate_on_submit():
         try:
             form.populate_obj(holiday)
-            holiday.country_id = id
+            holiday.group_id = id
             holiday.save()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
@@ -679,16 +688,17 @@ def public_holiday_new(id):
             flash(f'{e}', 'danger')
         else:
             flash('Successfully created new public holiday', 'success')
-            return redirect(url_for('admin.country', id=country.id))
-    return render_template('country/edit_holiday.html',
+            return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
+    return render_template('public-holiday/edit.html',
                            form=form,
-                           country=country)
+                           group=group)
+                           
 
 
-@admin.route('/countries/<int:country_id>/public-holidays/<int:id>/edit', methods=['GET', 'POST'])
+@admin.route('/public-holiday-groups/<int:group_id>/public-holidays/<int:id>/edit', methods=['GET', 'POST'])
 @permission_required('admin.public_holiday', crud='update')
-def public_holiday_edit(country_id, id):
-    country = Country.query.get_or_404(country_id)
+def public_holiday_edit(group_id, id):
+    group = PublicHolidayGroup.query.get_or_404(group_id)
     holiday = PublicHoliday.query.get_or_404(id)
     form = PublicHolidayForm(obj=holiday)
     if form.validate_on_submit():
@@ -702,16 +712,16 @@ def public_holiday_edit(country_id, id):
             flash(f'{e}', 'danger')
         else:
             flash('Successfully updated', 'success')
-            return redirect(url_for('admin.country', id=country.id))
-    return render_template('country/edit_holiday.html',
+            return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
+    return render_template('public-holiday/edit.html',
                            form=form,
-                           country=country,
+                           group=group,
                            holiday=holiday
                            )
 
-@admin.route('/countries/<int:cid>/public-holiday/<int:id>/delete', methods=['POST'])
+@admin.route('/public-holiday-groups/<int:gid>/public-holiday/<int:id>/delete', methods=['POST'])
 @permission_required('admin.public_holiday', crud='delete')
-def public_holiday_delete(cid, id):
+def public_holiday_delete(gid, id):
     holiday = PublicHoliday.query.get_or_404(id)
     try:
         holiday.delete()
@@ -719,7 +729,7 @@ def public_holiday_delete(cid, id):
         flash(f'{e}', 'danger')
     else:
         flash(f'Successfully deleted {holiday.name}', 'success')
-    return redirect(url_for('admin.country', id=cid))
+    return redirect(url_for('admin.public_holiday_groups_info', id=gid))
 
 
 @admin.route('/public-holiday-groups', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -741,6 +751,7 @@ def public_holiday_groups(page):
                            form=search_form,
                            groups=paginated_groups)
 
+
 @admin.route('/public-holiday-groups/new', methods=['GET', 'POST'])
 @permission_required('admin.public_holiday_group', crud='create')
 def public_holiday_groups_new():
@@ -760,6 +771,7 @@ def public_holiday_groups_new():
             flash('Successfully created Public Holiday Group', 'success')
             return redirect(url_for('admin.public_holiday_groups'))
     return render_template('public-holiday-group/edit.html', form=form)
+
 
 @admin.route('/public-holiday-groups/<int:id>/edit', methods=['GET', 'POST'])
 @permission_required('admin.public_holiday_group', crud='update')
@@ -804,7 +816,26 @@ def public_holiday_groups_delete(id):
 @permission_required('admin.public_holiday_group', crud='read')
 def public_holiday_groups_info(id, page):
     group = PublicHolidayGroup.query.get_or_404(id)
-    return render_template('public-holiday-group/info.html', group=group)
+    list_years = PublicHoliday.unique_years_by_group(group.id)
+    current_year = datetime.today().year
+    paginated_holidays = None
+    form = PublicHolidayYearForm()
+    dropdown_year = request.args.get('year')
+    if list_years:
+        if not dropdown_year:
+            dropdown_year = list_years[0]
+        form.year.choices = list_years
+        paginated_holidays = PublicHoliday.query \
+                .filter(PublicHoliday.group_id==group.id,
+                        PublicHoliday.filter_year(dropdown_year)) \
+                .paginate(page, get_settings_value('items_per_admin_page'), True)
+    return render_template('public-holiday-group/info.html',
+                           form=form,
+                           group=group,
+                           years=list_years,
+                           dropdown_year=dropdown_year,
+                           current_year=current_year,
+                           paginated_holidays=paginated_holidays)
 
 
 @admin.route('/companies/new', methods=['GET', 'POST'])
@@ -923,6 +954,54 @@ def departments_delete(id):
     else:
         flash(f'Successfully deleted department {dept.name}', 'success')
     return redirect(url_for('admin.departments'))
+
+
+@admin.route('/entitlement-templates/new', methods=['GET', 'POST'])
+@permission_required('admin.entt', crud='create')
+def entt_new():
+    entt = Entt()
+    form = EnttForm(obj=entt)
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(entt)
+            entt.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash(f'Successfully created {entt.name}', 'success')
+            return redirect(url_for('admin.entts'))
+    return render_template('entt/edit.html', form=form)
+
+
+@admin.route('/entitlement-templates/edit/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.entt', crud='update')
+def entt_edit(id):
+    entt = Entt.query.get(id)
+    form = EnttForm(obj=entt)
+    if form.validate_on_submit():
+        form.populate_obj(entt)
+        entt.save()
+        flash(f'Successfully updated {entt.name}', 'success')
+        return redirect(url_for('admin.entts'))
+    return render_template('entt/edit.html', form=form, entt=entt)
+
+
+@admin.route('/entitlement-template/<int:id>/delete', methods=['POST'])
+@permission_required('admin.entt', crud='delete')
+def entt_delete(id):
+    entt = Entt.query.get(id)
+    try:
+        entt.delete()
+    except Exception as e:
+        db.session.rollback()
+        flash(f'{e}', 'danger')
+    else:
+        flash(f'Successfully deleted {entt.name}', 'success')
+    return redirect(url_for('admin.entts'))
 
 
 @admin.route('/event-type/new', methods=['GET', 'POST'])
@@ -1091,6 +1170,13 @@ def companies_info(id, page):
 def departments_info(id):
     dept = Department.query.get_or_404(id)
     return render_template('department/info.html', dept=dept)
+
+
+@admin.route('/entitlement-templates/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.entt', crud='read')
+def entt_info(id):
+    entt = Entt.query.get_or_404(id)
+    return render_template('entt/info.html', entt=entt)
 
 
 @admin.route('/events/<int:id>', methods=['GET', 'POST'])

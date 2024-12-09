@@ -139,6 +139,7 @@ class User(UserMixin, ResourceMixin):
     dob = db.Column(db.DateTime, nullable=True)
     bio = db.Column(db.String(255), nullable=True)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
+    entt_id = db.Column(db.Integer, db.ForeignKey('entt.id'), nullable=True)
 
     last_notification_read_time = db.Column(db.DateTime)
 
@@ -164,6 +165,7 @@ class User(UserMixin, ResourceMixin):
 
     # RELATIONSHIPS
     role = db.relationship("Role", foreign_keys=[role_id], backref='user')
+    entt = db.relationship("Entt", foreign_keys=[entt_id], backref='user')
     authoriser = db.relationship(lambda: User,
                                  remote_side=id,
                                  backref=db.backref('lauthoriser', lazy='dynamic')

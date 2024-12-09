@@ -34,6 +34,30 @@ def get_class_by_tablename(tablename):
                 return c
 
 
+# Entitlement Template
+class Entt(ResourceMixin):
+    __tablename__ = 'entt'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(StripStr(50), unique=True, nullable=False)
+    description = db.Column(db.String(300), nullable=True)
+
+    ph_group_id = db.Column(db.Integer,
+                            db.ForeignKey('public_holiday_group.id'),
+                            nullable=True)
+    public_holiday_group = db.relationship("PublicHolidayGroup",
+                                           foreign_keys=[ph_group_id])
+    
+    def __repr__(self):
+        return self.name
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (Entt.name.ilike(search_query),)
+
+        return or_(*search_chain)
+
+
 class Company(ResourceMixin):
     __tablename__ = 'company'
     id = db.Column(db.Integer, primary_key=True)
@@ -75,9 +99,6 @@ class Country(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(StripStr(5), unique=True)
     name = db.Column(StripStr(100), unique=True, nullable=False)
-    holidays = db.relationship('PublicHoliday', backref='country',
-                               primaryjoin='Country.id==PublicHoliday.country_id',
-                               lazy='select')
     default_annual_allowance = db.Column(db.Integer, nullable=True, default=25)#TODO need nullable changing to False
     max_carry_over_days = db.Column(db.Integer, nullable=True, default=10)
 
@@ -101,6 +122,13 @@ class PublicHolidayGroup(ResourceMixin):
     description = db.Column(db.Text, nullable=True)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
     country = db.relationship("Country", foreign_keys=[country_id])
+    holidays = db.relationship('PublicHoliday', backref='group',
+                               primaryjoin='PublicHolidayGroup.id==PublicHoliday.group_id',
+                               cascade='delete',
+                               lazy='select')
+
+    def __repr__(self):
+        return self.name
 
     @classmethod
     def search(cls, query):
@@ -115,7 +143,7 @@ class PublicHoliday(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(200), nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
-    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('public_holiday_group.id'))
 
     def __repr__(self):
         return self.name
@@ -128,10 +156,10 @@ class PublicHoliday(ResourceMixin):
         return self.start_date.year
 
     @classmethod
-    def unique_years_by_country(cls, cid):
+    def unique_years_by_group(cls, gid):
         l = []
-        c_holidays = PublicHoliday.query.filter(PublicHoliday.country_id==cid).all()
-        for holiday in c_holidays:
+        query = PublicHoliday.query.filter(PublicHoliday.group_id==gid).all()
+        for holiday in query:
             if holiday.year not in l:
                 l.append(holiday.year)
         return sorted(l, reverse=True)

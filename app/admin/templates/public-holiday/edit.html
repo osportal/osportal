@@ -4,15 +4,15 @@
 
 
 {% block content %}
-    {% set active = 'admin.countries' %}
-    {% set extra_setting_links = admin_country_sidebar(user=current_user) %}
+    {% set active = 'admin.public_holiday_groups' %}
+    {% set extra_setting_links = admin_public_holiday_groups_sidebar(user=current_user) %}
     {% include "menu.html" %}
     {{ sidebaritems(extra_setting_links) }}
 
 {% if request.endpoint.endswith('new') %}
 
 {% set endpoint = 'admin.public_holiday_new' %}
-{% set form_kwargs = {'id': country.id} %}
+{% set form_kwargs = {'id': group.id} %}
 {% set legend = 'Add new public holiday' %}
 {% set button = 'Save' %}
 
@@ -36,7 +36,7 @@
     </div>
     <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
-      <a href="{{ url_for('admin.country', id=country.id) }}"
+      <a href="{{ url_for('admin.public_holiday_groups_info', id=group.id) }}"
           class="btn btn-light bg-opacity-10 btn-block">
         Cancel
       </a>
@@ -47,7 +47,7 @@
 {% else %}
 <!-- Edit Public Holiday -->
 {% set endpoint = 'admin.public_holiday_edit' %}
-{% set form_kwargs = {'country_id': country.id, 'id': holiday.id} %}
+{% set form_kwargs = {'group_id': group.id, 'id': holiday.id} %}
 {% set legend = 'Edit' %}
 {% set button = 'Save' %}
 
@@ -71,7 +71,7 @@
     </div>
     <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
-      <a href="{{ url_for('admin.country', id=country.id) }}"
+      <a href="{{ url_for('admin.public_holiday_groups_info', id=group.id) }}"
           class="btn btn-light bg-opacity-10 btn-block">
         Cancel
       </a>

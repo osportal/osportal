@@ -10,8 +10,9 @@ def admin_settings_menu(user):
         ('admin.departments', 'Departments', 'bi bi-diagram-3-fill'),
         ('admin.events', 'Events', 'bi bi-calendar-event'),
         ('admin.event_types', 'Event Types', 'bi bi-luggage'),
+        ('admin.entts', 'Entitlement Templates', 'bi bi-file-earmark-font'),
         ('admin.posts', 'Posts', 'bi bi-pin-angle-fill'),
-        ('admin.pages', 'Pages', 'bi bi-file-earmark'),
+        ('admin.pages', 'Pages', 'bi bi-paperclip'),
         ('admin.emails', 'Emails', 'bi bi-envelope'),
         ('admin.companies', 'Companies', 'bi bi-building'),
         ('admin.countries', 'Countries', 'bi bi-globe'),
@@ -42,6 +43,9 @@ def admin_settings_menu(user):
                     yield result
         if view == 'admin.event_types' \
                 and current_user.permission('admin.event_type', crud='read'):
+                    yield result
+        if view == 'admin.entts' \
+                and current_user.permission('admin.entt', crud='read'):
                     yield result
         if (view=='admin.posts') \
                 and current_user.permission('admin.post', crud='read'):
@@ -170,6 +174,21 @@ def admin_event_type_sidebar(user):
                 yield result
 
 
+def admin_entt_sidebar(user):
+    results = [
+        ('admin.entts', 'Manage', ''),
+        ('admin.entt_new', 'New Template', ''),
+    ]
+    for result in results:
+        view = result[0]
+        if view=='admin.entts' \
+            and current_user.permission('admin.entt', crud='read'):
+                yield result
+        if view == 'admin.entt_new' \
+            and current_user.permission('admin.entt', crud='create'):
+                yield result
+
+
 def admin_post_sidebar(user):
     results = [
         ('admin.posts', 'Manage', ''),
@@ -279,6 +298,7 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_department_sidebar=admin_department_sidebar)
     app.jinja_env.globals.update(admin_event_sidebar=admin_event_sidebar)
     app.jinja_env.globals.update(admin_event_type_sidebar=admin_event_type_sidebar)
+    app.jinja_env.globals.update(admin_entt_sidebar=admin_entt_sidebar)
     app.jinja_env.globals.update(admin_post_sidebar=admin_post_sidebar)
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)
     app.jinja_env.globals.update(admin_emails_sidebar=admin_emails_sidebar)

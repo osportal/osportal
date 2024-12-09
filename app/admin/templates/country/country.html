@@ -54,98 +54,6 @@
 	      </div>
       </div>
 
-{% if current_user.permission('admin.public_holiday', crud='read') %}
-
-    {% if current_user.permission('admin.public_holiday', crud='create') %}
-        <a href="{{ url_for('admin.public_holiday_new', id=country.id) }}" class="btn btn-sm btn-primary" type="button">Add Holiday</a>
-    {% endif %}
-    
-    
-    
-    {% if paginated_holidays %}
-    {% include "actions_btn.html" %}
-    {% if years %}
-        {{ form.year }}
-    {% endif %}
-    
-
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>
-              <label for="select_all"></label>
-              <input id="select_all" name="select_all" type="checkbox">
-            </th>
-            <th class="col-header">
-              {{ items.sort('name') }}
-            </th>
-            <th class="col-header">
-              {{ items.sort('start_date', 'Start Date') }}
-            </th>
-            <th class="col-header">
-                {{ items.sort('created_at', 'Created') }}
-            </th>
-            <!-- for buttons -->
-            <th>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for holiday in paginated_holidays.items %}
-          <tr>
-            <td>
-              <label for="bulk_ids"></label>
-              <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                     type="checkbox" value="{{ holiday.id }}">
-            </td>
-            <td>
-                {{ holiday.name }}
-            </td>
-            <td>
-                {{ holiday.start_date.strftime("%-d %b %Y") }}
-            </td>
-            <td>
-                <time class="from-now" data-datetime="{{ holiday.created_at }}">
-                    {{ holiday.pretty_date(holiday.created_at) }}
-                  <div class="text-muted">{{ holiday.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
-                </time>
-            </td>
-            <td>
-                {% if current_user.permission('admin.public_holiday', crud='update') %}
-                    <a class="btn btn-sm btn-primary" 
-                       href="{{ url_for('admin.public_holiday_edit', country_id=country.id, id=holiday.id) }}" type="button">
-                        <i class="bi bi-pencil-fill"></i>
-                    </a>
-                {% endif %}
-                {% if current_user.permission('admin.public_holiday', crud='delete') %}
-                    {{ forms.action_confirm(
-                        id="delete-" ~ holiday.id, 
-                        url=url_for('admin.public_holiday_delete', cid=country.id, id=holiday.id), 
-                        title="Delete", 
-                        btn="btn btn-sm btn-warning",
-                        icon="bi bi-trash",
-                        target="#confirmModal") 
-                    }}
-                {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {{ items.paginate(paginated_holidays, kwargs={'id':country.id, 'year':2023 }) }}
-
-        {{ forms.modal_bulk_action(
-            id="bulkDelete",
-            label="bulkDeleteLabel",
-            title="Delete",
-            text="Are you sure you want to delete the selected holidays?",
-            url=url_for('admin.bulk_delete', table='public_holiday'),
-            btn_text="Delete")
-        }}
-
-       {% endif %}<!-- End of if paginated holidays exist -->
-
-{% endif %}<!-- End of Public Holiday read permission -->
 
 {% include "partials/confirm_dialog.html" %}
 {% endblock content %}
@@ -154,20 +62,5 @@
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/importCSV.js') }}"></script>
-<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
-<script>
-    var year_filter = document.getElementById('year_filter');
-    {% if dropdown_year %}
-        year_filter.value = '{{ dropdown_year }}';
-    {% endif %}
-    year_filter.addEventListener('change', evt => {
-        const value = evt.target.value;
-        console.log(value);
-        //console.log(value);
-        var url ='{{ url_for(request.endpoint,q=q,year='',id=country.id) | safe }}'
-        url += value;
-        location = url;
-      });
-</script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock scripts %}

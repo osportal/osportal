@@ -4,7 +4,8 @@ from app.department.validations import check_dept_exists
 from app.extensions import db
 from app.event.models import Event
 from app.event.validations import check_et_exists
-from app.models import Company, Site, Country, PublicHoliday
+from app.models import (Company, Country, Entt,
+                        PublicHoliday, PublicHolidayGroup, Site)
 from app.pages.validations import check_page_route_exists
 from app.posts.forms import PostForm
 from app.user.forms import UserForm
@@ -18,6 +19,7 @@ from app.utils.util_wtforms import ModelForm, choices_from_dict
 from app.utils.csv import dump_database_table
 from app.validations import (check_company_exists,
                              check_site_exists,
+                             check_entt_exists,
                              check_country_exists,
                              check_alpha_code_exists)
 from collections import OrderedDict
@@ -117,7 +119,13 @@ class PageForm(FlaskForm):
 
 class NewUserForm(UserForm):
     dob = DatePickerField('Date of Birth', validators=[Optional()])
-    role = QuerySelectField('Role', query_factory=lambda: Role.query.all(), get_pk=lambda r: r.id, allow_blank=True,
+    role = QuerySelectField('Role', query_factory=lambda: Role.query.all(),
+                            get_pk=lambda r: r.id, allow_blank=True,
+                            validators=[Optional()])
+    entt = QuerySelectField('Entitlement Template',
+                            query_factory=lambda: Entt.query.all(),
+                            get_pk=lambda e: e.id,
+                            allow_blank=True,
                             validators=[Optional()])
     active = BooleanField('Active')
     send_activation_account_email = BooleanField('Send activation account email')
@@ -236,6 +244,17 @@ class PermissionForm(ModelForm):
     read = BooleanField('Read')
     update = BooleanField('Update')
     delete = BooleanField('Delete')
+
+
+class EnttForm(ModelForm):
+    name = StringField('Name', validators=[DataRequired(), check_entt_exists])
+    active = BooleanField('Active')
+    description = StringField('Description', validators=[Optional(), Length(2,300)])
+    public_holiday_group = QuerySelectField('PublicHolidayGroup',
+                                            query_factory=lambda: PublicHolidayGroup.query.all(),
+                                            widget=Select2Widget(),
+                                            allow_blank=True,
+                                            validators=[Optional()])
 
 
 class EventTypeSettingsForm(ModelForm):
