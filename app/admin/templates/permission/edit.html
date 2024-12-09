@@ -62,3 +62,7 @@
   {% endcall %}
   <!-- End of Submit buttons -->
 {% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+{% endblock %}

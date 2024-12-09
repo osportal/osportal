@@ -86,7 +86,7 @@ class CountryForm(ModelForm):
 class PublicHolidayGroupForm(ModelForm):
     name = StringField(validators=[DataRequired(), Length(2, 100)])
     description = TextAreaField('Description', validators=[Optional(), Length(min=2, max=500)])
-    country = QuerySelectField('Country', query_factory=lambda: Country.query.all(),
+    country = QuerySelectField('Country', query_factory=lambda: Country.query.order_by(Country.name.asc()).all(),
                                widget=Select2Widget(), allow_blank=True, validators=[DataRequired()])
 
 class PublicHolidayYearForm(ModelForm):
@@ -157,7 +157,7 @@ class SiteForm(ModelForm):
         Length(1, 65),
     ])
     description = StringField(validators=[Optional(), Length(0, 350)])
-    country = QuerySelectField('Country', query_factory=lambda: Country.query.all(),
+    country = QuerySelectField('Country', query_factory=lambda: Country.query.order_by(Country.name.asc()).all(),
                                widget=Select2Widget(), allow_blank=True, validators=[Optional()])
 
 class NewDepartmentForm(ModelForm):
@@ -241,7 +241,7 @@ class EnttForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_entt_exists])
     active = BooleanField('Active')
     description = StringField('Description', validators=[Optional(), Length(2,300)])
-    public_holiday_group = QuerySelectField('PublicHolidayGroup',
+    public_holiday_group = QuerySelectField('Public Holiday Group',
                                             query_factory=lambda: PublicHolidayGroup.query.all(),
                                             widget=Select2Widget(),
                                             allow_blank=True,

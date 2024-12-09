@@ -178,7 +178,7 @@ def entts(page):
         .order_by(text(order_values)) \
         .paginate(page, get_settings_value('items_per_admin_page'), True)
 
-    return render_template('entt/index.html', entts=paginated_entts)
+    return render_template('entt/index.html', form=search_form, entts=paginated_entts)
 
 
 @admin.route('/event-types', defaults={'page':1}, methods=['GET', 'POST'])

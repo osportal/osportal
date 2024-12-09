@@ -162,7 +162,12 @@ def calculate_days_async():
 @event.route('/calendar', methods=['GET', 'POST'])
 def index():
     form = event_form()
-    public_holidays = current_user.entt.public_holiday_group.holidays
+    ##TODO redo this horrible shit
+    if current_user.entt:
+        public_holidays = current_user.entt.public_holiday_group.holidays
+    else:
+        public_holidays = []
+    ##
     user_events = current_user.pending_or_approved_events()
     settings = calendar_settings()
     calendar_legend()

@@ -12,6 +12,15 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
+{{ forms.search('admin.entts') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if entts.total == 0 %}
+    {% if request.args.get('q') %}
+        <h3>No results found.</h3>
+    {% endif %}
+{% else %}
+
 {% include "actions_btn.html" %}
 
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
@@ -42,9 +51,6 @@
             <a href="{{ url_for('admin.entt_info', id=entt.id) }}">
             {{ entt.name }}
             </a>
-        </td>
-        <td>
-            {{ entt.render(entt.active) }}
         </td>
         <td>
             {{ entt.render(entt.description) }}
@@ -98,6 +104,8 @@
     btn_text="Enable")
 }}
 {% include "partials/confirm_dialog.html" %}
+
+{% endif %}<!-- end if entitlement templates exist -->
 
 {% endblock content %}
 
