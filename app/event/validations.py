@@ -1,4 +1,5 @@
 from app.event.models import EventType
+from app.models import EnttAbsenceTypes
 import datetime
 from flask_login import current_user
 from sqlalchemy import func
@@ -10,8 +11,8 @@ def check_approval(form, field):
     """
     if selected event type requires approval
     make sure user has an authoriser """
-    etype = EventType.query.get(form.etype.data.id)
-    if etype.approval:
+    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
+    if etype.get_approval():
         if not current_user.authoriser:
             raise ValidationError('''This Type requires an authoriser to be
                                   assigned to your profile. Contact administrator.''')
@@ -24,8 +25,8 @@ def check_end_date(form, field):
     if field.data != None:
         if field.data < form.start_date.data:
             raise ValidationError('End Date cannot be earlier than the start date')
-    etype = EventType.query.get(form.etype.data.id)
-    if etype.deductable:
+    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
+    if etype.get_deductable():
         # this will only apply to deductable i.e leave requests
         from flask_login import current_user
         if current_user.leave_year_start:
@@ -68,8 +69,8 @@ def check_allowance(form, field):
             raise StopValidation()
 
     # check available allowance if event type is deductable
-    etype = EventType.query.get(form.etype.data.id)
-    if etype.deductable:
+    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
+    if etype.get_deductable():
         from flask_login import current_user
         requested = (form.end_date.data + datetime.timedelta(days=1))
         requested -= form.start_date.data

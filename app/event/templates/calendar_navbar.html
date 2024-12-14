@@ -8,6 +8,45 @@
 {% set name2 = 'Filter' %}
 
 
+<div class="btn-toolbar" role="group">
+  <div class="btn-group" role="group">
+    <a id="btnGroupDrop1" role="button" href="#" class="btn btn-secondary dropdown-toggle mr-1 mb-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Calendars
+    </a>
+    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+      <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
+      {% if current_user.active_departments | count > 1 %}
+          <hr class="dropdown-divider"></li>
+          <a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a>
+          <hr class="dropdown-divider">
+      {% endif %}
+      {% for dept in current_user.active_departments %}
+          <a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if current_user.events %}
+  <a role="button" href="{{ url_for('event.history') }}" class="btn btn-secondary mr-1 mb-2 {{ is_active('event.history') }}">Event History</a>
+  {% endif %}
+
+  {% if current_user.count_authoriser_requests() %}
+  <a role="button" class="btn btn-secondary {{ is_active('event.authorise') }} mr-1 mb-2" href="{{ url_for('event.authorise') }}">
+      <span>Authorise</span>
+          {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
+          {% if authpendingcount > 0 %}
+              <span class="icon badge badge-danger">{{ authpendingcount }}</span>
+          {% endif %}
+      </span>
+  </a>
+  <a role="button" class="btn btn-secondary {{ is_active('event.authorise_history') }} mr-1 mb-2" href="{{ url_for('event.authorise_history') }}">Auth History</a>
+  {% endif %}
+
+  <a role="button" href="#" onclick="checkAuthoriserExists('#addEventModal')" class="btn btn-primary mr-1 mb-2">Book Time Off</a>
+           
+</div>
+
+<!--
 <ul class="nav nav-tabs"> 
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">Calendars</a>
@@ -15,45 +54,12 @@
             <li>
                 <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
             </li>
-            {% if current_user.active_departments | count > 1 %}
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a></li>
-                <li><hr class="dropdown-divider"></li>
-            {% endif %}
-            {% for dept in current_user.active_departments %}
-                    <li><a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a></li>
-            {% endfor %}
         </ul>
     </li>
-    {% if current_user.events %}
 	<li class="nav-item">
         <a class="nav-link {{ is_active('event.history') }}" href="{{ url_for('event.history') }}">Event History</a></li>
     </li>
-    {% endif %}
     {% if current_user.count_authoriser_requests() %}
-    <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
-                <span class="">Authorise</span>
-                {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
-                {% if authpendingcount > 0 %}
-                    <span class="badge badge-danger authorise-badge">{{ authpendingcount }}</span>
-                {% endif %}
-        </a>
-        <ul class="dropdown-menu">
-            <li>
-                <a class="dropdown-item {{ is_active('event.authorise') }}" href="{{ url_for('event.authorise') }}">
-                    <span class="mr-2">
-                        <span class="text" style="vertical-align: middle;">Pending</span>
-                        {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
-                        {% if authpendingcount > 0 %}
-                            <span class="icon badge badge-danger">{{ authpendingcount }}</span>
-                        {% endif %}
-                    </span>
-                </a>
-            </li>
-            <li><a class="dropdown-item {{ is_active('event.authorise_history') }}" href="{{ url_for('event.authorise_history') }}">History</a></li>
-        </ul>
-    </li>
     {% endif %}
 	<li class="nav-item">
         <a class="nav-link" 
@@ -64,10 +70,8 @@
                 <i class="fas fa-plus mr-1"></i>Add Event
         </a>
     </li>
-    <li>
-        <a id="toggle-calendar" title="Toggle Calendar" class="nav-link" role="button" onclick="hideCalendar()"><i class="bi bi-caret-up-fill"></i></a>
-    </li>
 </ul>
+-->
 <!-- Add Event Modal -->
 <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
 	<div class="modal-dialog">

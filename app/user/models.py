@@ -156,12 +156,9 @@ class User(UserMixin, ResourceMixin):
 
     # Leave Days
     leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
-    annual_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
     used_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
     days_left = db.Column(db.Numeric(precision=4, scale=1), default=0)
     carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    #total_holiday_entitlement = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    #max_carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
 
     # RELATIONSHIPS
     role = db.relationship("Role", foreign_keys=[role_id], backref='user')
@@ -199,7 +196,7 @@ class User(UserMixin, ResourceMixin):
         super(User, self).__init__(**kwargs)
         self.password = User.encrypt_password(kwargs.get('password', ''))
         #self.annual_entitlement = self.country.default_annual_allowance
-        self.days_left = self.annual_entitlement
+        #self.days_left = self.annual_entitlement
 
 
     def __repr__(self):
@@ -308,6 +305,28 @@ class User(UserMixin, ResourceMixin):
             return self.leave_year_start.strftime("%-d %b %Y")
         return self.leave_year_start
 
+    def get_annual_leave_days(self):
+        if self.entt:
+            return self.entt.annual_leave_days
+        return 0
+
+    def get_entt_id(self):
+        if self.entt:
+            return self.entt.id
+        return 0
+
+    def get_absence_types(self):
+        if self.entt:
+            return self.entt.absence_types
+        return []
+
+    def check_public_holidays(self):
+        ##TODO redo this horrible shit
+        if self.entt:
+            return self.entt.public_holiday_group.holidays
+        else:
+            return []
+
 
     @hybrid_property
     def active_departments(self):
@@ -366,11 +385,6 @@ class User(UserMixin, ResourceMixin):
     def authenticated(self, with_password=True, password=''):
         """
         Ensure a user is authenticated, and optionally check their password.
-        :param with_password: Optionally check their password
-        :type with_password: bool
-        :param password: Optionally verify this as their password
-        :type password: str
-        :return: bool
         """
         if with_password:
             return check_password_hash(self.password, password)
@@ -386,19 +400,11 @@ class User(UserMixin, ResourceMixin):
     def is_last_admin(cls, user):
         """
         Determine whether or not this user is the last admin account.
-
-        :param user: User being tested
-        :type user: User
-        :param new_role: New role being set
-        :type new_role: str
-        :param new_active: New active status being set
-        :type new_active: bool
-        :return: bool
         """
         if user.role:
             if user.role.superuser:
                 admin_count = User.query.join(Role) \
-                                .filter(Role.superuser == True 
+                                .filter(Role.superuser == True
                                         and User.active == True) \
                                 .count()
                 if admin_count == 1:
@@ -455,7 +461,6 @@ class User(UserMixin, ResourceMixin):
 
     def is_active(self):
         return self.active
-
 
     def paginated_events(self, page):
         sort_by = Event.sort_by(request.args.get('sort', 'start_date'),
@@ -563,7 +568,7 @@ class User(UserMixin, ResourceMixin):
 
     def display_leave_allowance(self):
         columns = [
-            [self.annual_entitlement, 'Annual Entitlement'],
+            [self.get_annual_leave_days(), 'Annual Entitlement'],
             [self.carry_over_days, 'Days Carried Over From Last Year'],
             [self.used_days,'Used and Authorised Days'],
             [self.days_left, 'Days Left']

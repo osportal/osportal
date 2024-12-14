@@ -1,3 +1,4 @@
+from app.models import EnttAbsenceTypes
 from app.event.models import EventType
 from app.event.validations import (check_end_date,
                                    check_leave_year_start,
@@ -6,6 +7,7 @@ from app.event.validations import (check_end_date,
                                    )
 import datetime
 from flask_admin.form.widgets import Select2Widget
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import (Form, StringField, SubmitField, TextAreaField, BooleanField)
 from wtforms.fields import DateField as DatePickerField
@@ -23,8 +25,8 @@ class EventForm(FlaskForm):
                                validators=[check_end_date, DataRequired()]
                                )
     etype = QuerySelectField('Event Type',
-                             query_factory = lambda: EventType.query.filter(EventType.active==True).all(),
-                             get_pk=lambda et: et.id, widget=Select2Widget(),
+                             query_factory = lambda: EnttAbsenceTypes.query.filter(EnttAbsenceTypes.entt_id==current_user.get_entt_id()).all(),
+                             get_pk=lambda eat: eat.absence_type_id, widget=Select2Widget(),
                              allow_blank=False,
                              validators=[DataRequired(), check_approval],
                              render_kw={"id": "event-type-select"}

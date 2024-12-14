@@ -9,7 +9,7 @@ $("#departments").select2({
     width: '100%'
 });
 */
-$("#approvers,#members,#department,#permissions").select2({
+$("#approvers,#members,#department,#absence_types,#permissions").select2({
     multiple: true,
     tags: true,
     width: '100%'

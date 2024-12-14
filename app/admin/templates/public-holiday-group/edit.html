@@ -35,6 +35,9 @@
   {% call f.form_group(form.country, css_class='sm-margin-bottom') %}
   {% endcall %}
 
+  {% call f.colour_field(form.colour) %}
+  {% endcall %}
+
   <div class="row">
     <div class="col">
         <button type="submit" class="btn btn-primary btn-block">
@@ -64,6 +67,9 @@
         {% endcall %}
 
         {% call f.form_group(form.country, css_class='sm-margin-bottom') %}
+        {% endcall %}
+
+        {% call f.colour_field(form.colour) %}
         {% endcall %}
 
       <hr/>

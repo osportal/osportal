@@ -182,7 +182,6 @@ input[type=checkbox].css-checkbox:checked + label.css-label {
     background-color: #ffffff;
     padding: 20px;
     margin-bottom: 30px;
-    border-top: 5px solid orange;
 }
 /*for 'today' color in fullcalendarjs*/
 .fc-day-today {

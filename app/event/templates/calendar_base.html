@@ -49,6 +49,7 @@
     const submitBtn = document.querySelector('#submitRequestBtn');
     const halfDay = document.getElementById("half_day");
     var eventTypeId = selectType.value;
+    console.log(eventTypeId);
 
     function validateHalfDay() {
         endDate = document.getElementById("end_date");
@@ -94,15 +95,26 @@
         }
     }
     // function calls are here because of a page refresh
-    calculateDays();
-    if (halfDay) {
-        validateHalfDay();
-        document.getElementById('half_day').onchange = function(){
+    if (checkAbsenceType()){
+        calculateDays();
+        if (halfDay) {
             validateHalfDay();
-        };
+            document.getElementById('half_day').onchange = function(){
+                validateHalfDay();
+            };
+        }
     }
 
 
+    function checkAbsenceType(){
+        absenceTypeId = selectType.value;
+        if(absenceTypeId === ''){
+            document.getElementById('calculate-days-val').innerHTML = 'Please select an absence type';
+            return false;
+        } else {
+            return true;
+        }
+    }
     function disableSubmitBtn(){
         // set Timeout used here for compatibility with Chrome + Safari
         setTimeout(function() {
@@ -123,15 +135,22 @@
         }, 0);
           // Custom logic
     });
+
     document.getElementById('start_date').onchange = function(){
-        calculateDays();
+        if (checkAbsenceType()){
+            calculateDays();
+        }
     };
     document.getElementById('end_date').onchange = function(){
-        calculateDays();
+        if (checkAbsenceType()){
+            calculateDays();
+        }
     };
     selectType.onchange = function(){
         eventTypeId = this.value;
-        calculateDays();
+        if (checkAbsenceType()){
+            calculateDays();
+        }
     };
     {% if form.errors %}
         $('#addEventModal').modal('show');
@@ -147,8 +166,9 @@
             editable: true,
             themeSystem: '{{ theme }}',
             headerToolbar: { 
-                left: '{{ left_view }}',
-                center: '{{ center_view }}',
+                left: '{{ today_view }}',
+                center: '{{ title_view }}',
+                right: '{{ grid_view }}'
             },
             initialView: '{{ initial_view }}',
             duration: { days: `{{ duration_days }}` },
@@ -179,7 +199,7 @@
                         details: `
                         {{ e.start_date.strftime("%-d %b, %Y") }}
                         <div>
-                            Public Holiday for {{ e.country }}
+                            Public Holiday for {{ e.group.country }}
                         </div>`
                     },
                     backgroundColor: '{{ public_hol_colour }}',

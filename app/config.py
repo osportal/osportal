@@ -25,9 +25,8 @@ if not env('IGNORE_ENV_FILE', default=False):
 
 
 DEBUG = env('DEBUG', default=True)
-if DEBUG:
-    TESTING = env('TESTING', default=True) # If set to True, emails will be suppressed
-    DEBUG_TB_INTERCEPT_REDIRECTS = env('DEBUG_TB_INTERCEPT_REDIRECTS', default=False)
+SERVER_NAME = env('SERVER_NAME', default='localhost:8002')
+DEBUG_TB_INTERCEPT_REDIRECTS = env('DEBUG_TB_INTERCEPT_REDIRECTS', default=False)
 
 SESSION_COOKIE_SECURE=env('SESSION_COOKIE_SECURE', default=True)
 REMEMBER_COOKIE_SECURE=env('REMEMBER_COOKIE_SECURE', default=True)

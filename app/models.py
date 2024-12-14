@@ -1,7 +1,9 @@
 from app.extensions import db
 from app.utils.util_sqlalchemy import ResourceMixin, StripStr
+from app.event.models import EventType
 import datetime
 from sqlalchemy import or_
+from sqlalchemy.ext.hybrid import hybrid_property
 import sqlalchemy
 
 
@@ -34,18 +36,64 @@ def get_class_by_tablename(tablename):
                 return c
 
 
+class EnttAbsenceTypes(ResourceMixin):
+    __tablename__ = 'entt_absence_types'
+    id = db.Column(db.Integer, nullable=True) # used in import zip job
+    absence_type_id = db.Column(db.Integer, db.ForeignKey('event_type.id',
+                                                  onupdate='CASCADE',
+                                                  ondelete='CASCADE'),
+                                index=True, primary_key=True)
+    entt_id = db.Column(db.Integer,
+                        db.ForeignKey('entt.id',
+                                      onupdate='CASCADE',
+                                      ondelete='CASCADE'),
+                        index=True, primary_key=True)
+
+    def __repr__(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return f'{absence_type.name}'
+
+    def get_deductable(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return absence_type.deductable
+
+    def get_approval(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return absence_type.approval
+
+    def get_max_days(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return absence_type.max_days
+
+    def get_hex_colour(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return absence_type.hex_colour
+
+    @hybrid_property
+    def name(self):
+        absence_type = EventType.query.get(self.absence_type_id)
+        return absence_type.name
+
+
 # Entitlement Template
 class Entt(ResourceMixin):
     __tablename__ = 'entt'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), unique=True, nullable=False)
     description = db.Column(db.String(300), nullable=True)
+    #TODO need nullable changing to False
+    annual_leave_days = db.Column(db.Integer, nullable=True, default=0)
+    max_carryover_days = db.Column(db.Integer, nullable=True, default=0)
+    max_carryover_hours = db.Column(db.Integer, nullable=True, default=0)
+    #enable_weekends
+    #enable_half_days
 
     ph_group_id = db.Column(db.Integer,
                             db.ForeignKey('public_holiday_group.id'),
                             nullable=True)
     public_holiday_group = db.relationship("PublicHolidayGroup",
                                            foreign_keys=[ph_group_id])
+    absence_types = db.relationship('EventType', secondary='entt_absence_types', backref='entt', lazy='dynamic', uselist=True)
 
     def __repr__(self):
         return self.name
@@ -81,8 +129,6 @@ class Country(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(StripStr(5), unique=True)
     name = db.Column(StripStr(100), unique=True, nullable=False)
-    default_annual_allowance = db.Column(db.Integer, nullable=True, default=25)#TODO need nullable changing to False
-    max_carry_over_days = db.Column(db.Integer, nullable=True, default=10)
 
     def __repr__(self):
         return self.name
@@ -104,6 +150,7 @@ class PublicHolidayGroup(ResourceMixin):
     description = db.Column(db.Text, nullable=True)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
     country = db.relationship("Country", foreign_keys=[country_id])
+    colour = db.Column(db.String(10), nullable=False, default='#e10078')
     holidays = db.relationship('PublicHoliday', backref='group',
                                primaryjoin='PublicHolidayGroup.id==PublicHoliday.group_id',
                                cascade='delete',

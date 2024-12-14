@@ -39,12 +39,12 @@ services:
     tty: true
     networks:
       - network
+    env_file: .env
     environment:
       POSTGRES_HOST: 'postgres'
       POSTGRES_USER: 'postgres'
       POSTGRES_PASSWORD: 'devpassword'
       POSTGRES_DB: 'osportaldb'
-      TESTING: False
     depends_on:
       - postgres
       - redis

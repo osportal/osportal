@@ -56,8 +56,26 @@
         	<div>{{ entt.description }}</div>
         </div>
         <div class="mb-2">
+        	<div><strong>Default Annual Leave Days</strong></div>
+        	<div>{{ entt.annual_leave_days }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Maximum Carry Over Days</strong></div>
+        	<div>{{ entt.max_carryover_days }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Maximum Carry Over Hours</strong></div>
+        	<div>{{ entt.max_carryover_hours }}</div>
+        </div>
+        <div class="mb-2">
         	<div><strong>Public Holiday Group</strong></div>
         	<div>{{ entt.public_holiday_group }}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Absence Types Enabled</strong></div>
+            {% for type in entt.absence_types %}
+        	<div>{{ type }}</div>
+            {% endfor %}
         </div>
     </div>
   </div>

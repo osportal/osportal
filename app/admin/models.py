@@ -47,8 +47,7 @@ class Settings(ResourceMixin):
     weekend = db.Column(db.Boolean, nullable=False, default=False)
     half_day = db.Column(db.Boolean, nullable=False, default=True)
     pending_colour = db.Column(StripStr(10), nullable=False, default='#eb5009')
-    declined_colour = db.Column(StripStr(10), nullable=False, default='#000000')
-    public_holiday_colour = db.Column(StripStr(10), nullable=False, default='#e10078')
+    #declined_colour = db.Column(StripStr(10), nullable=False, default='#000000')
 
     # Pagination
     items_per_admin_page = db.Column(db.Integer, nullable=False, default=50)

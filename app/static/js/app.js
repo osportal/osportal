@@ -104,11 +104,6 @@ function check_overview_status(endpoint, notification, running, not_running) {
         });
 }
 
-function hideCalendar(){
-    $("#calendar-container").toggle();
-}
-
-
 function checkAuthoriserExists(target){
     $(target).modal('show');
 }

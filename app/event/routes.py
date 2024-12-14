@@ -4,6 +4,7 @@ from app.extensions import db
 from app.event.decorators import check_authoriser_access
 from app.event.forms import EventForm, EventHalfDayForm, EventDenyForm
 from app.event.models import Event, EventType
+from app.models import EnttAbsenceTypes
 from app.user.models import User
 
 import datetime
@@ -39,14 +40,15 @@ def calendar_settings():
         'theme': 'bootstrap',
         'duration_days': 1,
         'weekends': str(get_settings_value('weekend')).lower(), #str(current_app.config["ENABLE_WEEKENDS"]).lower(),
-        'left_view': 'dayGridMonth,dayGridWeek,dayGridDay',
-        'center_view': 'title',
+        'title_view': 'title',
+        'grid_view': 'dayGridMonth,dayGridWeek,dayGridDay',
+        'today_view': 'today,prev,next',
         #'initial_view':  'multiMonthYear',
         'initial_view':  'dayGridMonth',
         'display_event_time': 'false',
         'event_types': calendar_legend(),
         'pending_colour': get_settings_value('pending_colour'),
-        'public_hol_colour': get_settings_value('public_holiday_colour')
+        'public_hol_colour': current_user.entt.public_holiday_group.colour
     }
     return params
 
@@ -59,7 +61,7 @@ def event_form(obj=None):
 
 
 def is_halfday_business_day(date, user):
-    public_holidays = [str(x.start_date.date()) for x in user.country.holidays]
+    public_holidays = [str(x.start_date.date()) for x in user.check_public_holidays()]
     # Define a list of weekend days (Saturday and Sunday)
     weekend_days = [5, 6]  # Monday is 0 and Sunday is 6
     # Initialize a counter for business days
@@ -74,7 +76,7 @@ def is_halfday_business_day(date, user):
 
 
 def count_business_days(start_date, end_date, user):
-    public_holidays = [str(x.start_date.date()) for x in user.country.holidays]
+    public_holidays = [str(x.start_date.date()) for x in user.check_public_holidays()]
     # Define a list of weekend days (Saturday and Sunday)
     weekend_days = [5, 6]  # Monday is 0 and Sunday is 6
     # Initialize a counter for business days
@@ -111,8 +113,8 @@ def calculate_requested_days(form, event, user):
 @event.route('/get-etype-deductable', methods=['GET', 'POST'])
 def get_etype_deductable():
     id = request.args.get('event-type-id')
-    etype = EventType.query.get(id)
-    return jsonify({'deduct': f'{etype.deductable}', 'max_days': f'{etype.max_days}'})
+    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==id).first()
+    return jsonify({'deduct': f'{etype.get_deductable()}', 'max_days': f'{etype.get_max_days()}'})
 
 
 @event.route('/calculate-days-async', methods=['GET', 'POST'])
@@ -162,35 +164,35 @@ def calculate_days_async():
 @event.route('/calendar', methods=['GET', 'POST'])
 def index():
     form = event_form()
-    ##TODO redo this horrible shit
-    if current_user.entt:
-        public_holidays = current_user.entt.public_holiday_group.holidays
-    else:
-        public_holidays = []
-    ##
+    public_holidays = current_user.check_public_holidays()
     user_events = current_user.pending_or_approved_events()
     settings = calendar_settings()
     calendar_legend()
     try:
         if form.validate_on_submit():
             event = Event()
+            form.populate_obj(event)
             requested = calculate_requested_days(form, event, current_user)
             #TODO move Error handling to separate function
-            etype = EventType.query.get(form.etype.data.id)
-            if requested > etype.max_days:
+            etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
+            orig_event_type = EventType.query.get(etype.absence_type_id)
+            if requested > etype.get_max_days():
                 abort(400, 'Exceeds the maximum length of days you can \
                       request in one occurrence')
-            if etype.deductable:
+            print("post requested")
+            if etype.get_deductable():
                 if not current_user.days_left:
                     abort(400)
                 if requested > current_user.days_left:
                     abort(400, 'Not enough allowance for this request')
-            form.populate_obj(event)
+            print("post deduct")
             event.user_id=current_user.id
-            event.etype_id=form.etype.data.id
+            event.etype_id=form.etype.data.absence_type_id
             event.days = requested
             event.save()
+            print("post save")
             Event.initialize_event_request(event)
+            print("post initialize")
             flash(f'Your request has been submitted', 'success')
             return redirect(url_for('event.index'))
     except Exception as e:
@@ -205,7 +207,7 @@ def index():
 
 @event.route('/calendar/departments', methods=['GET', 'POST'])
 def departments():
-    public_holidays = current_user.country.holidays
+    public_holidays = current_user.check_public_holidays()
     settings = calendar_settings()
     form = event_form()
     return render_template('all_departments_calendar.html',
@@ -218,7 +220,7 @@ def departments():
 
 @event.route('/calendar/departments/<int:id>', methods=['GET', 'POST'])
 def department(id):
-    public_holidays = current_user.country.holidays
+    public_holidays = current_user.check_public_holidays()
     settings = calendar_settings()
     form = event_form()
     # avoid circular import
@@ -329,7 +331,7 @@ def approve(id):
     if event.status == 'Approved':
         abort(403) # TODO we don't want event to be approved again if already approved
     try:
-        if event.etype.deductable == True:
+        if event.etype.get_deductable() == True:
             if event.days > event.user.days_left:
                 raise Exception('User does not have enough allowance for this request')
             event.user.deduct_leave_days(event.days)
@@ -370,7 +372,7 @@ def revoke(id):
             event.status = 'Revoked'
             event.status_details = form.status_details.data
             event.actioned_by=current_user
-            if event.etype.deductable == True:
+            if event.etype.get_deductable() == True:
                 event.user.reinstate_allowance_days(event.days)
             event.save()
         except Exception as e:

@@ -2,7 +2,7 @@ from app.admin.models import Settings, Email
 from app.department.models import Department, DepartmentMembers
 from app.department.validations import check_dept_exists
 from app.extensions import db
-from app.event.models import Event
+from app.event.models import Event, EventType
 from app.event.validations import check_et_exists
 from app.models import (Country, Entt,
                         PublicHoliday, PublicHolidayGroup, Site)
@@ -79,8 +79,6 @@ class CountryForm(ModelForm):
     name = StringField(validators=[DataRequired(),
                                    check_country_exists,
                                    Length(1, 100)])
-    default_annual_allowance = IntegerField('Default Annual Entitlement', validators=[DataRequired(), NumberRange(min=0,max=100)])
-    max_carry_over_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired(), NumberRange(min=0, max=100)])
 
 
 class PublicHolidayGroupForm(ModelForm):
@@ -88,6 +86,7 @@ class PublicHolidayGroupForm(ModelForm):
     description = TextAreaField('Description', validators=[Optional(), Length(min=2, max=500)])
     country = QuerySelectField('Country', query_factory=lambda: Country.query.order_by(Country.name.asc()).all(),
                                widget=Select2Widget(), allow_blank=True, validators=[DataRequired()])
+    colour = StringField('Colour', widget=ColorInput())
 
 class PublicHolidayYearForm(ModelForm):
     year = SelectField("Filter by Year", choices=[], render_kw={'id': 'year_filter'})
@@ -144,7 +143,6 @@ class NewUserForm(UserForm):
 
     # Leave
     leave_year_start = DateField('Leave Year Start', validators=[Optional()])
-    annual_entitlement = DecimalField('Annual Entitlement', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     carry_over_days = DecimalField('Carried Over Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     used_days = DecimalField('Used Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     days_left = DecimalField('Days Left', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
@@ -241,11 +239,18 @@ class EnttForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_entt_exists])
     active = BooleanField('Active')
     description = StringField('Description', validators=[Optional(), Length(2,300)])
+    annual_leave_days = IntegerField('Annual Leave Entitlement', validators=[DataRequired()])
+    max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired()])
+    max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[DataRequired()])
+
     public_holiday_group = QuerySelectField('Public Holiday Group',
                                             query_factory=lambda: PublicHolidayGroup.query.all(),
                                             widget=Select2Widget(),
                                             allow_blank=True,
                                             validators=[Optional()])
+    absence_types = QuerySelectMultipleField('Absence Types', query_factory=lambda: EventType.query.filter(EventType.active).all(),
+                                             get_pk=lambda a: a.id, widget=Select2Widget(), allow_blank=True,
+                                             render_kw={"multiple": "multiple"}, validators=[DataRequired()])
 
 
 class EventTypeSettingsForm(ModelForm):
@@ -314,8 +319,6 @@ class SettingsForm(FlaskForm):
     weekend =BooleanField('Enable Weekends')
     half_day = BooleanField('Enable Half Days')
     pending_colour = StringField('Pending Colour', widget=ColorInput())
-    declined_colour = StringField('Declined Colour', widget=ColorInput())
-    public_holiday_colour = StringField('Public Holiday Colour', widget=ColorInput())
 
 
 class EmailForm(FlaskForm):

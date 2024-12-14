@@ -41,8 +41,8 @@ class Event(ResourceMixin):
     end_date = db.Column(db.DateTime, nullable=False)
     half_day = db.Column(db.Boolean)
     days = db.Column(db.Numeric(precision=4, scale=1))
-    etype_id = db.Column(db.Integer, db.ForeignKey('event_type.id'), nullable=True)
-    etype = db.relationship('EventType', foreign_keys=[etype_id])
+    etype_id = db.Column(db.Integer, db.ForeignKey('entt_absence_types.absence_type_id'), nullable=True)
+    etype = db.relationship('EnttAbsenceTypes', foreign_keys=[etype_id])
     details = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     actioned_by = db.relationship('User', secondary='event_actioned', backref='actioned_events', lazy='select', uselist=False)
@@ -61,11 +61,8 @@ class Event(ResourceMixin):
         from app.admin.utils import get_settings_value
         if self.status == 'Pending':
             return get_settings_value('pending_colour')
-        elif self.status == 'Declined':
-            return '#000000'
-            return get_settings_value('declined_colour')
         else:
-            return self.etype.hex_colour
+            return self.etype.get_hex_colour()
 
     def full_calendar_add_one_day(self):
         return self.end_date + datetime.timedelta(days=1)
@@ -76,9 +73,9 @@ class Event(ResourceMixin):
 
     @classmethod
     def initialize_event_request(cls, event):
-        if event.etype.approval == True:
+        if event.etype.get_approval() == True:
             from app.email import send_event_request_email
             send_event_request_email.delay(event.id)
-        elif event.etype.approval == False:
+        elif event.etype.approval() == False:
             event.status = 'Approved'
             return event.save()

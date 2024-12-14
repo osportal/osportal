@@ -127,9 +127,6 @@
                     {% call f.form_group(form.department, css_class='sm-margin-bottom') %}
                     {% endcall %}
                     
-                    {% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
-                    {% endcall %}
-
                     {% call f.form_group(form.job_title, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
@@ -143,10 +140,11 @@
                         {% call f.form_group(form.entt, css_class='sm-margin-bottom') %}
                         {% endcall %}
 
-                    	{% call f.form_group(form.leave_year_start, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                        {% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
+                        {% endcall %}
 
-                    	{% call f.form_group(form.annual_entitlement, css_class='sm-margin-bottom') %}
+
+                    	{% call f.form_group(form.leave_year_start, css_class='sm-margin-bottom') %}
                     	{% endcall %}
 
                     	{% call f.form_group(form.carry_over_days, css_class='sm-margin-bottom') %}

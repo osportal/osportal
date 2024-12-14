@@ -37,6 +37,12 @@
           <th class="col-header">
               {{ items.sort('description') }}
           </th>
+          <th class="col-header">
+              {{ items.sort('Public Holiday Group') }}
+          </th>
+          <th class="col-header">
+              {{ items.sort('Number of Absence Types') }}
+          </th>
         </tr>
     </thead>
     <tbody>
@@ -53,7 +59,13 @@
             </a>
         </td>
         <td>
-            {{ entt.render(entt.description) }}
+            {{ entt.description }}
+        </td>
+        <td>
+            {{ entt.public_holiday_group }}
+        </td>
+        <td>
+            {{ entt.absence_types.count() }}
         </td>
         <td>
             {% if current_user.permission('admin.entt', crud='update') %}

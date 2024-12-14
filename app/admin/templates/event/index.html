@@ -54,7 +54,7 @@
             {{ event.user }}
         </td>
         <td>
-            {{ event.etype.name }}
+            {{ event.etype }}
         </td>
         <td>
             {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}
