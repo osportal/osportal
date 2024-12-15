@@ -8,7 +8,9 @@
 
 Make sure both [docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/) are installed.
 
-In order to install and launch the server, simply run `docker-compose up -d` in the same directory as the docker-compose.yml file
+1. Create a blank .env file. You can modify it to your liking.
+
+2. Run `docker-compose up -d` to install and launch the services.
 
 The site will be running on `localhost:8002`
 
