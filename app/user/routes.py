@@ -6,7 +6,6 @@ from app.admin.forms import SearchForm
 from app.posts.models import Post, Comment
 from app.user.auth import auth_user_db
 from app.user.decorators import (anonymous_required,
-                                 registration_enabled,
                                  forgot_password_enabled
                                  )
 from app.user.models import User, Notification
@@ -39,7 +38,6 @@ def before_request():
 def login():
     next_url = request.args.get('next')
     form = LoginForm()
-    register = get_settings_value('user_registration')
     forgot = get_settings_value('forgot_password')
     if form.validate_on_submit():
         next_url = request.form['next']
@@ -59,28 +57,7 @@ def login():
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('login.html', form=form, register=register, forgot=forgot)
-
-
-@user.route('/register', methods=['GET', 'POST'])
-@registration_enabled()
-@anonymous_required()
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-    user = User()
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        form.populate_obj(user)
-        user.password = User.encrypt_password(form.password.data)
-        role = get_settings_value('reg_user_role')
-        country = get_settings_value('reg_user_country')
-        user.role = role
-        user.country = country
-        user.save()
-        flash(f'User successfully registered', 'success')
-        return redirect(url_for('user.login'))
-    return render_template('register.html', form=form)
+    return render_template('login.html', form=form, forgot=forgot)
 
 
 @user.route('/logout')

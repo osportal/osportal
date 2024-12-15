@@ -47,7 +47,6 @@ class Settings(ResourceMixin):
     weekend = db.Column(db.Boolean, nullable=False, default=False)
     half_day = db.Column(db.Boolean, nullable=False, default=True)
     pending_colour = db.Column(StripStr(10), nullable=False, default='#eb5009')
-    #declined_colour = db.Column(StripStr(10), nullable=False, default='#000000')
 
     # Pagination
     items_per_admin_page = db.Column(db.Integer, nullable=False, default=50)
@@ -60,11 +59,6 @@ class Settings(ResourceMixin):
 
     # Auth
     auth_type = db.Column(db.String(20), nullable=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
-    reg_user_role = db.relationship('Role', foreign_keys=[role_id], backref='settings')
-    reg_user_country = db.relationship('Country', foreign_keys=[country_id], backref='settings')
-    user_registration = db.Column(db.Boolean, nullable=True, default=False)
 
     #Email
     alert_email_id = db.Column(db.Integer, db.ForeignKey('email.id'), nullable=True)
