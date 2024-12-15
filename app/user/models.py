@@ -1,7 +1,7 @@
 from app.admin.utils import get_settings_value
 from app.extensions import db
 from app.models import get_class_by_tablename
-from app.event.models import Event
+from app.leave.models import Leave
 from app.posts.models import Comment
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
@@ -167,7 +167,7 @@ class User(UserMixin, ResourceMixin):
                                  remote_side=id,
                                  backref=db.backref('lauthoriser', lazy='dynamic')
                                  )
-    events = db.relationship('Event',
+    leaves = db.relationship('Leave',
                              backref='user',
                              cascade='delete',
                              lazy=True)
@@ -315,17 +315,17 @@ class User(UserMixin, ResourceMixin):
             return self.entt.id
         return 0
 
-    def get_absence_types(self):
+    def get_leave_types(self):
         if self.entt:
-            return self.entt.absence_types
+            return self.entt.leave_types
         return []
 
     def check_public_holidays(self):
         ##TODO redo this horrible shit
         if self.entt:
-            return self.entt.public_holiday_group.holidays
-        else:
-            return []
+            if self.entt.public_holiday_group:
+                return self.entt.public_holiday_group.holidays
+        return []
 
 
     @hybrid_property
@@ -338,16 +338,16 @@ class User(UserMixin, ResourceMixin):
         return depts
 
 
-    def all_departments_events(self):
+    def all_departments_leaves(self):
         from app.department.models import Department, DepartmentMembers
-        events = db.session.query(Event) \
+        leaves = db.session.query(Leave) \
                 .join(User) \
                 .join(Department, User.department) \
                 .filter(Department.active,
                         DepartmentMembers.user_id==self.id,
-                        Event.status!='Declined',
-                        Event.status!='Revoked')
-        return events.all()
+                        Leave.status!='Declined',
+                        Leave.status!='Revoked')
+        return leaves.all()
 
     @classmethod
     def find_by_identity(cls, identity):
@@ -462,23 +462,23 @@ class User(UserMixin, ResourceMixin):
     def is_active(self):
         return self.active
 
-    def paginated_events(self, page):
-        sort_by = Event.sort_by(request.args.get('sort', 'start_date'),
+    def paginated_leaves(self, page):
+        sort_by = Leave.sort_by(request.args.get('sort', 'start_date'),
                                request.args.get('direction', 'desc'))
         order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
-        events = Event.query \
-                .filter(Event.user_id==self.id) \
+        leaves = Leave.query \
+                .filter(Leave.user_id==self.id) \
                 .order_by(text(order_values)) \
-                .paginate(page, get_settings_value('events_per_page'), False)
-        return events
+                .paginate(page, get_settings_value('leaves_per_page'), False)
+        return leaves
 
-    def pending_or_approved_events(self):
-        events = Event.query \
-                .filter(Event.user==self,
-                        Event.status!='Declined',
-                        Event.status!='Revoked') \
+    def pending_or_approved_leaves(self):
+        leaves = Leave.query \
+                .filter(Leave.user==self,
+                        Leave.status!='Declined',
+                        Leave.status!='Revoked') \
                 .all()
-        return events
+        return leaves
 
     def is_authoriser(self):
         """ check if user is an authoriser to anyone else """
@@ -487,26 +487,26 @@ class User(UserMixin, ResourceMixin):
         return False
 
     def count_authoriser_requests(self):
-        events = db.session.query(Event).join(User) \
+        leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self) \
                 .count()
-        return events
+        return leaves
 
     def pending_authoriser_requests(self):
-        events = db.session.query(Event).join(User) \
-                .filter(User.authoriser==self, Event.status=='Pending')
-        return events
+        leaves = db.session.query(Leave).join(User) \
+                .filter(User.authoriser==self, Leave.status=='Pending')
+        return leaves
 
     def paginated_pending_authoriser_requests(self, page):
-        events = self.pending_authoriser_requests() \
-                .paginate(page, get_settings_value('events_per_page'), False)
-        return events
+        leaves = self.pending_authoriser_requests() \
+                .paginate(page, get_settings_value('leaves_per_page'), False)
+        return leaves
 
     def paginated_actioned_authoriser_requests(self, page):
-        events = db.session.query(Event).join(User) \
-                .filter(User.authoriser==self, Event.status!='Pending') \
-                .paginate(page, get_settings_value('events_per_page'), False)
-        return events
+        leaves = db.session.query(Leave).join(User) \
+                .filter(User.authoriser==self, Leave.status!='Pending') \
+                .paginate(page, get_settings_value('leaves_per_page'), False)
+        return leaves
 
     @classmethod
     def calculate_leave_days(cls):

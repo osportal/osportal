@@ -46,7 +46,7 @@
 <div class="row">
   <div class="col-md-5 well">
     <div class="form-group">
-        <!-- Event Type Settings -->
+        <!-- Leave Type Settings -->
         <div class="mb-2">
         	<div><strong>Name</strong></div>
         	<div>{{ entt.name }}</div>
@@ -72,8 +72,8 @@
         	<div>{{ entt.public_holiday_group }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Absence Types Enabled</strong></div>
-            {% for type in entt.absence_types %}
+        	<div><strong>Leave Types Enabled</strong></div>
+            {% for type in entt.leave_types %}
         	<div>{{ type }}</div>
             {% endfor %}
         </div>

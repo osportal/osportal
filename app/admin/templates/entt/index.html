@@ -41,7 +41,7 @@
               {{ items.sort('Public Holiday Group') }}
           </th>
           <th class="col-header">
-              {{ items.sort('Number of Absence Types') }}
+              {{ items.sort('Number of Leave Types') }}
           </th>
         </tr>
     </thead>
@@ -65,7 +65,7 @@
             {{ entt.public_holiday_group }}
         </td>
         <td>
-            {{ entt.absence_types.count() }}
+            {{ entt.leave_types.count() }}
         </td>
         <td>
             {% if current_user.permission('admin.entt', crud='update') %}

@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.event.models import Event
+from app.leave.models import Leave
 from app.user.models import User
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from sqlalchemy import or_
@@ -37,13 +37,13 @@ class Department(ResourceMixin):
     def __repr__(self):
         return self.name
 
-    def get_member_events(self):
-        events = db.session.query(Event).join(User) \
+    def get_member_leaves(self):
+        leaves = db.session.query(Leave).join(User) \
                 .filter(DepartmentMembers.user_id==User.id,
                         DepartmentMembers.department_id==self.id,
-                        Event.status!='Declined',
-                        Event.status!='Revoked')
-        return events.all()
+                        Leave.status!='Declined',
+                        Leave.status!='Revoked')
+        return leaves.all()
 
     @classmethod
     def search(cls, query):

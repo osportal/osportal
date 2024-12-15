@@ -1,6 +1,6 @@
 from app.models import Country, Entt, PublicHolidayGroup, Site
 from app.department.models import Department
-from app.event.models import EventType
+from app.leave.models import LeaveType
 from app.pages.models import Page
 from app.posts.models import Post
 from app.user.models import db, User, Role, Permission
@@ -56,7 +56,7 @@ class Settings(ResourceMixin):
     users_per_page = db.Column(db.Integer, nullable=False, default=25)
     departments_per_page = db.Column(db.Integer, nullable=False, default=25)
     notifications_per_page = db.Column(db.Integer, nullable=False, default=25)
-    events_per_page = db.Column(db.Integer, nullable=False, default=25)
+    leaves_per_page = db.Column(db.Integer, nullable=False, default=25)
 
     # Auth
     auth_type = db.Column(db.String(20), nullable=True)
@@ -118,8 +118,8 @@ class Dashboard(object):
         return Dashboard._group_and_count(Entt, Entt.name)
 
     @classmethod
-    def group_and_count_event_types(cls):
-        return Dashboard._group_and_count(EventType, EventType.active)
+    def group_and_count_leave_types(cls):
+        return Dashboard._group_and_count(LeaveType, LeaveType.active)
 
     @classmethod
     def group_and_count_pages(cls):

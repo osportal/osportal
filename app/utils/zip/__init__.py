@@ -115,7 +115,7 @@ def import_zipfile(backup, erase=True):
     side_db = dataset.connect(current_app.config["SQLALCHEMY_DATABASE_URI"])
     first = [
         "db/page.json",
-        "db/event_type.json",
+        "db/leave_type.json",
         "db/country.json",
         "db/public_holiday.json",
         "db/settings.json",
@@ -126,8 +126,8 @@ def import_zipfile(backup, erase=True):
         "db/notification.json",
         "db/post.json",
         "db/comment.json",
-        "db/event.json",
-        "db/event_actioned.json",
+        "db/leave.json",
+        "db/leave_actioned.json",
     ]
     # Upgrade the database to the point in time that the import was taken from
     #migration_upgrade(revision=alembic_version)

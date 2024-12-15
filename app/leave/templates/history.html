@@ -2,9 +2,9 @@
 {%- import "macros/pagination.html" as items -%}
 {% import 'macros/form.html' as f with context %}
 
-{% block title %}Event History{% endblock title %}
+{% block title %}Leave History{% endblock title %}
 
-{% set delete_endpoint = 'event.delete' %}
+{% set delete_endpoint = 'leave.delete' %}
 
 {% block calendar_content %}
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
@@ -13,7 +13,7 @@
         <thead class="thead">
             <tr>
                 <th scope="col">
-                    {{ items.sort('etype', 'Type') }}
+                    {{ items.sort('ltype', 'Type') }}
                 </th>
                 <th scope="col">
                     {{ items.sort('start_date', 'Start Date') }}
@@ -32,50 +32,50 @@
             </tr>
         </thead>
         <tbody>
-        {% for event in events.items %}
+        {% for leave in leaves.items %}
         <tr>
             <td>
-                {{ event.etype }}
+                {{ leave.ltype }}
             </td>
             <td>
-                {{ event.start_date.strftime("%-d %b %Y") }}
+                {{ leave.start_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ event.end_date.strftime("%-d %b %Y") }}
+                {{ leave.end_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ event.num_days }} days
+                {{ leave.num_days }} days
             </td>
             <td>
-                {{ event.status }}
+                {{ leave.status }}
             </td>
             <td>
-                {% if event.status == 'Pending' %}
+                {% if leave.status == 'Pending' %}
                 <div class="btn-toolbar" style="flex-wrap: unset !important;">
-                    <a class="btn btn-sm btn-primary m-1" href="{{ url_for('event.edit', id=event.id) }}">Edit</a>
-                    <a class="btn btn-sm btn-danger m-1" href="#" data-target="#deleteEventModal-{{event.id}}" data-toggle="modal">Delete</a>
+                    <a class="btn btn-sm btn-primary m-1" href="{{ url_for('leave.edit', id=leave.id) }}">Edit</a>
+                    <a class="btn btn-sm btn-danger m-1" href="#" data-target="#deleteLeaveModal-{{leave.id}}" data-toggle="modal">Delete</a>
                 </div>
                 {% endif %}
             </td>
         </tr>
-        <!-- Delete Pending Event Modal -->
-        <div class="modal fade" id="deleteEventModal-{{event.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+        <!-- Delete Pending Leave Modal -->
+        <div class="modal fade" id="deleteLeaveModal-{{leave.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteLeaveModalLabel" aria-hidden="true">
         	<div class="modal-dialog">
         		<div class="modal-content">
         				<div class="modal-header">
-                            <h5 class="modal-title" id="deleteEventModalLabel">Delete {{ event.status }} Leave Request</h5>
+                            <h5 class="modal-title" id="deleteLeaveModalLabel">Delete {{ leave.status }} Leave Request</h5>
         					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
         					    <span aria-hidden="true">&times;</span>
         					</button>
         				</div>
                         <div class="modal-body">
                             <p>
-                            Are you sure you want to delete the {{ event.status }} event request?
-                            <div>Type: {{ event.etype }}</div>
-                            <div>Dates: {{ event.start_date.strftime("%-d %b %Y") }} - {{ event.end_date.strftime("%-d %b %Y") }}</div>
-                            <div>Days: {{ event.num_days }}</div>
+                            Are you sure you want to delete the {{ leave.status }} leave request?
+                            <div>Type: {{ leave.ltype }}</div>
+                            <div>Dates: {{ leave.start_date.strftime("%-d %b %Y") }} - {{ leave.end_date.strftime("%-d %b %Y") }}</div>
+                            <div>Days: {{ leave.num_days }}</div>
                             </p>
-                            {% set kwargs = {'id': event.id } %}
+                            {% set kwargs = {'id': leave.id } %}
                             {% call f.form_tag(delete_endpoint, form=form, **kwargs) %}
                             <button type="submit" class="btn btn-primary btn-block">
                                 Delete
@@ -89,5 +89,5 @@
         </tbody>
     </table>
 </div><!-- End of table wrapper -->
-{{ items.paginate(events) }}
+{{ items.paginate(leaves) }}
 {% endblock calendar_content %}

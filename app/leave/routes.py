@@ -1,25 +1,26 @@
 from app.admin.utils import get_settings_value
 from app.decorators import setup_required
 from app.extensions import db
-from app.event.decorators import check_authoriser_access
-from app.event.forms import EventForm, EventHalfDayForm, EventDenyForm
-from app.event.models import Event, EventType
-from app.models import EnttAbsenceTypes
+from app.leave.decorators import check_authoriser_access
+from app.leave.forms import LeaveForm, LeaveHalfDayForm, LeaveDenyForm
+from app.leave.models import Leave, LeaveType
+from app.models import EnttLeaveTypes
 from app.user.models import User
+from sqlalchemy.exc import PendingRollbackError, IntegrityError
 
 import datetime
 from flask import render_template, request, url_for, redirect, flash, abort, Blueprint,jsonify, current_app,Response
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
 
-event = Blueprint('event', __name__, template_folder='templates')
+leave = Blueprint('leave', __name__, template_folder='templates')
 
-@event.before_request
+@leave.before_request
 @setup_required()
 @login_required
 def before_request():
-    if current_user.country == None:
-        return render_template('errors/auth_country_error.html')
+    if not current_user.entt:
+        return render_template('errors/entt_error.html')
     """
     Protect all post endpoints
     with login_required
@@ -29,8 +30,11 @@ def before_request():
 
 
 def calendar_legend():
-    types = ['Pending', 'Public Holiday']
-    query = EventType.query.filter(EventType.active==True).all()
+    types = []
+    types.append('Pending')
+    if current_user.check_public_holidays():
+        types.append('Public Holiday')
+    query = LeaveType.query.filter(LeaveType.active==True).all()
     types += query
     return types
 
@@ -45,19 +49,19 @@ def calendar_settings():
         'today_view': 'today,prev,next',
         #'initial_view':  'multiMonthYear',
         'initial_view':  'dayGridMonth',
-        'display_event_time': 'false',
-        'event_types': calendar_legend(),
+        'display_leave_time': 'false',
+        'leave_types': calendar_legend(),
         'pending_colour': get_settings_value('pending_colour'),
-        'public_hol_colour': current_user.entt.public_holiday_group.colour
+        'public_hol_colour': current_user.entt.get_phg_colour()
     }
     return params
 
 
-def event_form(obj=None):
+def leave_form(obj=None):
     if get_settings_value('half_day'):
-        return EventHalfDayForm(obj=obj)
+        return LeaveHalfDayForm(obj=obj)
     else:
-        return EventForm(obj=obj)
+        return LeaveForm(obj=obj)
 
 
 def is_halfday_business_day(date, user):
@@ -93,12 +97,12 @@ def count_business_days(start_date, end_date, user):
     return business_days
 
 
-def calculate_requested_days(form, event, user):
+def calculate_requested_days(form, leave, user):
     #TODO logic needs sorting
     if hasattr(form, 'half_day'):
         if form.half_day.data == True:
             form.end_date.data = form.start_date.data
-            event.end_date = event.start_date
+            leave.end_date = leave.start_date
             return 0.5
     requested = (form.end_date.data + datetime.timedelta(days=1))
     requested -= form.start_date.data
@@ -110,14 +114,14 @@ def calculate_requested_days(form, event, user):
     return requested.days
 
 
-@event.route('/get-etype-deductable', methods=['GET', 'POST'])
-def get_etype_deductable():
-    id = request.args.get('event-type-id')
-    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==id).first()
-    return jsonify({'deduct': f'{etype.get_deductable()}', 'max_days': f'{etype.get_max_days()}'})
+@leave.route('/get-ltype-deductable', methods=['GET', 'POST'])
+def get_ltype_deductable():
+    id = request.args.get('leave-type-id')
+    ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==id).first()
+    return jsonify({'deduct': f'{ltype.deductable}', 'max_days': f'{ltype.max_days}'})
 
 
-@event.route('/calculate-days-async', methods=['GET', 'POST'])
+@leave.route('/calculate-days-async', methods=['GET', 'POST'])
 def calculate_days_async():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
@@ -161,257 +165,256 @@ def calculate_days_async():
     return jsonify('')
 
 
-@event.route('/calendar', methods=['GET', 'POST'])
+@leave.route('/calendar', methods=['GET', 'POST'])
 def index():
-    form = event_form()
+    form = leave_form()
     public_holidays = current_user.check_public_holidays()
-    user_events = current_user.pending_or_approved_events()
+    user_leaves = current_user.pending_or_approved_leaves()
     settings = calendar_settings()
     calendar_legend()
     try:
         if form.validate_on_submit():
-            event = Event()
-            form.populate_obj(event)
-            requested = calculate_requested_days(form, event, current_user)
+            leave = Leave()
+            form.populate_obj(leave)
+            requested = calculate_requested_days(form, leave, current_user)
             #TODO move Error handling to separate function
-            etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
-            orig_event_type = EventType.query.get(etype.absence_type_id)
-            if requested > etype.get_max_days():
+            #entt_ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
+            ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
+            if requested > ltype.max_days:
                 abort(400, 'Exceeds the maximum length of days you can \
                       request in one occurrence')
-            print("post requested")
-            if etype.get_deductable():
+            if ltype.deductable:
                 if not current_user.days_left:
                     abort(400)
                 if requested > current_user.days_left:
                     abort(400, 'Not enough allowance for this request')
-            print("post deduct")
-            event.user_id=current_user.id
-            event.etype_id=form.etype.data.absence_type_id
-            event.days = requested
-            event.save()
-            print("post save")
-            Event.initialize_event_request(event)
-            print("post initialize")
+            leave.user_id=current_user.id
+            leave.ltype_id=ltype.id
+            leave.days = requested
+            leave.save()
+            Leave.initialize_leave_request(leave)
             flash(f'Your request has been submitted', 'success')
-            return redirect(url_for('event.index'))
+            return redirect(url_for('leave.index'))
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
     except Exception as e:
         flash(f'{e}', 'danger')
     return render_template('personal_calendar.html',
                            form=form,
-                           user_events=user_events,
+                           user_leaves=user_leaves,
                            public_holidays=public_holidays,
                            **settings
                            )
 
 
-@event.route('/calendar/departments', methods=['GET', 'POST'])
+@leave.route('/calendar/departments', methods=['GET', 'POST'])
 def departments():
     public_holidays = current_user.check_public_holidays()
     settings = calendar_settings()
-    form = event_form()
+    form = leave_form()
     return render_template('all_departments_calendar.html',
-                           events=current_user.all_departments_events(),
+                           leaves=current_user.all_departments_leaves(),
                            public_holidays=public_holidays,
                            form=form,
                            **settings
                            )
 
 
-@event.route('/calendar/departments/<int:id>', methods=['GET', 'POST'])
+@leave.route('/calendar/departments/<int:id>', methods=['GET', 'POST'])
 def department(id):
     public_holidays = current_user.check_public_holidays()
     settings = calendar_settings()
-    form = event_form()
+    form = leave_form()
     # avoid circular import
     from app.department.models import Department
     department = Department.query.filter(Department.id==id) \
                                  .filter(Department.active).first_or_404()
-    events = department.get_member_events()
+    leaves = department.get_member_leaves()
     return render_template('department_calendar.html',
                            department=department,
                            public_holidays=public_holidays,
-                           events=events,
+                           leaves=leaves,
                            form=form,
                            **settings
                            )
 
 
-@event.route('/event/history', defaults={'page': 1}, methods=['GET', 'POST'])
-@event.route('/event/history/page/<int:page>', methods=['GET', 'POST'])
+@leave.route('/leave/history', defaults={'page': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/history/page/<int:page>', methods=['GET', 'POST'])
 def history(page):
-    form = event_form()
-    events = current_user.paginated_events(page)
-    return render_template('history.html', form=form, events=events)
+    form = leave_form()
+    leaves = current_user.paginated_leaves(page)
+    return render_template('history.html', form=form, leaves=leaves)
 
 
-@event.route('/event/authorise', defaults={'page': 1}, methods=['GET', 'POST'])
-@event.route('/event/authorise/page/<int:page>', methods=['GET', 'POST'])
+@leave.route('/leave/authorise', defaults={'page': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/authorise/page/<int:page>', methods=['GET', 'POST'])
 @check_authoriser_access()
 def authorise(page):
-    form = event_form()
-    events = current_user.paginated_pending_authoriser_requests(page)
-    actioned_events = current_user.paginated_actioned_authoriser_requests(page)
+    form = leave_form()
+    leaves = current_user.paginated_pending_authoriser_requests(page)
+    actioned_leaves = current_user.paginated_actioned_authoriser_requests(page)
     return render_template('pending_requests.html',
                            form=form,
-                           events=events,
-                           actioned_events=actioned_events,
+                           leaves=leaves,
+                           actioned_leaves=actioned_leaves,
                            )
 
-@event.route('/event/authorise/history', defaults={'page': 1}, methods=['GET', 'POST'])
-@event.route('/event/authorise/history/page/<int:page>', methods=['GET', 'POST'])
+@leave.route('/leave/authorise/history', defaults={'page': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/authorise/history/page/<int:page>', methods=['GET', 'POST'])
 @check_authoriser_access()
 def authorise_history(page):
-    form = event_form()
-    deny_form = EventDenyForm()
-    actioned_events = current_user.paginated_actioned_authoriser_requests(page)
+    form = leave_form()
+    deny_form = LeaveDenyForm()
+    actioned_leaves = current_user.paginated_actioned_authoriser_requests(page)
     return render_template('authorise_history.html',
                            form=form,
-                           actioned_events=actioned_events,
+                           actioned_leaves=actioned_leaves,
                            deny_form=deny_form
                            )
 
 
-@event.route('/event/<int:id>/edit', methods=['GET', 'POST'])
+@leave.route('/leave/<int:id>/edit', methods=['GET', 'POST'])
 def edit(id):
-    event = Event.query.get_or_404(id)
-    form = event_form(obj=event)
-    if current_user != event.user: #or current_user != event.user.authoriser:
+    leave = Leave.query.get_or_404(id)
+    form = leave_form(obj=leave)
+    if current_user != leave.user: #or current_user != leave.user.authoriser:
         abort(403)
-    # TODO ONLY Edit Pending Events
-    if event.status != 'Pending':
+    # TODO ONLY Edit Pending Leaves
+    if leave.status != 'Pending':
         abort(403)
     if form.validate_on_submit():
         try:
-            requested = calculate_requested_days(form, event, current_user)
-            form.populate_obj(event)
-            event.days = requested
-            event.save()
+            requested = calculate_requested_days(form, leave, current_user)
+            form.populate_obj(leave)
+            leave.days = requested
+            leave.save()
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
-            flash('Event request updated', 'success')
-            return redirect(url_for('event.history'))
+            flash('Leave request updated', 'success')
+            return redirect(url_for('leave.history'))
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('edit_event.html', event=event, form=form)
+    return render_template('edit_leave.html', leave=leave, form=form)
 
 
-@event.route('/event/<int:id>/delete', methods=['GET', 'POST'])
+@leave.route('/leave/<int:id>/delete', methods=['GET', 'POST'])
 def delete(id):
-    event = Event.query.get_or_404(id)
-    if current_user != event.user:
+    leave = Leave.query.get_or_404(id)
+    if current_user != leave.user:
         abort(403)
-    if event.status == 'Pending':
+    if leave.status == 'Pending':
         try:
-            event.delete()
+            leave.delete()
         except Exception as e:
             flash(f'{e}')
         else:
-            flash('Event request deleted', 'success')
+            flash('Leave request deleted', 'success')
     else:
         flash('Cannot delete non-pending requests - contact admin', 'danger')
-    return redirect(url_for('event.index'))
+    return redirect(url_for('leave.index'))
 
 
-@event.route('/event/<int:id>/approve', methods=['GET', 'POST'])
+@leave.route('/leave/<int:id>/approve', methods=['GET', 'POST'])
 def approve(id):
     """
-    Pending events to be approved.
+    Pending leaves to be approved.
     Leave authorisers can only approve.
-    If a user's authoriser is changed, pending event is
+    If a user's authoriser is changed, pending leave is
     automatically passed over to the authoriser.
-    Detect if event is deductable. If so, allowance will be
+    Detect if leave is deductable. If so, allowance will be
     deducted automatically.
     """
-    event = Event.query.get_or_404(id)
-    if current_user != event.user.authoriser:
+    leave = Leave.query.get_or_404(id)
+    if current_user != leave.user.authoriser:
         abort(403)
-    if event.status == 'Approved':
-        abort(403) # TODO we don't want event to be approved again if already approved
+    if leave.status == 'Approved':
+        abort(403) # TODO we don't want leave to be approved again if already approved
     try:
-        if event.etype.get_deductable() == True:
-            if event.days > event.user.days_left:
+        if leave.ltype.deductable == True:
+            if leave.days > leave.user.days_left:
                 raise Exception('User does not have enough allowance for this request')
-            event.user.deduct_leave_days(event.days)
-        event.status = 'Approved'
-        event.actioned_by=current_user
-        event.save()
+            leave.user.deduct_leave_days(leave.days)
+        leave.status = 'Approved'
+        leave.actioned_by=current_user
+        leave.save()
     except Exception as e:
         flash(f'{e}', 'danger')
     else:
         # celery task
-        from app.email import send_event_request_status_update_email
-        send_event_request_status_update_email.delay(id)
-        flash('Event request approved', 'success')
-    #return redirect(url_for('event.index'))
-    return redirect(url_for('event.authorise'))
+        from app.email import send_leave_request_status_update_email
+        send_leave_request_status_update_email.delay(id)
+        flash('Leave request approved', 'success')
+    #return redirect(url_for('leave.index'))
+    return redirect(url_for('leave.authorise'))
 
 
-@event.route('/event/<int:id>/revoke', methods=['GET', 'POST'])
+@leave.route('/leave/<int:id>/revoke', methods=['GET', 'POST'])
 def revoke(id):
     """
-    Only for events that have been Approved.
-    Only authorisers or those with admin.event update permissions
+    Only for leaves that have been Approved.
+    Only authorisers or those with admin.leave update permissions
     can Revoke.
-    Detect if event_type is deductable. If so, allowance will
+    Detect if leave_type is deductable. If so, allowance will
     be automatically recalculated.
-    Authorisers should only be able to revoke events that have
+    Authorisers should only be able to revoke leaves that have
     start_dates no more than 7 days old from the current day.
     ^ For admins 30 days.
     """
-    event = Event.query.get_or_404(id)
-    if current_user != event.user.authoriser:
+    leave = Leave.query.get_or_404(id)
+    if current_user != leave.user.authoriser:
         abort(403)
-    if event.status != 'Approved':
+    if leave.status != 'Approved':
         abort(403)
-    form = EventDenyForm()
+    form = LeaveDenyForm()
     if form.validate_on_submit():
         try:
-            event.status = 'Revoked'
-            event.status_details = form.status_details.data
-            event.actioned_by=current_user
-            if event.etype.get_deductable() == True:
-                event.user.reinstate_allowance_days(event.days)
-            event.save()
+            leave.status = 'Revoked'
+            leave.status_details = form.status_details.data
+            leave.actioned_by=current_user
+            if leave.ltype.deductable == True:
+                leave.user.reinstate_allowance_days(leave.days)
+            leave.save()
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
             # celery task
-            from app.email import send_event_request_status_update_email
-            send_event_request_status_update_email.delay(id)
-            flash('Successfully revoked event request', 'success')
-            return redirect(url_for('event.authorise_history'))
-    return render_template('action_request.html', form=form, event=event)
+            from app.email import send_leave_request_status_update_email
+            send_leave_request_status_update_email.delay(id)
+            flash('Successfully revoked leave request', 'success')
+            return redirect(url_for('leave.authorise_history'))
+    return render_template('action_request.html', form=form, leave=leave)
 
 
-@event.route('/event/<int:id>/decline', methods=['GET', 'POST'])
+@leave.route('/leave/<int:id>/decline', methods=['GET', 'POST'])
 def decline(id):
     """
-    Only for events that are pending.
+    Only for leaves that are pending.
     Only authorisers can decline.
-    Declined Events can then be deleted by the user if
+    Declined Leaves can then be deleted by the user if
     they so wish?
     """
-    event = Event.query.get_or_404(id)
-    if current_user != event.user.authoriser:
+    leave = Leave.query.get_or_404(id)
+    if current_user != leave.user.authoriser:
         abort(403)
-    if event.status != 'Pending':
+    if leave.status != 'Pending':
         abort(403)
-    form = EventDenyForm()
+    form = LeaveDenyForm()
     if form.validate_on_submit():
         try:
-            event.status = 'Declined'
-            event.status_details = form.status_details.data
-            event.actioned_by=current_user
-            event.save()
+            leave.status = 'Declined'
+            leave.status_details = form.status_details.data
+            leave.actioned_by=current_user
+            leave.save()
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
             # celery task
-            from app.email import send_event_request_status_update_email
-            send_event_request_status_update_email.delay(id)
-            flash('Successfully declined event request', 'success')
-            return redirect(url_for('event.authorise'))
-    return render_template('action_request.html', form=form, event=event)
+            from app.email import send_leave_request_status_update_email
+            send_leave_request_status_update_email.delay(id)
+            flash('Successfully declined leave request', 'success')
+            return redirect(url_for('leave.authorise'))
+    return render_template('action_request.html', form=form, leave=leave)

@@ -1,13 +1,13 @@
     {% set slots = [] %}
-          {% for e in events if e not in slots %}
+          {% for e in leaves if e not in slots %}
               {{ slots.append(e) or "" }}
-              /* above forloops and slotsappend prevent repeat events if member is a member of multiple departments */
-              {% set event_id = e.id | string %}
-              {% set del_url = url_for('event.delete', id=event_id) %}
-              {% set edit_url = url_for('event.edit', id=event_id) %}
-              {% set approve_url = url_for('event.approve', id=event_id) %}
-              {% set decline_url = url_for('event.decline', id=event_id) %}
-              {% set revoke_url = url_for('event.revoke', id=event_id) %}
+              /* above forloops and slotsappend prevent repeat leaves if member is a member of multiple departments */
+              {% set leave_id = e.id | string %}
+              {% set del_url = url_for('leave.delete', id=leave_id) %}
+              {% set edit_url = url_for('leave.edit', id=leave_id) %}
+              {% set approve_url = url_for('leave.approve', id=leave_id) %}
+              {% set decline_url = url_for('leave.decline', id=leave_id) %}
+              {% set revoke_url = url_for('leave.revoke', id=leave_id) %}
               {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
               {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
               {% set approve_btn = '<a class="btn btn-sm btn-success" href="' + approve_url + '">Approve</a>' %}
@@ -24,7 +24,7 @@
                       `
                         <div>{{ e.start_date.strftime("%-d %b, %Y") }} - {{ e.end_date.strftime("%-d %b, %Y") }}</div>
                         <div>Days: {{ e.num_days }}</div>
-                        <div>Type: {{ e.etype.name }} ({{ e.status }})</div>
+                        <div>Type: {{ e.ltype.name }} ({{ e.status }})</div>
                         {% if e.details %}
                         <div>Details: {{ e.details }}</div>
                         {% endif %}

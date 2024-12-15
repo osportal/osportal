@@ -1,7 +1,0 @@
-<div>
-    <p>Dear {{ event.user.username }},</p>
-    <p>Your {{ event.etype.name }} request has been {{ event.status }} by {{ event.user.authoriser }}
-    <p>Requested dates: {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
-    <p>Days: {% if event.half_day %}0.5{% else %}{{ event.calculate_days() }}{% endif %}
-    
-</div>

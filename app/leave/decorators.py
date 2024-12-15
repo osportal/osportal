@@ -9,17 +9,17 @@ def check_authoriser_access():
         def decorated_function(*args, **kwargs):
             if not current_user.is_authoriser():
                 flash('You are not an authoriser', 'danger')
-                return redirect(url_for('event.index'))
+                return redirect(url_for('leave.index'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
 
 
-def event_enabled():
+def leave_enabled():
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if g.event.active != True:
+            if g.leave.active != True:
                 abort(404)
             return f(*args, **kwargs)
         return decorated_function

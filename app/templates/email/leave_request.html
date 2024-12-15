@@ -47,15 +47,15 @@ a {
 </style>
 </head>
 <div>
-    <p><strong>Requested by {{ event.user }}</strong></p>
-    <p>Requested dates: {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
-    <p>Type: {{ event.etype.name }}</p>
-    {% if event.details %}
-    <p>Details: {{ event.details }}</p>
+    <p><strong>Requested by {{ leave.user }}</strong></p>
+    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
+    <p>Type: {{ leave.ltype.name }}</p>
+    {% if leave.details %}
+    <p>Details: {{ leave.details }}</p>
     {% endif %}
-    <p>Days: {% if event.half_day %}0.5{% else %}{{ event.calculate_days() }}{% endif %}
+    <p>Days: {% if leave.half_day %}0.5{% else %}{{ leave.calculate_days() }}{% endif %}
     <div class="btn-toolbar" style="flex-wrap: unset !important;">
-        <a class="btn btn-sm btn-success" href="{{ url_for('event.approve', id=event.id, _external=True) }}">Approve</a>
-        <a class="btn btn-sm btn-danger" href="{{ url_for('event.decline', id=event.id, _external=True) }}">Reject</a>
+        <a class="btn btn-sm btn-success" href="{{ url_for('leave.approve', id=leave.id, _external=True) }}">Approve</a>
+        <a class="btn btn-sm btn-danger" href="{{ url_for('leave.decline', id=leave.id, _external=True) }}">Reject</a>
     </div>
 </div>

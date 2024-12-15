@@ -162,21 +162,42 @@
         </a>
     </div>
     {% endif %}
-    {% if current_user.permission('admin.event_type', crud='read') %}
-    <!-- Event Types card -->
+    {% if current_user.permission('admin.leave_type', crud='read') %}
+    <!-- Leave Types card -->
     <div class="col-xl-3 col-md-6 mb-4 dash-category">
-        <a href="{{ url_for('admin.event_types') }}">
+        <a href="{{ url_for('admin.leave_types') }}">
             <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                   Event Types
+                                   Leave Types
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_event_types.total }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ group_and_count_leave_types.total }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-luggage h1 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% if current_user.permission('admin.leave', crud='read') %}
+    <!-- Leave Types card -->
+    <div class="col-xl-3 col-md-6 mb-4 dash-category">
+        <a href="{{ url_for('admin.leaves') }}">
+            <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                   Leave Requests
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-calendar-check h1 text-gray-300"></i>
                             </div>
                         </div>
                     </div>

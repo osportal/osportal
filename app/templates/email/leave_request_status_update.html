@@ -1,0 +1,7 @@
+<div>
+    <p>Dear {{ leave.user.username }},</p>
+    <p>Your {{ leave.ltype.name }} request has been {{ leave.status }} by {{ leave.user.authoriser }}
+    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
+    <p>Days: {% if leave.half_day %}0.5{% else %}{{ leave.calculate_days() }}{% endif %}
+    
+</div>

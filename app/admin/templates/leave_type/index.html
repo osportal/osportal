@@ -3,12 +3,12 @@
 {%- from "macros/navigation.html" import navlink with context -%}
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% import 'macros/pagination.html' as items %}
-{% set table_name = 'event_type' %}
+{% set table_name = 'leave_type' %}
 
-{% block title %}L-Days - Admin{% endblock %}
+{% block title %}Leave Types - Admin{% endblock %}
 
 {% block content %}
-{% set extra_setting_links = admin_event_type_sidebar(user=current_user) %}
+{% set extra_setting_links = admin_leave_type_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
@@ -23,7 +23,7 @@
             <input id="select_all" name="select_all" type="checkbox">
           </th>
           <th class="col-header">
-              {{ items.sort('name', 'Event Type') }}
+              {{ items.sort('name', 'Leave Type') }}
           </th>
           <th class="col-header">
               {{ items.sort('active') }}
@@ -37,38 +37,38 @@
         </tr>
     </thead>
     <tbody>
-    {% for etype in event_types.items %}
+    {% for ltype in leave_types.items %}
       <tr>
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                 type="checkbox" value="{{ etype.id }}">
+                 type="checkbox" value="{{ ltype.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.event_type_info', id=etype.id) }}">
-            {{ etype.name }}
+            <a href="{{ url_for('admin.leave_type_info', id=ltype.id) }}">
+            {{ ltype.name }}
             </a>
         </td>
         <td>
-            {{ etype.render(etype.active) }}
+            {{ ltype.render(ltype.active) }}
         </td>
         <td>
-            {{ etype.render(etype.deductable) }}
+            {{ ltype.render(ltype.deductable) }}
         </td>
         <td>
-            {{ etype.render(etype.approval) }}
+            {{ ltype.render(ltype.approval) }}
         </td>
         <td>
-            {% if current_user.permission('admin.event_type', crud='update') %}
+            {% if current_user.permission('admin.leave_type', crud='update') %}
                 <a class="btn btn-sm btn-primary" 
-                   href="{{ url_for('admin.event_type_edit', id=etype.id) }}" type="button">
+                   href="{{ url_for('admin.leave_type_edit', id=ltype.id) }}" type="button">
                     <i class="bi bi-pencil-fill"></i>
                 </a>
             {% endif %}
-            {% if current_user.permission('admin.event_type', crud='delete') %}
+            {% if current_user.permission('admin.leave_type', crud='delete') %}
                 {{ forms.action_confirm(
-                    id="delete-" ~ etype.id, 
-                    url=url_for('admin.event_type_delete', id=etype.id),
+                    id="delete-" ~ ltype.id, 
+                    url=url_for('admin.leave_type_delete', id=ltype.id),
                     title="Delete", 
                     btn="btn btn-sm btn-warning",
                     target="#confirmModal",
@@ -80,14 +80,14 @@
       {% endfor %}
     </tbody>
 </table>
-{{ items.paginate(event_types) }}
+{{ items.paginate(leave_types) }}
 
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
     text="Are you sure you want to delete the selected types?",
-    url=url_for('admin.bulk_delete', table='event_type'),
+    url=url_for('admin.bulk_delete', table='leave_type'),
     btn_text="Delete")
 }}
 {{ forms.modal_bulk_action(
@@ -95,7 +95,7 @@
     label="bulkDisableLabel",
     title="Disable",
     text="Are you sure you want to disable the selected types?",
-    url=url_for('admin.bulk_disable', table='event_type'),
+    url=url_for('admin.bulk_disable', table='leave_type'),
     btn_text="Disable")
 }}
 {{ forms.modal_bulk_action(
@@ -103,7 +103,7 @@
     label="bulkEnableLabel",
     title="Enable",
     text="Are you sure you want to enable the selected types?",
-    url=url_for('admin.bulk_enable', table='event_type'),
+    url=url_for('admin.bulk_enable', table='leave_type'),
     btn_text="Enable")
 }}
 {% include "partials/confirm_dialog.html" %}

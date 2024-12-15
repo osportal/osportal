@@ -1,6 +1,6 @@
 from app.models import Country
 from app.admin.models import Settings
-from app.event.models import EventType
+from app.leave.models import LeaveType
 from app.pages.models import Page
 from app.user.models import User, Role, Permission
 from app.utils.countries import COUNTRIES_DICT
@@ -23,19 +23,19 @@ def create_default_roles():
     Role(**member_params).save()
 
 
-def create_default_event_types():
+def create_default_leave_types():
     # default name and deductable values
     types = [
             ("Holiday", True, 14),
             ("Sickness", False, 7)
     ]
-    for event_type in types:
+    for leave_type in types:
         params = {
-            'name': event_type[0],
-            'deductable': event_type[1],
-            'max_days': event_type[2]
+            'name': leave_type[0],
+            'deductable': leave_type[1],
+            'max_days': leave_type[2]
         }
-        EventType(**params).save()
+        LeaveType(**params).save()
 
 
 def create_default_countries():
@@ -49,7 +49,7 @@ def create_default_countries():
 
 def create_default_settings():
     create_default_roles()
-    create_default_event_types()
+    create_default_leave_types()
     create_default_countries()
     params = {
         'id': 1,

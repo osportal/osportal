@@ -75,10 +75,10 @@
     			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a>
     		</li>
     		<li class="nav-item">
-    			<a class="nav-link" href="#work" aria-controls="work" role="tab" data-toggle="tab">Work</a>
+    			<a class="nav-link" href="#employment" aria-controls="employment" role="tab" data-toggle="tab">Employment</a>
     		</li>
     		<li class="nav-item">
-    			<a class="nav-link" href="#leaveconfig" aria-controls="leaveconfig" role="tab" data-toggle="tab">Leave Settings</a>
+    			<a class="nav-link" href="#leave" aria-controls="leave" role="tab" data-toggle="tab">Leave</a>
     		</li>
     	</ul>
 
@@ -119,7 +119,7 @@
 			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
                 	</div>
     		</div>
-    		<div role="tabpanel" class="tab-pane" id="work">
+    		<div role="tabpanel" class="tab-pane" id="employment">
     			<div class="form-group">
                     {% call f.form_group(form.start_date, css_class='sm-margin-bottom') %}
                     {% endcall %}
@@ -134,28 +134,26 @@
                     {% endcall %}
                 </div>
             </div>
-    		<div role="tabpanel" class="tab-pane" id="leaveconfig">
+    		<div role="tabpanel" class="tab-pane" id="leave">
     			<div class="form-group">
-                    	<!-- Leave Settings -->
-                        {% call f.form_group(form.entt, css_class='sm-margin-bottom') %}
-                        {% endcall %}
+                    <!-- Leave -->
+                    {% call f.form_group(form.entt, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                        {% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
-                        {% endcall %}
+                    {% call f.form_group(form.authoriser, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
+                    {% call f.form_group(form.leave_year_start, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.leave_year_start, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.days_left, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.carry_over_days, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
+                    {% call f.form_group(form.used_days, css_class='sm-margin-bottom') %}
+                    {% endcall %}
 
-                    	{% call f.form_group(form.used_days, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
-
-                    	{% call f.form_group(form.days_left, css_class='sm-margin-bottom') %}
-                    	{% endcall %}
-
+                    {% call f.form_group(form.carry_over_days, css_class='sm-margin-bottom') %}
+                    {% endcall %}
     			</div>
             	</div>
       		<hr/>

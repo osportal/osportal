@@ -2,8 +2,8 @@ from app.admin.models import Settings, Email
 from app.department.models import Department, DepartmentMembers
 from app.department.validations import check_dept_exists
 from app.extensions import db
-from app.event.models import Event, EventType
-from app.event.validations import check_et_exists
+from app.leave.models import Leave, LeaveType
+from app.leave.validations import check_lt_exists
 from app.models import (Country, Entt,
                         PublicHoliday, PublicHolidayGroup, Site)
 from app.pages.validations import check_page_route_exists
@@ -212,7 +212,7 @@ class RoleForm(ModelForm):
     superuser = BooleanField('Superuser?')
 
 
-exclusions = ['event_actioned', 'role_permission', 'notification', 'department_members']
+exclusions = ['leave_actioned', 'role_permission', 'notification', 'department_members']
 custom = ['plugin', 'data']
 # create dict from above custom list
 additions = {index: element for element, index in enumerate(custom)}
@@ -248,13 +248,13 @@ class EnttForm(ModelForm):
                                             widget=Select2Widget(),
                                             allow_blank=True,
                                             validators=[Optional()])
-    absence_types = QuerySelectMultipleField('Absence Types', query_factory=lambda: EventType.query.filter(EventType.active).all(),
+    leave_types = QuerySelectMultipleField('Leave Types', query_factory=lambda: LeaveType.query.filter(LeaveType.active).all(),
                                              get_pk=lambda a: a.id, widget=Select2Widget(), allow_blank=True,
                                              render_kw={"multiple": "multiple"}, validators=[DataRequired()])
 
 
-class EventTypeSettingsForm(ModelForm):
-    name = StringField('Name', validators=[DataRequired(), check_et_exists])
+class LeaveTypeSettingsForm(ModelForm):
+    name = StringField('Name', validators=[DataRequired(), check_lt_exists])
     active = BooleanField('Active')
     #hex_colour = StringField('Colour', validators=[DataRequired()])
     hex_colour = StringField('Colour', widget=ColorInput())
@@ -263,9 +263,9 @@ class EventTypeSettingsForm(ModelForm):
     max_days = IntegerField('Maximum Length (days)', default=14, validators=[DataRequired()])
 
 
-class EventRequestsForm(ModelForm):
-    #status = SelectField('Status', choices=[Event.STATUS], validators=[DataRequired()])
-    status = SelectField('Status', validators=[DataRequired()], choices=Event.STATUS)
+class LeaveRequestsForm(ModelForm):
+    #status = SelectField('Status', choices=[Leave.STATUS], validators=[DataRequired()])
+    status = SelectField('Status', validators=[DataRequired()], choices=Leave.STATUS)
 
 
 class SearchForm(FlaskForm):
@@ -298,7 +298,7 @@ class SettingsForm(FlaskForm):
     departments_per_page = IntegerField('Max. departments per page', validators=[DataRequired(), NumberRange(5, 250)])
     posts_per_page = IntegerField('Max. posts per page', validators=[DataRequired(), NumberRange(5, 250)])
     comments_per_page = IntegerField('Max. comments per page', validators=[DataRequired(), NumberRange(5, 250)])
-    events_per_page = IntegerField('Max. events per page', validators=[DataRequired(), NumberRange(5, 250)])
+    leaves_per_page = IntegerField('Max. leaves per page', validators=[DataRequired(), NumberRange(5, 250)])
     notifications_per_page = IntegerField('Max. notifications per page', validators=[DataRequired(), NumberRange(5, 250)])
 
     #Email

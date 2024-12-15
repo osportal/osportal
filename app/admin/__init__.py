@@ -8,8 +8,8 @@ def admin_settings_menu(user):
         ('admin.roles', 'Roles', 'bi bi-hammer'),
         ('admin.permissions', 'Permissions', 'bi bi-key-fill'),
         ('admin.departments', 'Departments', 'bi bi-diagram-3-fill'),
-        ('admin.events', 'Events', 'bi bi-calendar-event'),
-        ('admin.event_types', 'Event Types', 'bi bi-luggage'),
+        ('admin.leaves', 'Leave Requests', 'bi bi-calendar-check'),
+        ('admin.leave_types', 'Leave Types', 'bi bi-luggage'),
         ('admin.entts', 'Entitlement Templates', 'bi bi-file-earmark-font'),
         ('admin.posts', 'Posts', 'bi bi-pin-angle-fill'),
         ('admin.pages', 'Pages', 'bi bi-paperclip'),
@@ -38,11 +38,11 @@ def admin_settings_menu(user):
         if view == 'admin.departments' \
                 and current_user.permission('admin.department', crud='read'):
                     yield result
-        if view == 'admin.events' \
-                and current_user.permission('admin.event', crud='read'):
+        if view == 'admin.leaves' \
+                and current_user.permission('admin.leave', crud='read'):
                     yield result
-        if view == 'admin.event_types' \
-                and current_user.permission('admin.event_type', crud='read'):
+        if view == 'admin.leave_types' \
+                and current_user.permission('admin.leave_type', crud='read'):
                     yield result
         if view == 'admin.entts' \
                 and current_user.permission('admin.entt', crud='read'):
@@ -148,29 +148,29 @@ def admin_site_sidebar(user):
                 yield result
 
 
-def admin_event_sidebar(user):
+def admin_leave_sidebar(user):
     results = [
-        ('admin.events', 'Manage', ''),
+        ('admin.leaves', 'Manage', ''),
     ]
     for result in results:
         view = result[0]
-        if view=='admin.events' \
-            and current_user.permission('admin.event', crud='read'):
+        if view=='admin.leaves' \
+            and current_user.permission('admin.leave', crud='read'):
                 yield result
 
 
-def admin_event_type_sidebar(user):
+def admin_leave_type_sidebar(user):
     results = [
-        ('admin.event_types', 'Manage', ''),
-        ('admin.event_type_new', 'New Type', ''),
+        ('admin.leave_types', 'Manage', ''),
+        ('admin.leave_type_new', 'New Type', ''),
     ]
     for result in results:
         view = result[0]
-        if view=='admin.event_types' \
-            and current_user.permission('admin.event_type', crud='read'):
+        if view=='admin.leave_types' \
+            and current_user.permission('admin.leave_type', crud='read'):
                 yield result
-        if view == 'admin.event_type_new' \
-            and current_user.permission('admin.event_type', crud='create'):
+        if view == 'admin.leave_type_new' \
+            and current_user.permission('admin.leave_type', crud='create'):
                 yield result
 
 
@@ -296,8 +296,8 @@ def update_admin_jinja_globals(app):
     app.jinja_env.globals.update(admin_role_sidebar=admin_role_sidebar)
     app.jinja_env.globals.update(admin_permission_sidebar=admin_permission_sidebar)
     app.jinja_env.globals.update(admin_department_sidebar=admin_department_sidebar)
-    app.jinja_env.globals.update(admin_event_sidebar=admin_event_sidebar)
-    app.jinja_env.globals.update(admin_event_type_sidebar=admin_event_type_sidebar)
+    app.jinja_env.globals.update(admin_leave_sidebar=admin_leave_sidebar)
+    app.jinja_env.globals.update(admin_leave_type_sidebar=admin_leave_type_sidebar)
     app.jinja_env.globals.update(admin_entt_sidebar=admin_entt_sidebar)
     app.jinja_env.globals.update(admin_post_sidebar=admin_post_sidebar)
     app.jinja_env.globals.update(admin_pages_sidebar=admin_pages_sidebar)

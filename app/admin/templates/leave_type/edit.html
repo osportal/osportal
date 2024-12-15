@@ -1,21 +1,21 @@
 {% extends "layout.html" %}
-{% block title %}Admin - Event Type{% endblock %}
+{% block title %}Admin - Leave Type{% endblock %}
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
-{% set active = 'admin.event_types' %}
-{% set extra_setting_links = admin_event_type_sidebar(user=current_user) %}
+{% set active = 'admin.leave_types' %}
+{% set extra_setting_links = admin_leave_type_sidebar(user=current_user) %}
 
 {% import 'macros/form.html' as f with context %}
 
 {% if request.endpoint.endswith('new') %}
-  {% set endpoint = 'admin.event_type_new' %}
+  {% set endpoint = 'admin.leave_type_new' %}
   {% set form_kwargs = {} %}
-  {% set legend = 'Add a new event type' %}
+  {% set legend = 'Add a new leave type' %}
   {% set button = 'Add' %}
 {% else %}
-  {% set endpoint = 'admin.event_type_edit' %}
-  {% set form_kwargs = {'id': event_type.id} %}
-  {% set legend = 'Update this event type' %}
+  {% set endpoint = 'admin.leave_type_edit' %}
+  {% set form_kwargs = {'id': leave_type.id} %}
+  {% set legend = 'Update this leave type' %}
   {% set button = 'Save' %}
 {% endif %}
 
@@ -53,7 +53,7 @@
       </div>
       <div class="col">
         <div class="visible-xs visible-sm sm-margin-top"></div>
-        <a href="{{ url_for('admin.event_types') }}"
+        <a href="{{ url_for('admin.leave_types') }}"
             class="btn btn-light bg-opacity-10 btn-block">
           Cancel
         </a>
@@ -93,7 +93,7 @@
         </div>
         <div class="col">
           <div class="visible-xs visible-sm sm-margin-top"></div>
-          <a href="{{ url_for('admin.event_types') }}"
+          <a href="{{ url_for('admin.leave_types') }}"
               class="btn btn-light bg-opacity-10 btn-block">
             Cancel
           </a>

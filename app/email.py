@@ -1,6 +1,6 @@
 from app.celery import celery
 from app.extensions import mail
-from app.event.models import Event
+from app.leave.models import Leave
 from datetime import datetime
 import email
 from email.mime.image import MIMEImage
@@ -49,15 +49,15 @@ def send_email(subject, recipients, html_body,
 
 
 @celery.task(bind=True)
-def send_event_request_status_update_email(self, event_id):
+def send_leave_request_status_update_email(self, leave_id):
     site_name = get_settings_value('site_name')
     try:
-        event = Event.query.get(event_id)
-        send_email((f'Update on Your {event.etype} Request - {site_name}'),
-                   recipients=[event.user.email],
+        leave = Leave.query.get(leave_id)
+        send_email((f'Update on Your {leave.ltype} Request - {site_name}'),
+                   recipients=[leave.user.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
-                   html_body=render_template('email/event_request_status_update.html', event=event))
+                   html_body=render_template('email/leave_request_status_update.html', leave=leave))
     except Exception as e:
         #logger.error('exception raised, it would be retry after 5 seconds')
         raise self.retry(exc=e, countdown=5)
@@ -66,16 +66,16 @@ def send_event_request_status_update_email(self, event_id):
 
 
 @celery.task(bind=True)
-def send_event_request_email(self, event_id):
+def send_leave_request_email(self, leave_id):
     #token = user.serialize_token()
     site_name = get_settings_value('site_name')
     try:
-        event = Event.query.get(event_id)
-        send_email((f'{event.etype} Request - {event.user.username} - {site_name}'),
-                   recipients=[event.user.authoriser.email],
+        leave = Leave.query.get(leave_id)
+        send_email((f'{leave.ltype} Request - {leave.user.username} - {site_name}'),
+                   recipients=[leave.user.authoriser.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
-                   html_body=render_template('email/event_request.html', event=event))
+                   html_body=render_template('email/leave_request.html', leave=leave))
     except Exception as e:
         #logger.error('exception raised, it would be retry after 5 seconds')
         raise self.retry(exc=e, countdown=5)

@@ -18,12 +18,12 @@ function celery_not_running_notification(notification) {
 }
 
 
-function calculate_days_for_user(endpoint, etype_endpoint){
-    const etype = fetch(etype_endpoint, 
+function calculate_days_for_user(endpoint, ltype_endpoint){
+    const ltype = fetch(ltype_endpoint, 
         {method: "GET", headers: {"Content-Type": "application/json", } }).then((response) => response.json())
 
     const execute = () => { 
-        etype.then((etype_value) => { 
+        ltype.then((ltype_value) => { 
             fetch(endpoint, {
                 method: "GET",
                 headers: {
@@ -39,12 +39,12 @@ function calculate_days_for_user(endpoint, etype_endpoint){
                         document.getElementById('calculate-days-val').innerHTML = data.message;
                     }
                 } else {
-                    // check max days for event type max days length
-                    if (parseFloat(data) > parseFloat(etype_value.max_days)){
+                    // check max days for leave type max days length
+                    if (parseFloat(data) > parseFloat(ltype_value.max_days)){
                         document.getElementById('calculate-days-val').innerHTML = "Exceeds the maximum length of days you can request in one occurrence"
                     } 
-                    // if selected event type is deductable, validate daysLeft
-                    else if (etype_value.deduct === 'True'){
+                    // if selected leave type is deductable, validate daysLeft
+                    else if (ltype_value.deduct === 'True'){
                         /* data and daysLeft vars are strings, 
                         therefore must be converted in order to compare */
                         if (parseFloat(data) > parseFloat(daysLeft)){
@@ -60,7 +60,7 @@ function calculate_days_for_user(endpoint, etype_endpoint){
                             enableSubmitBtn();
                         }
                     }
-                    // else etype_value.deduct == False
+                    // else ltype_value.deduct == False
                     else {
                         if ( (parseFloat(data) === 0) || (parseFloat(data) <= 0) ){
                             // if its 0 days then usually its because the user is not scheduled to work i.e weekend,

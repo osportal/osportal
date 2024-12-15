@@ -1,5 +1,5 @@
-from app.event.models import EventType
-from app.models import EnttAbsenceTypes
+from app.leave.models import LeaveType
+from app.models import EnttLeaveTypes
 import datetime
 from flask_login import current_user
 from sqlalchemy import func
@@ -9,10 +9,10 @@ from wtforms.validators import ValidationError, StopValidation, DataRequired
 
 def check_approval(form, field):
     """
-    if selected event type requires approval
+    if selected leave type requires approval
     make sure user has an authoriser """
-    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
-    if etype.get_approval():
+    ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
+    if ltype.get_approval():
         if not current_user.authoriser:
             raise ValidationError('''This Type requires an authoriser to be
                                   assigned to your profile. Contact administrator.''')
@@ -25,8 +25,8 @@ def check_end_date(form, field):
     if field.data != None:
         if field.data < form.start_date.data:
             raise ValidationError('End Date cannot be earlier than the start date')
-    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
-    if etype.get_deductable():
+    ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
+    if ltype.get_deductable():
         # this will only apply to deductable i.e leave requests
         from flask_login import current_user
         if current_user.leave_year_start:
@@ -38,14 +38,14 @@ def check_end_date(form, field):
             DataRequired()
 
 
-def check_et_exists(form, field):
+def check_lt_exists(form, field):
     # checks new and current data when editing existing instance, returns if they are the same
     if field.object_data: # otherwise we get a NoneType Error when checking for lowercase
         if field.object_data.lower() == field.data.lower():
             return
-    et = EventType.query.filter(func.lower(EventType.name)==field.data.lower()).first()
-    if et:
-        raise ValidationError('Event Type already exists')
+    lt = LeaveType.query.filter(func.lower(LeaveType.name)==field.data.lower()).first()
+    if lt:
+        raise ValidationError('Leave Type already exists')
 
 
 def check_leave_year_start(form, field):
@@ -60,7 +60,7 @@ def check_leave_year_start(form, field):
             raise ValidationError(f'Start date must be greater than current leave year {current_leave_year}')
 
 
-#TODO below has been commented out from event/forms
+#TODO below has been commented out from leave/forms
 # below validator does not take into account public holidays / weekends
 def check_allowance(form, field):
     if hasattr(form, 'half_day'):
@@ -68,9 +68,9 @@ def check_allowance(form, field):
         if form.half_day.data == True:
             raise StopValidation()
 
-    # check available allowance if event type is deductable
-    etype = EnttAbsenceTypes.query.filter(EnttAbsenceTypes.absence_type_id==form.etype.data.absence_type_id).first()
-    if etype.get_deductable():
+    # check available allowance if leave type is deductable
+    ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
+    if ltype.get_deductable():
         from flask_login import current_user
         requested = (form.end_date.data + datetime.timedelta(days=1))
         requested -= form.start_date.data

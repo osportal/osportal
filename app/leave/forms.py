@@ -1,6 +1,6 @@
-from app.models import EnttAbsenceTypes
-from app.event.models import EventType
-from app.event.validations import (check_end_date,
+from app.models import EnttLeaveTypes
+from app.leave.models import LeaveType
+from app.leave.validations import (check_end_date,
                                    check_leave_year_start,
                                    check_allowance,
                                    check_approval
@@ -17,19 +17,19 @@ from wtforms_alchemy import QuerySelectField
 from wtforms_components import DateRange
 
 
-class EventForm(FlaskForm):
+class LeaveForm(FlaskForm):
     start_date = DatePickerField('Start Date',
                                  validators=[check_leave_year_start, DataRequired()]
                                  )
     end_date = DatePickerField('End Date',
                                validators=[check_end_date, DataRequired()]
                                )
-    etype = QuerySelectField('Event Type',
-                             query_factory = lambda: EnttAbsenceTypes.query.filter(EnttAbsenceTypes.entt_id==current_user.get_entt_id()).all(),
-                             get_pk=lambda eat: eat.absence_type_id, widget=Select2Widget(),
+    entt_ltype = QuerySelectField('Leave Type',
+                             query_factory = lambda: EnttLeaveTypes.query.filter(EnttLeaveTypes.entt_id==current_user.get_entt_id()).all(),
+                             get_pk=lambda eat: eat.leave_type_id, widget=Select2Widget(),
                              allow_blank=False,
                              validators=[DataRequired(), check_approval],
-                             render_kw={"id": "event-type-select"}
+                             render_kw={"id": "leave-type-select"}
                              )
     details = TextAreaField('Details',
                             validators=[Optional(), Length(min=2, max=1000)],
@@ -39,10 +39,10 @@ class EventForm(FlaskForm):
     submit = SubmitField('Submit', render_kw={'id': 'submitRequestBtn'})
 
 
-class EventHalfDayForm(EventForm):
+class LeaveHalfDayForm(LeaveForm):
     end_date = DatePickerField('End Date', validators=[check_end_date])
     half_day = BooleanField(label='Half Day')
 
 
-class EventDenyForm(FlaskForm):
+class LeaveDenyForm(FlaskForm):
     status_details = TextAreaField('Reason', validators=[DataRequired(), Length(min=4,max=120)])

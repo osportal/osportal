@@ -4,8 +4,9 @@ import datetime
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 
-class EventType(ResourceMixin):
-    __tablename__ = 'event_type'
+
+class LeaveType(ResourceMixin):
+    __tablename__ = 'leave_type'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(30), unique=True, nullable=False)
     deductable = db.Column(db.Boolean, default=False, nullable=False)
@@ -20,19 +21,20 @@ class EventType(ResourceMixin):
     @classmethod
     def search(cls, query):
         search_query = '%{0}%'.format(query)
-        search_chain = (EventType.name.ilike(search_query),)
+        search_chain = (LeaveType.name.ilike(search_query),)
 
         return or_(*search_chain)
 
 
-class EventActioned(ResourceMixin):
-    __tablename__ = 'event_actioned'
-    id = db.Column(db.Integer, nullable=True) # used in import zip job
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), onupdate='CASCADE', primary_key=True)
+class LeaveActioned(ResourceMixin):
+    __tablename__ = 'leave_actioned'
+    id = db.Column(db.Integer, nullable=True, unique=True) # used in import zip job
+    leave_id = db.Column(db.Integer, db.ForeignKey('leave.id'), onupdate='CASCADE', primary_key=True)
     authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', primary_key=True)
 
 
-class Event(ResourceMixin):
+class Leave(ResourceMixin):
+    __tablename__ = 'leave'
     STATUS = ['Pending', 'Approved', 'Declined', 'Revoked']
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(*STATUS, name='status_types', native_enum=False),
@@ -41,11 +43,11 @@ class Event(ResourceMixin):
     end_date = db.Column(db.DateTime, nullable=False)
     half_day = db.Column(db.Boolean)
     days = db.Column(db.Numeric(precision=4, scale=1))
-    etype_id = db.Column(db.Integer, db.ForeignKey('entt_absence_types.absence_type_id'), nullable=True)
-    etype = db.relationship('EnttAbsenceTypes', foreign_keys=[etype_id])
+    ltype_id = db.Column(db.Integer, db.ForeignKey('leave_type.id'), nullable=True)
+    ltype = db.relationship('LeaveType', foreign_keys=[ltype_id])
     details = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    actioned_by = db.relationship('User', secondary='event_actioned', backref='actioned_events', lazy='select', uselist=False)
+    actioned_by = db.relationship('User', secondary='leave_actioned', backref='actioned_leaves', lazy='select', uselist=False)
     status_details = db.Column(db.String(120), nullable=True)
 
     @hybrid_property
@@ -62,7 +64,7 @@ class Event(ResourceMixin):
         if self.status == 'Pending':
             return get_settings_value('pending_colour')
         else:
-            return self.etype.get_hex_colour()
+            return self.ltype.get_hex_colour()
 
     def full_calendar_add_one_day(self):
         return self.end_date + datetime.timedelta(days=1)
@@ -72,10 +74,10 @@ class Event(ResourceMixin):
         return delta.days
 
     @classmethod
-    def initialize_event_request(cls, event):
-        if event.etype.get_approval() == True:
-            from app.email import send_event_request_email
-            send_event_request_email.delay(event.id)
-        elif event.etype.approval() == False:
-            event.status = 'Approved'
-            return event.save()
+    def initialize_leave_request(cls, leave):
+        if leave.ltype.approval == True:
+            from app.email import send_leave_request_email
+            send_leave_request_email.delay(leave.id)
+        elif leave.ltype.approval == False:
+            leave.status = 'Approved'
+            return leave.save()

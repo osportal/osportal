@@ -3,8 +3,8 @@
 
 {% block title %}Edit Request{% endblock %}
 
-{% set endpoint = 'event.edit' %}
-{% set form_kwargs = {'id': event.id} %}
+{% set endpoint = 'leave.edit' %}
+{% set form_kwargs = {'id': leave.id} %}
 
 {% block content %}
 <div class="row">
@@ -12,7 +12,7 @@
     <!-- Edit Request Form  -->
     {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
 
-        {% call f.form_group(form.etype) %}
+        {% call f.form_group(form.entt_ltype) %}
         {% endcall %}
 
         {% if form.half_day %}
@@ -39,7 +39,7 @@
                 {% endcall %}
             </div>
             <div class="col">
-                    <a href="{{ url_for('event.history') }}" role="button" class="btn btn-light btn-block">
+                    <a href="{{ url_for('leave.history') }}" role="button" class="btn btn-light btn-block">
                         Cancel
                     </a>
             </div>

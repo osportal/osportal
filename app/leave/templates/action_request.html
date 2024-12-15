@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 {% import 'macros/form.html' as f with context %}
 
-{% set form_kwargs = {'id': event.id} %}
+{% set form_kwargs = {'id': leave.id} %}
 
-{% if request.endpoint == 'event.decline' %}
-    {% set heading = 'Decline Request - ' + event.user.username %}
-    {% set endpoint = 'event.decline' %}
-{% elif request.endpoint == 'event.revoke' %}
-{% set heading = 'Revoke Request - ' + event.user.username %}
-    {% set endpoint = 'event.revoke' %}
+{% if request.endpoint == 'leave.decline' %}
+    {% set heading = 'Decline Request - ' + leave.user.username %}
+    {% set endpoint = 'leave.decline' %}
+{% elif request.endpoint == 'leave.revoke' %}
+{% set heading = 'Revoke Request - ' + leave.user.username %}
+    {% set endpoint = 'leave.revoke' %}
 {% endif %}
 
 {% block title %}{{ heading }}{% endblock %}
@@ -21,33 +21,33 @@
   <div class="col-md-5 well">
     <div class="form-group">
 	  <div class="mb-2">
-          <strong>Start Date: </strong>{{ event.start_date.strftime("%-d %b %Y") }}
-      {% if event.half_day %}
+          <strong>Start Date: </strong>{{ leave.start_date.strftime("%-d %b %Y") }}
+      {% if leave.half_day %}
         <span><strong> (half day)</strong></span>
       {% endif %}
       </div>
-      {% if not event.half_day %}
+      {% if not leave.half_day %}
 	  <div class="mb-2">
-          <strong>End Date: </strong>{{ event.end_date.strftime("%-d %b %Y") }}
+          <strong>End Date: </strong>{{ leave.end_date.strftime("%-d %b %Y") }}
       </div>
       {% endif %}
 	  <div class="mb-2">
-          <strong>Duration: </strong>{{ event.days }}
+          <strong>Duration: </strong>{{ leave.days }}
       </div>
 	  <div class="mb-2">
-          <strong>Type: </strong>{{ event.etype }}
+          <strong>Type: </strong>{{ leave.ltype }}
       </div>
-      {% if event.details %}
+      {% if leave.details %}
 	  <div class="mb-2">
-          <strong>Details: </strong>{{ event.details }}
+          <strong>Details: </strong>{{ leave.details }}
       </div>
       {% endif %}
 	  <div class="mb-2">
-          <strong>Status: </strong>{{ event.status }}
+          <strong>Status: </strong>{{ leave.status }}
       </div>
-      {% if event.actioned_by %}
+      {% if leave.actioned_by %}
 	  <div class="mb-2">
-          <strong>Previously Actioned by: </strong>{{ event.actioned_by }}
+          <strong>Previously Actioned by: </strong>{{ leave.actioned_by }}
       </div>
       {% endif %}
     </div>
@@ -65,7 +65,7 @@
                 </button>
             </div>
             <div class="col-md-6">
-                    <a href="{{ url_for('event.authorise') }}" role="button" class="btn btn-light btn-block">
+                    <a href="{{ url_for('leave.authorise') }}" role="button" class="btn btn-light btn-block">
                         Cancel
                     </a>
             </div>

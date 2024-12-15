@@ -1,6 +1,6 @@
 from app.extensions import db
 from app.utils.util_sqlalchemy import ResourceMixin, StripStr
-from app.event.models import EventType
+from app.leave.models import LeaveType
 import datetime
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -36,10 +36,10 @@ def get_class_by_tablename(tablename):
                 return c
 
 
-class EnttAbsenceTypes(ResourceMixin):
-    __tablename__ = 'entt_absence_types'
-    id = db.Column(db.Integer, nullable=True) # used in import zip job
-    absence_type_id = db.Column(db.Integer, db.ForeignKey('event_type.id',
+class EnttLeaveTypes(ResourceMixin):
+    __tablename__ = 'entt_leave_types'
+    id = db.Column(db.Integer, unique=True) # used in import zip job
+    leave_type_id = db.Column(db.Integer, db.ForeignKey('leave_type.id',
                                                   onupdate='CASCADE',
                                                   ondelete='CASCADE'),
                                 index=True, primary_key=True)
@@ -50,29 +50,34 @@ class EnttAbsenceTypes(ResourceMixin):
                         index=True, primary_key=True)
 
     def __repr__(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return f'{absence_type.name}'
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return f'{leave_type.name}'
 
     def get_deductable(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return absence_type.deductable
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.deductable
 
     def get_approval(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return absence_type.approval
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.approval
 
     def get_max_days(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return absence_type.max_days
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.max_days
 
     def get_hex_colour(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return absence_type.hex_colour
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.hex_colour
+
+    @hybrid_property
+    def lt_id(self):
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.id
 
     @hybrid_property
     def name(self):
-        absence_type = EventType.query.get(self.absence_type_id)
-        return absence_type.name
+        leave_type = LeaveType.query.get(self.leave_type_id)
+        return leave_type.name
 
 
 # Entitlement Template
@@ -93,10 +98,15 @@ class Entt(ResourceMixin):
                             nullable=True)
     public_holiday_group = db.relationship("PublicHolidayGroup",
                                            foreign_keys=[ph_group_id])
-    absence_types = db.relationship('EventType', secondary='entt_absence_types', backref='entt', lazy='dynamic', uselist=True)
+    leave_types = db.relationship('LeaveType', secondary='entt_leave_types',
+                                    backref='entt', lazy='dynamic', uselist=True)
 
     def __repr__(self):
         return self.name
+
+    def get_phg_colour(self):
+        if self.public_holiday_group:
+            return self.public_holiday_group.colour
 
     @classmethod
     def search(cls, query):
@@ -140,7 +150,6 @@ class Country(ResourceMixin):
                         Country.code.ilike(search_query))
 
         return or_(*search_chain)
-
 
 
 class PublicHolidayGroup(ResourceMixin):

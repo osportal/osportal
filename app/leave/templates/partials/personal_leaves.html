@@ -1,12 +1,12 @@
-    {% for e in user_events %}
-    {% set event_id = e.id | string %}
-    {% set del_url = url_for('event.delete', id=event_id) %}
-    {% set edit_url = url_for('event.edit', id=event_id) %}
+    {% for e in user_leaves %}
+    {% set leave_id = e.id | string %}
+    {% set del_url = url_for('leave.delete', id=leave_id) %}
+    {% set edit_url = url_for('leave.edit', id=leave_id) %}
     {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
     {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
     {
         id: '{{ e.id }}',
-        title : '{{ e.etype.name }} - {{ e.status }}', 
+        title : '{{ e.ltype.name }} - {{ e.status }}', 
         start : '{{ e.start_date }}',
         end : '{{ e.full_calendar_add_one_day() }}',
         extendedProps:{

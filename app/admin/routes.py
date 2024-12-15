@@ -19,8 +19,8 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
                              SiteForm,
                              EnttForm,
-                             SettingsForm, PageForm, EventTypeSettingsForm,
-                             EventRequestsForm, ImportCSVForm, ExportCSVForm,
+                             SettingsForm, PageForm, LeaveTypeSettingsForm,
+                             LeaveRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
                              EmailForm, ResetPasswordForm,
                              PublicHolidayGroupForm,
@@ -33,7 +33,7 @@ from app.models import (Site, Country,
                         Entt,
                         PublicHolidayGroup, PublicHoliday,
                         get_class_by_tablename)
-from app.event.models import Event, EventType
+from app.leave.models import Leave, LeaveType
 from app.pages.models import Page
 from app.posts.models import Post
 #from app.user.auth import ldap_con
@@ -69,7 +69,7 @@ def dashboard():
         "group_and_count_departments": Dashboard.group_and_count_departments(),
         "group_and_count_sites": Dashboard.group_and_count_sites(),
         "group_and_count_entts": Dashboard.group_and_count_entts(),
-        "group_and_count_event_types": Dashboard.group_and_count_event_types(),
+        "group_and_count_leave_types": Dashboard.group_and_count_leave_types(),
         "group_and_count_emails": Dashboard.group_and_count_emails(),
         "group_and_count_countries": Dashboard.group_and_count_countries(),
         "group_and_count_holiday_groups": Dashboard.group_and_count_holiday_groups(),
@@ -181,31 +181,31 @@ def entts(page):
     return render_template('entt/index.html', form=search_form, entts=paginated_entts)
 
 
-@admin.route('/event-types', defaults={'page':1}, methods=['GET', 'POST'])
-@admin.route('/event-types/page/<int:page>', methods=['GET', 'POST'])
-@permission_required('admin.event_type', crud='read')
-def event_types(page):
+@admin.route('/leave-types', defaults={'page':1}, methods=['GET', 'POST'])
+@admin.route('/leave-types/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.leave_type', crud='read')
+def leave_types(page):
     search_form = SearchForm()
 
-    sort_by = EventType.sort_by(request.args.get('sort', 'created_at'),
+    sort_by = LeaveType.sort_by(request.args.get('sort', 'created_at'),
                            request.args.get('direction', 'desc'))
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
 
-    paginated_etypes = EventType.query \
-        .filter(EventType.search((request.args.get('q', text(''))))) \
+    paginated_ltypes = LeaveType.query \
+        .filter(LeaveType.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
         .paginate(page, get_settings_value('items_per_admin_page'), True)
 
-    return render_template('event_type/index.html', event_types=paginated_etypes)
+    return render_template('leave_type/index.html', leave_types=paginated_ltypes)
 
 
-@admin.route('/events', defaults={'page': 1}, methods=['GET', 'POST'])
-@admin.route('/events/page/<int:page>', methods=['GET', 'POST'])
-@permission_required('admin.event', crud='read')
-def events(page):
-    events = Event.query \
+@admin.route('/leaves', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/leaves/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.leave', crud='read')
+def leaves(page):
+    leaves = Leave.query \
             .paginate(page, get_settings_value('items_per_admin_page'), False)
-    return render_template('event/index.html', events=events)
+    return render_template('leave/index.html', leaves=leaves)
 
 
 @admin.route('/users', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -925,15 +925,15 @@ def entt_delete(id):
     return redirect(url_for('admin.entts'))
 
 
-@admin.route('/event-type/new', methods=['GET', 'POST'])
-@permission_required('admin.event_type', crud='create')
-def event_type_new():
-    event_type = EventType(active=True, hex_colour='#0066FF', max_days=14)
-    form = EventTypeSettingsForm(obj=event_type)
+@admin.route('/leave-type/new', methods=['GET', 'POST'])
+@permission_required('admin.leave_type', crud='create')
+def leave_type_new():
+    leave_type = LeaveType(active=True, hex_colour='#0066FF', max_days=14)
+    form = LeaveTypeSettingsForm(obj=leave_type)
     if form.validate_on_submit():
         try:
-            form.populate_obj(event_type)
-            event_type.save()
+            form.populate_obj(leave_type)
+            leave_type.save()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
             flash(f'{e.orig.diag.message_detail}', 'danger')
@@ -941,49 +941,49 @@ def event_type_new():
             db.session.rollback()
             flash(f'{e}', 'danger')
         else:
-            flash(f'Successfully created {event_type.name}', 'success')
-            return redirect(url_for('admin.event_types'))
-    return render_template('event_type/edit.html', form=form)
+            flash(f'Successfully created {leave_type.name}', 'success')
+            return redirect(url_for('admin.leave_types'))
+    return render_template('leave_type/edit.html', form=form)
 
 
-@admin.route('/event-type/edit/<int:id>', methods=['GET', 'POST'])
-@permission_required('admin.event_type', crud='update')
-def event_type_edit(id):
-    event_type = EventType.query.get(id)
-    form = EventTypeSettingsForm(obj=event_type)
+@admin.route('/leave-type/edit/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.leave_type', crud='update')
+def leave_type_edit(id):
+    leave_type = LeaveType.query.get(id)
+    form = LeaveTypeSettingsForm(obj=leave_type)
     if form.validate_on_submit():
-        form.populate_obj(event_type)
-        event_type.save()
-        flash(f'Successfully updated {event_type.name}', 'success')
-        return redirect(url_for('admin.event_types'))
-    return render_template('event_type/edit.html', form=form, event_type=event_type)
+        form.populate_obj(leave_type)
+        leave_type.save()
+        flash(f'Successfully updated {leave_type.name}', 'success')
+        return redirect(url_for('admin.leave_types'))
+    return render_template('leave_type/edit.html', form=form, leave_type=leave_type)
 
 
-@admin.route('/event-type/<int:id>/delete', methods=['POST'])
-@permission_required('admin.event_type', crud='delete')
-def event_type_delete(id):
-    event_type = EventType.query.get(id)
+@admin.route('/leave-type/<int:id>/delete', methods=['POST'])
+@permission_required('admin.leave_type', crud='delete')
+def leave_type_delete(id):
+    leave_type = LeaveType.query.get(id)
     try:
-        event_type.delete()
+        leave_type.delete()
     except Exception as e:
         db.session.rollback()
         flash(f'{e}', 'danger')
     else:
-        flash(f'Successfully deleted {event_type.name}', 'success')
-    return redirect(url_for('admin.event_types'))
+        flash(f'Successfully deleted {leave_type.name}', 'success')
+    return redirect(url_for('admin.leave_types'))
 
 
-@admin.route('/events/<int:id>/status/edit', methods=['GET', 'POST'])
-@permission_required('admin.event', crud='update')
-def event_status_edit(id):
-    event = Event.query.get(id)
-    form = EventRequestsForm(obj=event)
+@admin.route('/leaves/<int:id>/status/edit', methods=['GET', 'POST'])
+@permission_required('admin.leave', crud='update')
+def leave_status_edit(id):
+    leave = Leave.query.get(id)
+    form = LeaveRequestsForm(obj=leave)
     if form.validate_on_submit():
-        form.populate_obj(event)
-        event.save()
-        flash('The status for the event request has been updated', 'success')
-        return redirect(url_for('admin.events'))
-    return render_template('event/status_edit.html', form=form, event=event)
+        form.populate_obj(leave)
+        leave.save()
+        flash('The status for the leave request has been updated', 'success')
+        return redirect(url_for('admin.leaves'))
+    return render_template('leave/status_edit.html', form=form, leave=leave)
 
 
 @admin.route('/<table>/bulk_delete', methods=['POST'])
@@ -1095,11 +1095,11 @@ def entt_info(id):
     return render_template('entt/info.html', entt=entt)
 
 
-@admin.route('/events/<int:id>', methods=['GET', 'POST'])
-@permission_required('admin.event_type', crud='read')
-def event_type_info(id):
-    etype = EventType.query.get_or_404(id)
-    return render_template('event_type/info.html', etype=etype)
+@admin.route('/leaves/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.leave_type', crud='read')
+def leave_type_info(id):
+    ltype = LeaveType.query.get_or_404(id)
+    return render_template('leave_type/info.html', ltype=ltype)
 
 
 @admin.route('/pages/<int:id>', methods=['GET', 'POST'])

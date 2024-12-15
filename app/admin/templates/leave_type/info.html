@@ -1,36 +1,36 @@
 {% extends "layout.html" %}
-{% block title %}Admin - Event Type Info{% endblock %}
+{% block title %}Admin - Leave Type Info{% endblock %}
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% import 'macros/form.html' as forms with context %}
-{% set active = 'admin.event_types' %}
+{% set active = 'admin.leave_types' %}
 
 {% block content %}
 
-{% set extra_setting_links = admin_event_type_sidebar(user=current_user) %}
+{% set extra_setting_links = admin_leave_type_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
 
 <div class="row justify-content-between align-items-center mb-3">
     <div class="col-auto">
-        <div class="h2">{{ etype.name }}</div>
+        <div class="h2">{{ ltype.name }}</div>
     </div>
     <div class="col-auto">
       <div class="btn-toolbar"> 
-      {% if current_user.permission('admin.event_type', crud='update') %}
+      {% if current_user.permission('admin.leave_type', crud='update') %}
           <div class="btn-group mr-2"> 
               <a role="button" 
-                 href="{{ url_for('admin.event_type_edit', id=etype.id) }}"
+                 href="{{ url_for('admin.leave_type_edit', id=ltype.id) }}"
                  class="btn btn-sm btn-primary">Edit
               </a>
           </div>
       {% endif %}
-      {% if current_user.permission('admin.event_type', crud='delete') %}
+      {% if current_user.permission('admin.leave_type', crud='delete') %}
           <div class="btn-group mr-2"> 
           {{ forms.action_confirm(
-              id="delete" ~ etype.id,
-              url=url_for('admin.event_type_delete', id=etype.id),
+              id="delete" ~ ltype.id,
+              url=url_for('admin.leave_type_delete', id=ltype.id),
               title="Delete", 
               btn="btn btn-sm btn-warning",
               icon_only=False,
@@ -46,30 +46,30 @@
 <div class="row">
   <div class="col-md-5 well">
     <div class="form-group">
-        <!-- Event Type Settings -->
+        <!-- Leave Type Settings -->
         <div class="mb-2">
         	<div><strong>Name</strong></div>
-        	<div>{{ etype.name }}</div>
+        	<div>{{ ltype.name }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Colour</strong></div>
-            <div style="height: 32px; width: 64px; background-color: {{ etype.hex_colour }}"></div>
+            <div style="height: 32px; width: 64px; background-color: {{ ltype.hex_colour }}"></div>
         </div>
         <div class="mb-2">
         	<div><strong>Deductable</strong></div>
-        	<div>{{ etype.render(etype.deductable) }}</div>
+        	<div>{{ ltype.render(ltype.deductable) }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Approval</strong></div>
-        	<div>{{ etype.render(etype.approval) }}</div>
+        	<div>{{ ltype.render(ltype.approval) }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Active</strong></div>
-        	<div>{{ etype.render(etype.active) }}</div>
+        	<div>{{ ltype.render(ltype.active) }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Max. Number of Days</strong></div>
-        	<div>{{ etype.max_days }}</div>
+        	<div>{{ ltype.max_days }}</div>
         </div>
     </div>
   </div>

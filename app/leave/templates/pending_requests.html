@@ -6,12 +6,12 @@
 
 {% set decline_btn = 'Decline' %}
 {% set revoke_btn = 'Revoke' %}
-{% set revoke_endpoint = 'event.revoke' %}
-{% set decline_endpoint = 'event.decline' %}
+{% set revoke_endpoint = 'leave.revoke' %}
+{% set decline_endpoint = 'leave.decline' %}
 
 {% block calendar_content %}
 <!-- IF PENDING REQUESTS EXIST -->
-{% if events.items %}
+{% if leaves.items %}
 <legend>Pending requests for users you oversee</legend>
 <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 <table class="table">
@@ -21,7 +21,7 @@
                 {{ items.sort('user', 'Requested By') }}
             </th>
             <th scope="col">
-                {{ items.sort('etype', 'Type') }}
+                {{ items.sort('ltype', 'Type') }}
             </th>
             <th scope="col">
                 {{ items.sort('start_date', 'Start Date') }}
@@ -40,37 +40,37 @@
         </tr>
     </thead>
     <tbody>
-    {% for event in events.items %}
+    {% for leave in leaves.items %}
     <tr>
         <td>
-            {{ event.user }}
+            {{ leave.user }}
         </td>
         <td>
-            {{ event.etype }}
+            {{ leave.ltype }}
         </td>
         <td>
-            {{ event.start_date.strftime("%-d %b %Y") }}
+            {{ leave.start_date.strftime("%-d %b %Y") }}
         </td>
         <td>
-            {{ event.end_date.strftime("%-d %b %Y") }}
+            {{ leave.end_date.strftime("%-d %b %Y") }}
         </td>
         <td>
-            {{ event.num_days }} days
+            {{ leave.num_days }} days
         </td>
         <td>
-            <span>{{ event.status }}</span>
+            <span>{{ leave.status }}</span>
         </td>
         <td>
             <span>
-                  <a class="btn btn-sm btn-success" href="{{ url_for('event.approve', id=event.id) }}">Approve</a>
-                  <a class="btn btn-sm btn-danger" href="{{ url_for('event.decline', id=event.id) }}">Decline</a>
+                  <a class="btn btn-sm btn-success" href="{{ url_for('leave.approve', id=leave.id) }}">Approve</a>
+                  <a class="btn btn-sm btn-danger" href="{{ url_for('leave.decline', id=leave.id) }}">Decline</a>
             </span>
         </td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
-{{ items.paginate(events) }}
+{{ items.paginate(leaves) }}
 {% else %}
     <h3>No pending items</h3>
 {% endif %}

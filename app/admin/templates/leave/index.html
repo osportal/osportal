@@ -3,16 +3,16 @@
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% import 'macros/pagination.html' as items %}
 
-{% block title %}L-Days - Admin{% endblock %}
+{% block title %}Leave Requests - Admin{% endblock %}
 
 {% block content %}
-{% set active = 'admin.events' %}
-{% set extra_setting_links = admin_event_sidebar(user=current_user) %}
+{% set active = 'admin.leaves' %}
+{% set extra_setting_links = admin_leave_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
 
-{% if events.total == 0 %}
+{% if leaves.total == 0 %}
 {% else %}
 
 <table class="table table-striped">
@@ -43,52 +43,52 @@
         </tr>
     </thead>
     <tbody>
-    {% for event in events.items %}
+    {% for leave in leaves.items %}
       <tr>
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                 type="checkbox" value="{{ event.id }}">
+                 type="checkbox" value="{{ leave.id }}">
         </td>
         <td>
-            {{ event.user }}
+            {{ leave.user }}
         </td>
         <td>
-            {{ event.etype }}
+            {{ leave.ltype }}
         </td>
         <td>
-            {{ event.start_date.strftime("%-d %b, %Y") }}{% if event.half_day %} (Half Day){% else %} - {{ event.end_date.strftime("%-d %b, %Y") }}{% endif %}
+            {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}
         </td>
         <td>
-            <a href="{{ url_for('admin.event_status_edit', id=event.id) }}">
-            {{ event.status }}
+            <a href="{{ url_for('admin.leave_status_edit', id=leave.id) }}">
+            {{ leave.status }}
             </a>
-            {% if event.status_details %}
+            {% if leave.status_details %}
                 <small>
-                [<a href="#" class="link-primary" data-toggle="modal" data-target="#statusDetails-{{event.id}}">see reason</a>]
+                [<a href="#" class="link-primary" data-toggle="modal" data-target="#statusDetails-{{leave.id}}">see reason</a>]
                 </small>
             {% endif %}
         </td>
         <td>
-            {{ event.user.authoriser }}
+            {{ leave.user.authoriser }}
         </td>
         <td>
-            {{ event.actioned_by }}
+            {{ leave.actioned_by }}
         </td>
       </tr>
         <!-- Status Details Modal -->
-        <div class="modal fade" id="statusDetails-{{event.id}}" tabindex="-1" aria-labelledby="statusDetailsLabel" aria-hidden="true">
+        <div class="modal fade" id="statusDetails-{{leave.id}}" tabindex="-1" aria-labelledby="statusDetailsLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title" id="statusDetailsLabel">{{ event.status }} Details</h5>
+                  <h5 class="modal-title" id="statusDetailsLabel">{{ leave.status }} Details</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					    <span aria-hidden="true">&times;</span>
 					</button>
               </div>
               <div class="modal-body">
               <p>
-                {{ event.status_details }}
+                {{ leave.status_details }}
               </p>
               </div>
             </div>
@@ -97,7 +97,7 @@
       {% endfor %}
     </tbody>
 </table>
-{{ items.paginate(events) }}
+{{ items.paginate(leaves) }}
 {% endif %}
 {% endblock %}
 

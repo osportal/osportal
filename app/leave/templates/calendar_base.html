@@ -9,7 +9,7 @@
     <!-- Legend -->
     <div class="mt-2">
         <ul style="text-align: center; list-style: none;">
-            {% for type in event_types %}
+            {% for type in leave_types %}
             <span class="mr-2">
                 <span class="icon">
                     {% if type == 'Pending' %}
@@ -28,14 +28,14 @@
     {% endblock calendar_content %}
 </div>
 
-{% if request.endpoint not in ['event.authorise', 'event.authorise_history'] %}
-{% include "event_information.html" %}
+{% if request.endpoint not in ['leave.authorise', 'leave.authorise_history'] %}
+{% include "leave_information.html" %}
 {% endif %}
 
 {% endblock content %}
 
 {% block scripts %}
-{% if request.endpoint != 'event.history' %}
+{% if request.endpoint != 'leave.history' %}
     <script src="{{ url_for('static', filename='js/vendor/fullcalendar/index.global.min.js') }}"></script>
 {% endif %}
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
@@ -44,12 +44,12 @@
     authoriser = '{{ current_user.authoriser }}';
     daysLeft = '{{ current_user.days_left }}';// use for pie chart
     daysUsed = '{{ current_user.used_days }}';// use for pie chart
-    const selectType = document.querySelector('#event-type-select');
+    const selectType = document.querySelector('#leave-type-select');
     const submitForm= document.querySelector('#submitRequestForm');
     const submitBtn = document.querySelector('#submitRequestBtn');
     const halfDay = document.getElementById("half_day");
-    var eventTypeId = selectType.value;
-    console.log(eventTypeId);
+    var leaveTypeId = selectType.value;
+    console.log(leaveTypeId);
 
     function validateHalfDay() {
         endDate = document.getElementById("end_date");
@@ -72,16 +72,16 @@
     function calculateDays(){
         startDate = document.getElementById("start_date").value;
         endDate = document.getElementById("end_date").value;
-        var endpoint = "{{ url_for('event.calculate_days_async') }}";
-        var etype_endpoint = "{{ url_for('event.get_etype_deductable') }}";
-        etype_endpoint += '?&event-type-id=' + eventTypeId;
+        var endpoint = "{{ url_for('leave.calculate_days_async') }}";
+        var ltype_endpoint = "{{ url_for('leave.get_ltype_deductable') }}";
+        ltype_endpoint += '?&leave-type-id=' + leaveTypeId;
         if (halfDay) { // if half days are enabled
             if (halfDay.checked){
                 disableSubmitBtn();
                 document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
                 endpoint += '?&start_date=' + startDate; 
                 endpoint += '&half_day=true';
-                calculate_days_for_user(endpoint, etype_endpoint);
+                calculate_days_for_user(endpoint, ltype_endpoint);
             }
         }
         if (startDate && endDate){
@@ -89,13 +89,13 @@
             document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
             endpoint += '?&start_date=' + startDate; 
             endpoint += '&end_date=' + endDate;
-            calculate_days_for_user(endpoint, etype_endpoint);
+            calculate_days_for_user(endpoint, ltype_endpoint);
         } else {
             document.getElementById('calculate-days-val').innerHTML = '';
         }
     }
     // function calls are here because of a page refresh
-    if (checkAbsenceType()){
+    if (checkLeaveType()){
         calculateDays();
         if (halfDay) {
             validateHalfDay();
@@ -106,10 +106,10 @@
     }
 
 
-    function checkAbsenceType(){
-        absenceTypeId = selectType.value;
-        if(absenceTypeId === ''){
-            document.getElementById('calculate-days-val').innerHTML = 'Please select an absence type';
+    function checkLeaveType(){
+        leaveTypeId = selectType.value;
+        if(leaveTypeId === ''){
+            document.getElementById('calculate-days-val').innerHTML = 'Please select an leave type';
             return false;
         } else {
             return true;
@@ -128,7 +128,7 @@
         }, 0);
     }
     
-    submitForm.addEventListener('submit', function(event) {
+    submitForm.addEventListener('submit', function(leave) {
         // set Timeout used here for compatibility with Chrome + Safari
         setTimeout(function() {
             submitBtn.disabled = true;
@@ -137,23 +137,23 @@
     });
 
     document.getElementById('start_date').onchange = function(){
-        if (checkAbsenceType()){
+        if (checkLeaveType()){
             calculateDays();
         }
     };
     document.getElementById('end_date').onchange = function(){
-        if (checkAbsenceType()){
+        if (checkLeaveType()){
             calculateDays();
         }
     };
     selectType.onchange = function(){
-        eventTypeId = this.value;
-        if (checkAbsenceType()){
+        leaveTypeId = this.value;
+        if (checkLeaveType()){
             calculateDays();
         }
     };
     {% if form.errors %}
-        $('#addEventModal').modal('show');
+        $('#addLeaveModal').modal('show');
     {% endif %}
 </script>
 
@@ -206,12 +206,12 @@
                     allDay: true 
                 },
                 {% endfor %}
-            {% if request.endpoint == 'event.index' %}
-              {% include "partials/personal_events.html" %}
-            {% elif request.endpoint == 'event.department' %}
-              {% include "partials/department_events.html" %}
-            {% elif request.endpoint == 'event.departments' %}
-              {% include "partials/all_departments_events.html" %}
+            {% if request.endpoint == 'leave.index' %}
+              {% include "partials/personal_leaves.html" %}
+            {% elif request.endpoint == 'leave.department' %}
+              {% include "partials/department_leaves.html" %}
+            {% elif request.endpoint == 'leave.departments' %}
+              {% include "partials/all_departments_leaves.html" %}
             {% endif %}
             ],
             displayEventTime: false,

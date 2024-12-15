@@ -1,7 +1,7 @@
 {% from 'macros/navigation.html' import is_active %}
 {% import 'macros/form.html' as f with context %}
 
-{% set endpoint = 'event.index' %}
+{% set endpoint = 'leave.index' %}
 {% set button = 'Submit' %}
 {% set icon = 'fa fa-calendar' %}
 {% set name = 'Personal Calendar' %}
@@ -14,24 +14,24 @@
     Calendars
     </a>
     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-      <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
+      <a class="dropdown-item {{ is_active('leave.index') }}" href="{{ url_for('leave.index') }}">Personal</a>
       {% if current_user.active_departments | count > 1 %}
           <hr class="dropdown-divider"></li>
-          <a class="dropdown-item {{ is_active('event.departments', active) }}" href="{{ url_for('event.departments') }}">All Departments</a>
+          <a class="dropdown-item {{ is_active('leave.departments', active) }}" href="{{ url_for('leave.departments') }}">All Departments</a>
           <hr class="dropdown-divider">
       {% endif %}
       {% for dept in current_user.active_departments %}
-          <a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('event.department', id=dept.id) }}">{{ dept.name }}</a>
+          <a class="dropdown-item{% if dept.id == request.view_args['id'] %} active disabled{% endif %}" href="{{ url_for('leave.department', id=dept.id) }}">{{ dept.name }}</a>
       {% endfor %}
     </div>
   </div>
 
-  {% if current_user.events %}
-  <a role="button" href="{{ url_for('event.history') }}" class="btn btn-secondary mr-1 mb-2 {{ is_active('event.history') }}">Event History</a>
+  {% if current_user.leaves %}
+  <a role="button" href="{{ url_for('leave.history') }}" class="btn btn-secondary mr-1 mb-2 {{ is_active('leave.history') }}">Leave History</a>
   {% endif %}
 
   {% if current_user.count_authoriser_requests() %}
-  <a role="button" class="btn btn-secondary {{ is_active('event.authorise') }} mr-1 mb-2" href="{{ url_for('event.authorise') }}">
+  <a role="button" class="btn btn-secondary {{ is_active('leave.authorise') }} mr-1 mb-2" href="{{ url_for('leave.authorise') }}">
       <span>Authorise</span>
           {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
           {% if authpendingcount > 0 %}
@@ -39,10 +39,10 @@
           {% endif %}
       </span>
   </a>
-  <a role="button" class="btn btn-secondary {{ is_active('event.authorise_history') }} mr-1 mb-2" href="{{ url_for('event.authorise_history') }}">Auth History</a>
+  <a role="button" class="btn btn-secondary {{ is_active('leave.authorise_history') }} mr-1 mb-2" href="{{ url_for('leave.authorise_history') }}">Auth History</a>
   {% endif %}
 
-  <a role="button" href="#" onclick="checkAuthoriserExists('#addEventModal')" class="btn btn-primary mr-1 mb-2">Book Time Off</a>
+  <a role="button" href="#" onclick="checkAuthoriserExists('#addLeaveModal')" class="btn btn-primary mr-1 mb-2">Book Time Off</a>
            
 </div>
 
@@ -52,32 +52,32 @@
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">Calendars</a>
         <ul class="dropdown-menu">
             <li>
-                <a class="dropdown-item {{ is_active('event.index') }}" href="{{ url_for('event.index') }}">Personal</a>
+                <a class="dropdown-item {{ is_active('leave.index') }}" href="{{ url_for('leave.index') }}">Personal</a>
             </li>
         </ul>
     </li>
 	<li class="nav-item">
-        <a class="nav-link {{ is_active('event.history') }}" href="{{ url_for('event.history') }}">Event History</a></li>
+        <a class="nav-link {{ is_active('leave.history') }}" href="{{ url_for('leave.history') }}">Leave History</a></li>
     </li>
     {% if current_user.count_authoriser_requests() %}
     {% endif %}
 	<li class="nav-item">
         <a class="nav-link" 
            href="#" 
-           onclick="checkAuthoriserExists('#addEventModal')"
+           onclick="checkAuthoriserExists('#addLeaveModal')"
            role="button"
            data-toggle="modal">
-                <i class="fas fa-plus mr-1"></i>Add Event
+                <i class="fas fa-plus mr-1"></i>Add Leave
         </a>
     </li>
 </ul>
 -->
-<!-- Add Event Modal -->
-<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
+<!-- Add Leave Modal -->
+<div class="modal fade" id="addLeaveModal" tabindex="-1" role="dialog" aria-labelledby="addLeaveModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="addEventModalLabel">Add Event</h5>
+					<h5 class="modal-title" id="addLeaveModalLabel">Add Leave</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					    <span aria-hidden="true">&times;</span>
 					</button>
@@ -85,7 +85,7 @@
                 <div class="modal-body">
                     {% call f.form_tag(endpoint, form=form, fid="submitRequestForm") %}
 
-                        {% call f.form_group(form.etype) %}
+                        {% call f.form_group(form.entt_ltype) %}
                         {% endcall %}
 
                         {% if form.half_day %}

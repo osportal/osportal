@@ -16,14 +16,14 @@ from app.user.routes import user
 from app.user import update_user_jinja_globals
 from app.admin.routes import admin
 from app.admin import update_admin_jinja_globals
-from app.event.routes import event
+from app.leave.routes import leave
 from app.department.routes import department
 from app.pages.routes import pages
 from app.pages import update_pages_jinja_globals
 from app.posts.routes import posts
 # Models
 from app.admin.models import Settings, Page
-from app.event.models import EventType
+from app.leave.models import LeaveType
 from app.user.models import User
 # Utils
 from app.utils.populate import create_default_settings
@@ -79,7 +79,7 @@ def create_app():
     app.register_blueprint(admin)
     app.register_blueprint(main)
     app.register_blueprint(user)
-    app.register_blueprint(event)
+    app.register_blueprint(leave)
     app.register_blueprint(posts)
     app.register_blueprint(pages)
     app.register_blueprint(department)
