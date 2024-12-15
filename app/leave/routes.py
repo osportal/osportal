@@ -118,7 +118,7 @@ def calculate_requested_days(form, leave, user):
 def get_ltype_deductable():
     id = request.args.get('leave-type-id')
     ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==id).first()
-    return jsonify({'deduct': f'{ltype.deductable}', 'max_days': f'{ltype.max_days}'})
+    return jsonify({'deduct': f'{ltype.get_deductable()}', 'max_days': f'{ltype.get_max_days()}'})
 
 
 @leave.route('/calculate-days-async', methods=['GET', 'POST'])
@@ -345,8 +345,10 @@ def approve(id):
         flash(f'{e}', 'danger')
     else:
         # celery task
-        from app.email import send_leave_request_status_update_email
-        send_leave_request_status_update_email.delay(id)
+        from app.admin.utils import get_settings_value
+        if get_settings_value('system_email_id'):
+            from app.email import send_leave_request_status_update_email
+            send_leave_request_status_update_email.delay(id)
         flash('Leave request approved', 'success')
     #return redirect(url_for('leave.index'))
     return redirect(url_for('leave.authorise'))
@@ -382,8 +384,10 @@ def revoke(id):
             flash(f'{e}', 'danger')
         else:
             # celery task
-            from app.email import send_leave_request_status_update_email
-            send_leave_request_status_update_email.delay(id)
+            from app.admin.utils import get_settings_value
+            if get_settings_value('system_email_id'):
+                from app.email import send_leave_request_status_update_email
+                send_leave_request_status_update_email.delay(id)
             flash('Successfully revoked leave request', 'success')
             return redirect(url_for('leave.authorise_history'))
     return render_template('action_request.html', form=form, leave=leave)
@@ -413,8 +417,10 @@ def decline(id):
             flash(f'{e}', 'danger')
         else:
             # celery task
-            from app.email import send_leave_request_status_update_email
-            send_leave_request_status_update_email.delay(id)
+            from app.admin.utils import get_settings_value
+            if get_settings_value('system_email_id'):
+                from app.email import send_leave_request_status_update_email
+                send_leave_request_status_update_email.delay(id)
             flash('Successfully declined leave request', 'success')
             return redirect(url_for('leave.authorise'))
     return render_template('action_request.html', form=form, leave=leave)

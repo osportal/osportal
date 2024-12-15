@@ -61,6 +61,7 @@ def dashboard():
     stats = {
         "celery_version": celery_version,
         "flask_version": flask_version,
+        "system_email": get_settings_value('system_email'),
         "group_and_count_posts": Dashboard.group_and_count_posts(),
         "group_and_count_pages": Dashboard.group_and_count_pages(),
         "group_and_count_users": Dashboard.group_and_count_users(),

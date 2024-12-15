@@ -76,8 +76,10 @@ class Leave(ResourceMixin):
     @classmethod
     def initialize_leave_request(cls, leave):
         if leave.ltype.approval == True:
-            from app.email import send_leave_request_email
-            send_leave_request_email.delay(leave.id)
+            from app.admin.utils import get_settings_value
+            if get_settings_value('system_email_id'):
+                from app.email import send_leave_request_email
+                send_leave_request_email.delay(leave.id)
         elif leave.ltype.approval == False:
             leave.status = 'Approved'
             return leave.save()

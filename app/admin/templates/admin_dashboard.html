@@ -18,9 +18,12 @@
                             Components
                         </div>
                         <div>Flask: {{ flask_version }}</div>
-                        <div>Celery: {{ celery_version }} <span id="celery-status" class="text-warning">checking status</span>
+                        <div>Celery: {{ celery_version }} <span id="celery-status"class="text-warning">checking status</span>
+                            <a class="ml-1" target="_blank" href="http://localhost:5555/tasks">View Tasks</a>
                         </div>
-                        <div><a target="_blank" href="http://localhost:5555/tasks">View Tasks</a></div>
+                        {% if not system_email %}
+                        <a class="text-danger" href="{{ url_for('admin.settings') }}#email">System email is not set</a>
+                        {% endif %}
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-clipboard-data h1 text-gray-300"></i>
