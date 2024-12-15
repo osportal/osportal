@@ -43,7 +43,7 @@ def calendar_settings():
     params = {
         'theme': 'bootstrap',
         'duration_days': 1,
-        'weekends': str(get_settings_value('weekend')).lower(), #str(current_app.config["ENABLE_WEEKENDS"]).lower(),
+        'weekends': str(current_user.entt.weekend).lower(), #str(current_app.config["ENABLE_WEEKENDS"]).lower(),
         'title_view': 'title',
         'grid_view': 'dayGridMonth,dayGridWeek,dayGridDay',
         'today_view': 'today,prev,next',
@@ -58,7 +58,7 @@ def calendar_settings():
 
 
 def leave_form(obj=None):
-    if get_settings_value('half_day'):
+    if current_user.entt.half_day:
         return LeaveHalfDayForm(obj=obj)
     else:
         return LeaveForm(obj=obj)
@@ -106,7 +106,7 @@ def calculate_requested_days(form, leave, user):
             return 0.5
     requested = (form.end_date.data + datetime.timedelta(days=1))
     requested -= form.start_date.data
-    if not get_settings_value('weekend'):
+    if not current_user.entt.weekend:
         result = count_business_days(form.start_date.data,
                                      form.end_date.data,
                                      user)
@@ -136,7 +136,7 @@ def calculate_days_async():
                 data=None,
                 status=400
             )
-        if not get_settings_value('weekend'):
+        if not current_user.entt.weekend:
              result = is_halfday_business_day(start_date, current_user)
              if result:
                  return jsonify(f'{result} days')
@@ -155,7 +155,7 @@ def calculate_days_async():
 
         requested = (end_date + datetime.timedelta(days=1))
         requested -= start_date
-        if not get_settings_value('weekend'):
+        if not current_user.entt.weekend:
             result = count_business_days(start_date,
                                          end_date,
                                          current_user)

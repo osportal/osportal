@@ -44,8 +44,6 @@ class Settings(ResourceMixin):
     forgot_password = db.Column(db.Boolean, nullable=False, default=True)
 
     # Calendar
-    weekend = db.Column(db.Boolean, nullable=False, default=False)
-    half_day = db.Column(db.Boolean, nullable=False, default=True)
     pending_colour = db.Column(StripStr(10), nullable=False, default='#eb5009')
 
     # Pagination

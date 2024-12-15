@@ -242,6 +242,8 @@ class EnttForm(ModelForm):
     annual_leave_days = IntegerField('Annual Leave Entitlement', validators=[DataRequired()])
     max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired()])
     max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[DataRequired()])
+    weekend = BooleanField('Enable Weekends')
+    half_day = BooleanField('Enable Half Days')
 
     public_holiday_group = QuerySelectField('Public Holiday Group',
                                             query_factory=lambda: PublicHolidayGroup.query.all(),
@@ -316,8 +318,6 @@ class SettingsForm(FlaskForm):
                                    )
 
     #Calendar
-    weekend =BooleanField('Enable Weekends')
-    half_day = BooleanField('Enable Half Days')
     pending_colour = StringField('Pending Colour', widget=ColorInput())
 
 

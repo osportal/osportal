@@ -90,8 +90,9 @@ class Entt(ResourceMixin):
     annual_leave_days = db.Column(db.Integer, nullable=True, default=0)
     max_carryover_days = db.Column(db.Integer, nullable=True, default=0)
     max_carryover_hours = db.Column(db.Integer, nullable=True, default=0)
-    #enable_weekends
-    #enable_half_days
+    weekend = db.Column(db.Boolean, nullable=False, default=False)
+    half_day = db.Column(db.Boolean, nullable=False, default=True)
+    #TODO add time unit (days or hours)
 
     ph_group_id = db.Column(db.Integer,
                             db.ForeignKey('public_holiday_group.id'),
