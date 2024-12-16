@@ -25,7 +25,7 @@ from collections import OrderedDict
 from flask import request
 from flask_admin.form.widgets import Select2Widget
 from flask_wtf import FlaskForm
-#from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileSize
 from flask_login import current_user
 from sqlalchemy import func
 from wtforms import (StringField, PasswordField, IntegerField,
@@ -116,6 +116,12 @@ class PageForm(FlaskForm):
 
 
 class NewUserForm(UserForm):
+    image_file = FileField('Update Profile Picture',
+                           validators=[FileAllowed(['jpg','jpeg','png','gif','webp','tiff','bmp']),
+                                       FileSize(max_size=15*1024*1024,
+                                                message='File size should be less than 15MB')
+                                      ]
+                           )
     dob = DatePickerField('Date of Birth', validators=[Optional()])
     role = QuerySelectField('Role', query_factory=lambda: Role.query.all(),
                             get_pk=lambda r: r.id, allow_blank=True,

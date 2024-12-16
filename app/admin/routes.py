@@ -39,10 +39,12 @@ from app.posts.models import Post
 #from app.user.auth import ldap_con
 from app.user.decorators import permission_required
 from app.user.models import User, Role, Permission
+from app.user.utils import save_picture, delete_picture
 from app.user.forms import RegistrationForm
 from app.utils.csv import load_csv, dump_csv, dump_table_selected_ids
 from app.utils.util_sqlalchemy import ResourceMixin
 from app.utils.zip import export_zipfile, import_zipfile
+from PIL import Image, UnidentifiedImageError
 
 
 admin = Blueprint('admin', __name__, template_folder='templates', url_prefix='/admin')
@@ -1130,6 +1132,7 @@ def settings():
 def users_edit(id):
     user = User.query.get_or_404(id)
     url = url_for('admin.users_info', id=user.id)
+    current_picture = user.image_file
     if user.locked:
         abort(403)
     form = NewUserForm(obj=user, departments=user.department)
@@ -1151,7 +1154,17 @@ def users_edit(id):
         #[user.department] = form.departments.data
 
         try:
+            if form.image_file.data:
+                # delete existing picture
+                if request.files['image_file']:
+                    f = request.files['image_file']
+                    image = save_picture(f)
+                    delete_picture(current_picture)
+                    user.image_file = image
             user.save()
+        except UnidentifiedImageError as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
             flash(f'{e.orig.diag.message_detail}', 'danger')

@@ -2,8 +2,14 @@
 
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% import 'macros/form.html' as forms with context %}
+{%- from "macros/user.html" import avatar_img -%}
 
 {% block title %}User {{ user }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename="css/imageModal.css") }}">
+{% endblock %}
 
 {% set active = 'admin.users' %}
 
@@ -45,6 +51,16 @@
     	</div><!-- end of col toolbar -->
     {% endif %}<!-- end of lock check -->
 </div><!-- end of row -->
+
+    <div class="mb-3">
+        {{ avatar_img(user, id='profileImg') }}
+        <!-- The Image Modal -->
+        <div class="modal" id="imageModal">
+          <span class="closeAvatar">&times;</span>
+          <img class="modal-content" id="img01">
+          <div id="caption"></div>
+        </div>
+    </div>
 
 <div class="row">
   <div class="col-md-5 well">
@@ -204,4 +220,5 @@ $("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
     editURL.href = '{{ url }}' + '#' + id;
 });
 </script>
+<script src="{{ url_for('static', filename='js/imageModal.js') }}"></script>
 {% endblock scripts %}

@@ -1,4 +1,5 @@
 {% import 'macros/form.html' as f with context %}
+{%- from "macros/user.html" import avatar_img -%}
 
 {% if request.endpoint.endswith('new') %}
   {% set endpoint = 'admin.users_new' %}
@@ -69,6 +70,17 @@
 
   <div class="col-lg">
     <legend>{{ legend }}</legend>
+
+    <div class="mb-3">
+        {{ avatar_img(user, id='profileImg') }}
+        <!-- The Image Modal -->
+        <div class="modal" id="imageModal">
+          <span class="closeAvatar">&times;</span>
+          <img class="modal-content" id="img01">
+          <div id="caption"></div>
+        </div>
+    </div>
+
     <div role="tabpanel" class="tab-pane config-section" id="tab-panel">
     	<ul class="nav nav-tabs mb-3" role="tablist">
     		<li class="nav-item">
@@ -85,7 +97,10 @@
     	<div class="tab-content">
     		<div role="tabpanel" class="tab-pane active" id="general">
     			<div class="form-group">
-    		    {% call f.form_tag(endpoint, form=form, **form_kwargs) %}
+    		    {% call f.form_tag(endpoint, form=form, enctype="multipart/form-data", **form_kwargs) %}
+                    {% call f.form_group(form.image_file, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+
                     {% call f.form_group(form.email, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
