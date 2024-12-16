@@ -2,7 +2,9 @@
 {%- from "macros/utils.html" import legend_circle -%}
 
 {% block content %}
+
 {% include "calendar_navbar.html" %}
+
 <div id="calendar-container">
     {% block calendar_content %}
     <div id="calendar"></div>
@@ -44,117 +46,6 @@
     authoriser = '{{ current_user.authoriser }}';
     daysLeft = '{{ current_user.days_left }}';// use for pie chart
     daysUsed = '{{ current_user.used_days }}';// use for pie chart
-    const selectType = document.querySelector('#leave-type-select');
-    const submitForm= document.querySelector('#submitRequestForm');
-    const submitBtn = document.querySelector('#submitRequestBtn');
-    const halfDay = document.getElementById("half_day");
-    var leaveTypeId = selectType.value;
-    console.log(leaveTypeId);
-
-    function validateHalfDay() {
-        endDate = document.getElementById("end_date");
-        endDateParent = endDate.parentNode;
-        if (document.getElementById('half_day').checked) {
-            //console.log("checked");
-            endDate.valueAsDate = null;
-            endDateParent.style.display = 'none';
-            $('#end_date').prop('disabled', true);
-            //document.getElementById('calculate-days-val').innerHTML = '0.5 days';
-            calculateDays();
-
-        } else {
-            //console.log("UNchecked");
-            $('#end_date').prop('disabled', false);
-            endDateParent.style.display = 'block';
-            document.getElementById('calculate-days-val').innerHTML = '';
-        }
-    }
-    function calculateDays(){
-        startDate = document.getElementById("start_date").value;
-        endDate = document.getElementById("end_date").value;
-        var endpoint = "{{ url_for('leave.calculate_days_async') }}";
-        var ltype_endpoint = "{{ url_for('leave.get_ltype_deductable') }}";
-        ltype_endpoint += '?&leave-type-id=' + leaveTypeId;
-        if (halfDay) { // if half days are enabled
-            if (halfDay.checked){
-                disableSubmitBtn();
-                document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
-                endpoint += '?&start_date=' + startDate; 
-                endpoint += '&half_day=true';
-                calculate_days_for_user(endpoint, ltype_endpoint);
-            }
-        }
-        if (startDate && endDate){
-            disableSubmitBtn();
-            document.getElementById('calculate-days-val').innerHTML = 'calculating days...';
-            endpoint += '?&start_date=' + startDate; 
-            endpoint += '&end_date=' + endDate;
-            calculate_days_for_user(endpoint, ltype_endpoint);
-        } else {
-            document.getElementById('calculate-days-val').innerHTML = '';
-        }
-    }
-    // function calls are here because of a page refresh
-    if (checkLeaveType()){
-        calculateDays();
-        if (halfDay) {
-            validateHalfDay();
-            document.getElementById('half_day').onchange = function(){
-                validateHalfDay();
-            };
-        }
-    }
-
-
-    function checkLeaveType(){
-        leaveTypeId = selectType.value;
-        if(leaveTypeId === ''){
-            document.getElementById('calculate-days-val').innerHTML = 'Please select an leave type';
-            return false;
-        } else {
-            return true;
-        }
-    }
-    function disableSubmitBtn(){
-        // set Timeout used here for compatibility with Chrome + Safari
-        setTimeout(function() {
-            submitBtn.disabled = true;
-        }, 0);
-    }
-    function enableSubmitBtn(){
-        // set Timeout used here for compatibility with Chrome + Safari
-        setTimeout(function() {
-            submitBtn.disabled = false;
-        }, 0);
-    }
-    
-    submitForm.addEventListener('submit', function(leave) {
-        // set Timeout used here for compatibility with Chrome + Safari
-        setTimeout(function() {
-            submitBtn.disabled = true;
-        }, 0);
-          // Custom logic
-    });
-
-    document.getElementById('start_date').onchange = function(){
-        if (checkLeaveType()){
-            calculateDays();
-        }
-    };
-    document.getElementById('end_date').onchange = function(){
-        if (checkLeaveType()){
-            calculateDays();
-        }
-    };
-    selectType.onchange = function(){
-        leaveTypeId = this.value;
-        if (checkLeaveType()){
-            calculateDays();
-        }
-    };
-    {% if form.errors %}
-        $('#addLeaveModal').modal('show');
-    {% endif %}
 </script>
 
 <script>

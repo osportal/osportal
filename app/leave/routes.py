@@ -208,6 +208,40 @@ def index():
                            )
 
 
+@leave.route('/leave/create', methods=['GET', 'POST'])
+def book():
+    form = leave_form()
+    try:
+        if form.validate_on_submit():
+            leave = Leave()
+            form.populate_obj(leave)
+            requested = calculate_requested_days(form, leave, current_user)
+            #TODO move Error handling to separate function
+            ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
+            if requested > ltype.max_days:
+                abort(400, 'Exceeds the maximum length of days you can \
+                      request in one occurrence')
+            if ltype.deductable:
+                if not current_user.days_left:
+                    abort(400)
+                if requested > current_user.days_left:
+                    abort(400, 'Not enough allowance for this request')
+            leave.user_id=current_user.id
+            leave.ltype_id=ltype.id
+            leave.days = requested
+            leave.save()
+            Leave.initialize_leave_request(leave)
+            flash(f'Your request has been submitted', 'success')
+            return redirect(url_for('leave.index'))
+    except (IntegrityError, PendingRollbackError) as e:
+        db.session.rollback()
+        flash(f'{e.orig.diag.message_detail}', 'danger')
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    return render_template('edit.html', form=form)
+
+
+
 @leave.route('/calendar/departments', methods=['GET', 'POST'])
 def departments():
     public_holidays = current_user.check_public_holidays()
@@ -298,7 +332,7 @@ def edit(id):
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('edit_leave.html', leave=leave, form=form)
+    return render_template('edit.html', leave=leave, form=form)
 
 
 @leave.route('/leave/<int:id>/delete', methods=['GET', 'POST'])
