@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 from io import BytesIO, StringIO
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
-from psycopg2.errors import UniqueViolation
+from psycopg2.errors import UniqueViolation, ProgrammingError
 from app.admin.decorators import admin_read_required, entt_required
 from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
@@ -1137,27 +1137,27 @@ def users_edit(id):
         abort(403)
     form = NewUserForm(obj=user, departments=user.department)
     if form.validate_on_submit():
-        """
-        if User.is_last_admin(user):
-            flash('You are the last admin, you cannot do that.', 'danger')
-            return redirect(url_for('admin.users'))
-            """
-        if form.authoriser.data == user:
-            abort(400)
-            # this is caught by validators
-            # user cannot assign themselves as authorisers
-
-        if not user.username:
-            user.username = None
-
-        form.populate_obj(user)
-        #[user.department] = form.departments.data
-
         try:
-            if form.image_file.data:
+            """
+            if User.is_last_admin(user):
+                flash('You are the last admin, you cannot do that.', 'danger')
+                return redirect(url_for('admin.users'))
+                """
+            if form.authoriser.data == user:
+                abort(400)
+                # this is caught by validators
+                # user cannot assign themselves as authorisers
+
+            if not user.username:
+                user.username = None
+
+            form.populate_obj(user)
+            #[user.department] = form.departments.data
+
+            if form.image_storage.data:
                 # delete existing picture
-                if request.files['image_file']:
-                    f = request.files['image_file']
+                if request.files['image_storage']:
+                    f = request.files['image_storage']
                     image = save_picture(f)
                     delete_picture(current_picture)
                     user.image_file = image

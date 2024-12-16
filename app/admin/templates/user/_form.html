@@ -74,7 +74,7 @@
     <div class="mb-3">
         {{ avatar_img(user, id='profileImg') }}
         <!-- The Image Modal -->
-        <div class="modal" id="imageModal">
+        <div class="image-modal" id="imageModal">
           <span class="closeAvatar">&times;</span>
           <img class="modal-content" id="img01">
           <div id="caption"></div>
@@ -98,7 +98,8 @@
     		<div role="tabpanel" class="tab-pane active" id="general">
     			<div class="form-group">
     		    {% call f.form_tag(endpoint, form=form, enctype="multipart/form-data", **form_kwargs) %}
-                    {% call f.form_group(form.image_file, css_class='sm-margin-bottom') %}
+
+                    {% call f.form_group(form.image_storage, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
                     {% call f.form_group(form.email, css_class='sm-margin-bottom') %}

@@ -1,6 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}Admin - User Update{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename="css/imageModal.css") }}">
+{% endblock %}
+
+
 {%- from "macros/navigation.html" import sidebaritems with context -%}
 {% set active = 'admin.users' %}
 
@@ -24,4 +30,5 @@
         infoURL.href = '{{ url }}' + '#' + id;
     });
     </script>
+<script src="{{ url_for('static', filename='js/imageModal.js') }}"></script>
 {% endblock scripts %}

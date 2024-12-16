@@ -569,16 +569,17 @@ class User(UserMixin, ResourceMixin):
     def display_leave_allowance(self):
         columns = [
             [self.get_annual_leave_days(), 'Annual Entitlement'],
-            [self.previous_carryover_days, 'Days Carried Over'],
+            [self.days_left, 'Days Left'],
             [self.used_days,'Used and Authorised Days'],
-            [self.days_left, 'Days Left']
+            [self.previous_carryover_days, 'Days Carried Over']
         ]
         for column in columns:
-            if column[0].as_integer_ratio()[1] == 1:
-                column[0] = int(column[0])
-                yield column
-            else:
-                yield column
+            if column[0] is not None:
+                if column[0].as_integer_ratio()[1] == 1:
+                    column[0] = int(column[0])
+                    yield column
+                else:
+                    yield column
 
     def is_last_superuser(self):
         if self.role:

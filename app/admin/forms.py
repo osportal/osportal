@@ -116,7 +116,7 @@ class PageForm(FlaskForm):
 
 
 class NewUserForm(UserForm):
-    image_file = FileField('Update Profile Picture',
+    image_storage = FileField('Update Profile Picture',
                            validators=[FileAllowed(['jpg','jpeg','png','gif','webp','tiff','bmp']),
                                        FileSize(max_size=15*1024*1024,
                                                 message='File size should be less than 15MB')
