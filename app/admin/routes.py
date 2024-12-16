@@ -14,7 +14,7 @@ from io import BytesIO, StringIO
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from psycopg2.errors import UniqueViolation
-from app.admin.decorators import admin_read_required
+from app.admin.decorators import admin_read_required, entt_required
 from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              EditDepartmentForm, NewDepartmentForm,
                              SiteForm,
@@ -1498,3 +1498,22 @@ def get_valid_plugins():
 def plugins():
     plugins = get_valid_plugins()
     return render_template('plugin/index.html', plugins=plugins)
+
+
+@admin.route("/user/<int:id>/carry_over_entitlement", methods=['GET', 'POST'])
+@permission_required('admin.user', crud='update')
+@entt_required()
+def carry_over_entitlement(id):
+    user = User.query.get_or_404(id)
+    if user.days_left <= user.entt.max_carryover_days:
+        new_days =  user.entt.annual_leave_days + user.days_left
+        user.previous_carryover_days = user.days_left
+        user.days_left = new_days
+        user.used_days = 0
+    else:
+        # if user has more days than is permitted for carryover, carry across max
+        user.days_left = user.entt.annual_leave_days + user.entt.max_carryover_days
+        user.previous_carryover_days = user.entt.max_carryover_days
+        user.used_days = 0
+    user.save()
+    return redirect(url_for('admin.users_info', id=id))

@@ -141,32 +141,44 @@
             </div>
     		<div role="tabpanel" class="tab-pane" id="leave">
     			<div class="form-group">
-			    <div class="mb-2">
-			    	<div><strong>Entitlement Template</strong></div>
-			    	<div>{{ user.entt }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Leave Authoriser</strong></div>
-			    	<div>{{ user.authoriser }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Leave Year Start</strong></div>
-			    	<div>{{ user.fmt_date(user.leave_year_start) }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Days Left</strong></div>
-			    	<div>{{ user.days_left }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Used Days</strong></div>
-			    	<div>{{ user.used_days }}</div>
-			    </div>
-			    <div class="mb-2">
-			    	<div><strong>Carry Over Days</strong></div>
-			    	<div>{{ user.carry_over_days }}</div>
-			    </div>
+			        <div class="mb-2">
+			        	<div><strong>Entitlement Template</strong></div>
+			        	<div>{{ user.entt }}</div>
+			        </div>
+			        <div class="mb-2">
+			        	<div><strong>Leave Authoriser</strong></div>
+			        	<div>{{ user.authoriser }}</div>
+			        </div>
+			        <div class="mb-2">
+			        	<div><strong>Leave Year Start</strong></div>
+			        	<div>{{ user.fmt_date(user.leave_year_start) }}</div>
+			        </div>
+			        <div class="mb-2">
+			        	<div><strong>Days Left</strong></div>
+			        	<div>{{ user.days_left }}</div>
+			        </div>
+			        <div class="mb-2">
+			        	<div><strong>Used Days</strong></div>
+			        	<div>{{ user.used_days }}</div>
+			        </div>
+			        <div class="mb-2">
+			        	<div><strong>Days Carried Over</strong></div>
+			        	<div>{{ user.previous_carryover_days }}</div>
+			        </div>
+                    {% if current_user.entt %}
+    	                <div class="btn-group mr-2"> 
+    	                {{ forms.action_confirm(
+    	                    id="carry-over-confirm",
+    	                    url=url_for('admin.carry_over_entitlement', id=user.id),
+    	                    title="Carry Over Entitlement", 
+    	                    btn="btn btn-sm btn-warning",
+    	                    icon_only=False,
+    	                    target="#confirmModal") 
+    	                }}
+    	                </div>
+    	            {% endif %}
     			</div>
-            	</div>
+            </div>
       		<hr/>
         </div>
     </div>

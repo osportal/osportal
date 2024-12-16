@@ -12,3 +12,13 @@ def admin_read_required():
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+def entt_required():
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.entt:
+                return abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

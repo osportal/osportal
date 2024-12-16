@@ -143,7 +143,7 @@ class NewUserForm(UserForm):
 
     # Leave
     leave_year_start = DateField('Leave Year Start', validators=[Optional()])
-    carry_over_days = DecimalField('Carried Over Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
+    previous_carryover_days = DecimalField('Days Carried Over', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     used_days = DecimalField('Used Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
     days_left = DecimalField('Days Left', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
 

@@ -158,7 +158,7 @@ class User(UserMixin, ResourceMixin):
     leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
     used_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
     days_left = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    carry_over_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+    previous_carryover_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
 
     # RELATIONSHIPS
     role = db.relationship("Role", foreign_keys=[role_id], backref='user')
@@ -569,7 +569,7 @@ class User(UserMixin, ResourceMixin):
     def display_leave_allowance(self):
         columns = [
             [self.get_annual_leave_days(), 'Annual Entitlement'],
-            [self.carry_over_days, 'Days Carried Over From Last Year'],
+            [self.previous_carryover_days, 'Days Carried Over'],
             [self.used_days,'Used and Authorised Days'],
             [self.days_left, 'Days Left']
         ]
