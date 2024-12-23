@@ -13,7 +13,6 @@ class LeaveType(ResourceMixin):
     active = db.Column(db.Boolean, default=True, nullable=False)
     approval = db.Column(db.Boolean, default=True, nullable=False)
     hex_colour = db.Column(StripStr(10), nullable=False, default='#0066FF')
-    max_days = db.Column(db.Integer, nullable=True, default=14)
 
     def __repr__(self):
         return self.name
@@ -73,13 +72,18 @@ class Leave(ResourceMixin):
         delta = self.full_calendar_add_one_day() - self.start_date
         return delta.days
 
-    @classmethod
-    def initialize_leave_request(cls, leave):
-        if leave.ltype.approval == True:
-            from app.admin.utils import get_settings_value
-            if get_settings_value('system_email_id'):
-                from app.email import send_leave_request_email
-                send_leave_request_email.delay(leave.id)
-        elif leave.ltype.approval == False:
-            leave.status = 'Approved'
-            return leave.save()
+    def status_update(self, new_status):
+        self.status = new_status
+        return self.save()
+
+    def request_notification(self):
+        from app.admin.utils import get_settings_value
+        if get_settings_value('system_email_id'):
+            from app.email import send_leave_request_email
+            send_leave_request_email.delay(leave.id)
+
+    def init_request(self):
+        if self.ltype.approval == True:
+            self.request_notification()
+        elif self.ltype.approval == False:
+            self.status_update('Approved')

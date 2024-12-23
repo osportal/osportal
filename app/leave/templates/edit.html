@@ -102,6 +102,7 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{#
 <script>
     authoriser = '{{ current_user.authoriser }}';
     daysLeft = '{{ current_user.days_left }}';// use for pie chart
@@ -213,4 +214,5 @@
         }
     };
 </script>
+#}
 {% endblock scripts %}

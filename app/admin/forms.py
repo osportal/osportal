@@ -245,7 +245,7 @@ class EnttForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_entt_exists])
     active = BooleanField('Active')
     description = StringField('Description', validators=[Optional(), Length(2,300)])
-    annual_leave_days = IntegerField('Annual Leave Entitlement', validators=[DataRequired()])
+    annual_leave_days = IntegerField('Default Annual Leave Entitlement (days)', validators=[DataRequired()])
     max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired()])
     max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[DataRequired()])
     weekend = BooleanField('Enable Weekends')
@@ -264,11 +264,9 @@ class EnttForm(ModelForm):
 class LeaveTypeSettingsForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_lt_exists])
     active = BooleanField('Active')
-    #hex_colour = StringField('Colour', validators=[DataRequired()])
     hex_colour = StringField('Colour', widget=ColorInput())
     deductable = BooleanField('Deduct days from allowance?')
     approval = BooleanField('Approval required?')
-    max_days = IntegerField('Maximum Length (days)', default=14, validators=[DataRequired()])
 
 
 class LeaveRequestsForm(ModelForm):

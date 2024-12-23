@@ -1,9 +1,5 @@
     {% for e in user_leaves %}
     {% set leave_id = e.id | string %}
-    {% set del_url = url_for('leave.delete', id=leave_id) %}
-    {% set edit_url = url_for('leave.edit', id=leave_id) %}
-    {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
-    {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
     {
         id: '{{ e.id }}',
         title : '{{ e.ltype.name }} - {{ e.status }}', 
@@ -19,11 +15,6 @@
                 <div>Days: {{ e.num_days }}</div>
                 {% if e.details %}
                     <div>Details: {{ e.details }}</div>
-                {% endif %}
-                {% if e.status == "Pending" %}
-                    <hr>
-                    {{ edit_btn | safe}}
-                    {{ del_btn | safe}}
                 {% endif %}
                 `, 
         },

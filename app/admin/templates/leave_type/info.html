@@ -52,8 +52,8 @@
         	<div>{{ ltype.name }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Colour</strong></div>
-            <div style="height: 32px; width: 64px; background-color: {{ ltype.hex_colour }}"></div>
+        	<div><strong>Active</strong></div>
+        	<div>{{ ltype.render(ltype.active) }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Deductable</strong></div>
@@ -64,12 +64,8 @@
         	<div>{{ ltype.render(ltype.approval) }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Active</strong></div>
-        	<div>{{ ltype.render(ltype.active) }}</div>
-        </div>
-        <div class="mb-2">
-        	<div><strong>Max. Number of Days</strong></div>
-        	<div>{{ ltype.max_days }}</div>
+        	<div><strong>Colour</strong></div>
+            <div style="height: 32px; width: 64px; background-color: {{ ltype.hex_colour }}"></div>
         </div>
     </div>
   </div>

@@ -1,10 +1,24 @@
 from app.leave.models import LeaveType
+from app.leave.calculations import (count_business_days,
+                                    calculate_requested_days,
+                                    handle_leave_request)
 from app.models import EnttLeaveTypes
 import datetime
 from flask_login import current_user
 from sqlalchemy import func
 from wtforms_components import DateRange
 from wtforms.validators import ValidationError, StopValidation, DataRequired
+
+# leave type validation
+def check_lt_exists(form, field):
+    # checks new and current data when editing existing instance, returns if they are the same
+    if field.object_data: # otherwise we get a NoneType Error when checking for lowercase
+        if field.object_data.lower() == field.data.lower():
+            return
+    lt = LeaveType.query.filter(func.lower(LeaveType.name)==field.data.lower()).first()
+    if lt:
+        raise ValidationError('Leave Type already exists')
+
 
 
 def check_approval(form, field):
@@ -38,16 +52,6 @@ def check_end_date(form, field):
             DataRequired()
 
 
-def check_lt_exists(form, field):
-    # checks new and current data when editing existing instance, returns if they are the same
-    if field.object_data: # otherwise we get a NoneType Error when checking for lowercase
-        if field.object_data.lower() == field.data.lower():
-            return
-    lt = LeaveType.query.filter(func.lower(LeaveType.name)==field.data.lower()).first()
-    if lt:
-        raise ValidationError('Leave Type already exists')
-
-
 def check_leave_year_start(form, field):
     from flask_login import current_user
     if not current_user.leave_year_start: #if leave_year_start is None
@@ -64,7 +68,6 @@ def check_leave_year_start(form, field):
 # below validator does not take into account public holidays / weekends
 def check_allowance(form, field):
     if hasattr(form, 'half_day'):
-        print(form.half_day.data)
         if form.half_day.data == True:
             raise StopValidation()
 
@@ -72,8 +75,6 @@ def check_allowance(form, field):
     ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
     if ltype.get_deductable():
         from flask_login import current_user
-        requested = (form.end_date.data + datetime.timedelta(days=1))
-        requested -= form.start_date.data
-        requested = requested.days
+        calculate_requested_days(form.start_date.data, form.end_date.data, current_user)
         if requested > current_user.total_holiday_entitlement:
                 raise ValidationError(f'You do not have sufficient leave allowance for requested days.')

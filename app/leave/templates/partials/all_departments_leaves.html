@@ -3,16 +3,6 @@
               {{ slots.append(e) or "" }}
               /* above forloops and slotsappend prevent repeat leaves if member is a member of multiple departments */
               {% set leave_id = e.id | string %}
-              {% set del_url = url_for('leave.delete', id=leave_id) %}
-              {% set edit_url = url_for('leave.edit', id=leave_id) %}
-              {% set approve_url = url_for('leave.approve', id=leave_id) %}
-              {% set decline_url = url_for('leave.decline', id=leave_id) %}
-              {% set revoke_url = url_for('leave.revoke', id=leave_id) %}
-              {% set edit_btn = '<a class="btn btn-sm btn-primary" href="' + edit_url + '">Edit</a>' %}
-              {% set del_btn = '<a class="btn btn-sm btn-danger" href="' + del_url + '">Delete</a>' %}
-              {% set approve_btn = '<a class="btn btn-sm btn-success" href="' + approve_url + '">Approve</a>' %}
-              {% set decline_btn = '<a class="btn btn-sm btn-danger" href="' + decline_url + '">Decline</a>' %}
-              {% set revoke_btn = '<a class="btn btn-sm btn-danger" href="' + revoke_url + '">Revoke</a>' %}
 
               {
                   id: '{{ e.id }}',
@@ -25,21 +15,10 @@
                         <div>{{ e.start_date.strftime("%-d %b, %Y") }} - {{ e.end_date.strftime("%-d %b, %Y") }}</div>
                         <div>Days: {{ e.num_days }}</div>
                         <div>Type: {{ e.ltype.name }} ({{ e.status }})</div>
-                        {% if e.details %}
-                        <div>Details: {{ e.details }}</div>
-                        {% endif %}
-                        {% if e.status == "Pending" %}
-                            <hr>
-                            {% if current_user.id == e.user_id %}
-                                {{ edit_btn | safe}}
-                                {{ del_btn | safe}}
+                        {% if current_user.id == e.user_id %}
+                            {% if e.details %}
+                            <div>Details: {{ e.details }}</div>
                             {% endif %}
-                            {% if current_user.id == e.user.authoriser_id %}
-                                {{ approve_btn | safe }} {{ decline_btn | safe }}
-                            {% endif %}
-                        {% elif e.status == "Approved" %}
-                            <hr>
-                            {{ revoke_btn | safe }}
                         {% endif %}
                       `, 
                   },

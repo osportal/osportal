@@ -92,7 +92,10 @@ class Entt(ResourceMixin):
     max_carryover_hours = db.Column(db.Integer, nullable=True, default=0)
     weekend = db.Column(db.Boolean, nullable=False, default=False)
     half_day = db.Column(db.Boolean, nullable=False, default=True)
-    #TODO add time unit (days or hours)
+    #TODO time_unit (days or hours)
+    #TODO make sure to include within transfer carry over days button
+    # cap_days caps annual_leave_days (should be display as Allowance cap (days))
+    # cap_hours caps annual_leave_hours
 
     ph_group_id = db.Column(db.Integer,
                             db.ForeignKey('public_holiday_group.id'),

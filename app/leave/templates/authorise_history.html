@@ -1,6 +1,6 @@
 {% extends "calendar_base.html" %}
 {%- import "macros/pagination.html" as items -%}
-{% import 'macros/form.html' as f with context %}
+{% import 'macros/form.html' as forms with context %}
 
 {% block title %}Authorise History{% endblock title %}
 
@@ -69,9 +69,14 @@
         </td>
         <td>
             {% if leave.status == 'Approved' %}
-                <span>
-                    <a href="{{ url_for('leave.revoke', id=leave.id) }}" class="btn btn-sm btn-danger">Revoke</a>
-                </span>
+                {{ forms.action_confirm(
+                    id="revoke" ~ leave.id,
+                    url=url_for('leave.revoke', id=leave.id),
+                    title="Revoke", 
+                    btn="btn btn-sm btn-warning",
+                    icon_only=False,
+                    target="#confirmModal") 
+                }}
             {% endif %}
         </td>
     </tr>
@@ -85,4 +90,5 @@
 {% endif %}
 
 
+{% include "partials/confirm_dialog.html" %}
 {% endblock calendar_content %}

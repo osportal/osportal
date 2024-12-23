@@ -211,6 +211,13 @@ def leaves(page):
     return render_template('leave/index.html', leaves=leaves)
 
 
+@admin.route('/leave/<int:id>', methods=['GET', 'POST'])
+@permission_required('admin.leave', crud='read')
+def leave_info(id):
+    leave = Leave.query.get_or_404(id)
+    return render_template('leave/info.html', leave=leave)
+
+
 @admin.route('/users', defaults={'page': 1}, methods=['GET', 'POST'])
 @admin.route('/users/page/<int:page>', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='read')
@@ -931,7 +938,7 @@ def entt_delete(id):
 @admin.route('/leave-type/new', methods=['GET', 'POST'])
 @permission_required('admin.leave_type', crud='create')
 def leave_type_new():
-    leave_type = LeaveType(active=True, hex_colour='#0066FF', max_days=14)
+    leave_type = LeaveType(active=True, hex_colour='#0066FF')
     form = LeaveTypeSettingsForm(obj=leave_type)
     if form.validate_on_submit():
         try:

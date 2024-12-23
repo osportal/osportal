@@ -17,7 +17,7 @@
 
 <table class="table table-striped">
     <thead>
-        <tr>
+        <tr> 
           <th>
             <label for="select_all"></label>
             <input id="select_all" name="select_all" type="checkbox">
@@ -44,7 +44,7 @@
     </thead>
     <tbody>
     {% for leave in leaves.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.leave_info', id=leave.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
@@ -63,11 +63,6 @@
             <a href="{{ url_for('admin.leave_status_edit', id=leave.id) }}">
             {{ leave.status }}
             </a>
-            {% if leave.status_details %}
-                <small>
-                [<a href="#" class="link-primary" data-toggle="modal" data-target="#statusDetails-{{leave.id}}">see reason</a>]
-                </small>
-            {% endif %}
         </td>
         <td>
             {{ leave.user.authoriser }}
@@ -76,24 +71,6 @@
             {{ leave.actioned_by }}
         </td>
       </tr>
-        <!-- Status Details Modal -->
-        <div class="modal fade" id="statusDetails-{{leave.id}}" tabindex="-1" aria-labelledby="statusDetailsLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="statusDetailsLabel">{{ leave.status }} Details</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					    <span aria-hidden="true">&times;</span>
-					</button>
-              </div>
-              <div class="modal-body">
-              <p>
-                {{ leave.status_details }}
-              </p>
-              </div>
-            </div>
-          </div>
-        </div>
       {% endfor %}
     </tbody>
 </table>
@@ -103,4 +80,11 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
+<script>
+$(document).ready(function() {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+        });
+});
+</script>
 {% endblock %}

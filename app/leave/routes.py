@@ -1,6 +1,10 @@
 from app.admin.utils import get_settings_value
 from app.decorators import setup_required
 from app.extensions import db
+from app.leave.calculations import (is_halfday_business_day,
+                                    count_business_days,
+                                    calculate_requested_days,
+                                    handle_leave_request)
 from app.leave.decorators import check_authoriser_access
 from app.leave.forms import LeaveForm, LeaveHalfDayForm, LeaveDenyForm
 from app.leave.models import Leave, LeaveType
@@ -64,56 +68,6 @@ def leave_form(obj=None):
         return LeaveForm(obj=obj)
 
 
-def is_halfday_business_day(date, user):
-    public_holidays = [str(x.start_date.date()) for x in user.check_public_holidays()]
-    # Define a list of weekend days (Saturday and Sunday)
-    weekend_days = [5, 6]  # Monday is 0 and Sunday is 6
-    # Initialize a counter for business days
-    business_days = 0
-    # Iterate through each day in the date range
-    current_date = date
-    # Check if the current day is a weekend day
-    if current_date.weekday() not in weekend_days:
-        if str(current_date.strftime('%Y-%m-%d')) not in public_holidays:
-            return '0.5';
-    return '0';
-
-
-def count_business_days(start_date, end_date, user):
-    public_holidays = [str(x.start_date.date()) for x in user.check_public_holidays()]
-    # Define a list of weekend days (Saturday and Sunday)
-    weekend_days = [5, 6]  # Monday is 0 and Sunday is 6
-    # Initialize a counter for business days
-    business_days = 0
-    # Iterate through each day in the date range
-    current_date = start_date
-    while current_date <= end_date:
-        # Check if the current day is a weekend day
-        if current_date.weekday() not in weekend_days:
-            if str(current_date.strftime('%Y-%m-%d')) not in public_holidays:
-                business_days += 1
-        # Move to the next day
-        current_date += datetime.timedelta(days=1)
-    return business_days
-
-
-def calculate_requested_days(form, leave, user):
-    #TODO logic needs sorting
-    if hasattr(form, 'half_day'):
-        if form.half_day.data == True:
-            form.end_date.data = form.start_date.data
-            leave.end_date = leave.start_date
-            return 0.5
-    requested = (form.end_date.data + datetime.timedelta(days=1))
-    requested -= form.start_date.data
-    if not current_user.entt.weekend:
-        result = count_business_days(form.start_date.data,
-                                     form.end_date.data,
-                                     user)
-        return result
-    return requested.days
-
-
 @leave.route('/get-ltype-deductable', methods=['GET', 'POST'])
 def get_ltype_deductable():
     id = request.args.get('leave-type-id')
@@ -167,43 +121,12 @@ def calculate_days_async():
 
 @leave.route('/calendar', methods=['GET', 'POST'])
 def index():
-    form = leave_form()
     public_holidays = current_user.check_public_holidays()
     user_leaves = current_user.pending_or_approved_leaves()
     settings = calendar_settings()
-    calendar_legend()
-    try:
-        if form.validate_on_submit():
-            leave = Leave()
-            form.populate_obj(leave)
-            requested = calculate_requested_days(form, leave, current_user)
-            #TODO move Error handling to separate function
-            #entt_ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
-            ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
-            if requested > ltype.max_days:
-                abort(400, 'Exceeds the maximum length of days you can \
-                      request in one occurrence')
-            if ltype.deductable:
-                if not current_user.days_left:
-                    abort(400)
-                if requested > current_user.days_left:
-                    abort(400, 'Not enough allowance for this request')
-            leave.user_id=current_user.id
-            leave.ltype_id=ltype.id
-            leave.days = requested
-            leave.save()
-            Leave.initialize_leave_request(leave)
-            flash(f'Your request has been submitted', 'success')
-            return redirect(url_for('leave.index'))
-    except (IntegrityError, PendingRollbackError) as e:
-        db.session.rollback()
-        flash(f'{e.orig.diag.message_detail}', 'danger')
-    except Exception as e:
-        flash(f'{e}', 'danger')
     return render_template('personal_calendar.html',
-                           form=form,
-                           user_leaves=user_leaves,
                            public_holidays=public_holidays,
+                           user_leaves=user_leaves,
                            **settings
                            )
 
@@ -215,24 +138,23 @@ def book():
         if form.validate_on_submit():
             leave = Leave()
             form.populate_obj(leave)
-            requested = calculate_requested_days(form, leave, current_user)
-            #TODO move Error handling to separate function
-            ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
-            if requested > ltype.max_days:
-                abort(400, 'Exceeds the maximum length of days you can \
-                      request in one occurrence')
-            if ltype.deductable:
-                if not current_user.days_left:
-                    abort(400)
-                if requested > current_user.days_left:
-                    abort(400, 'Not enough allowance for this request')
-            leave.user_id=current_user.id
-            leave.ltype_id=ltype.id
-            leave.days = requested
-            leave.save()
-            Leave.initialize_leave_request(leave)
-            flash(f'Your request has been submitted', 'success')
-            return redirect(url_for('leave.index'))
+            # calculate if half days
+            if form.half_day.data == True:
+                requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user, half_day=True)
+            else:
+                # otherwise calculate normal days
+                requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user)
+            # TODO decide if we need to deduct requested from total entitlement
+            # requested should not be 0 days
+            if requested > 0:
+                ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
+                leave.user_id=current_user.id
+                leave.ltype_id=ltype.id
+                leave.days = requested
+                leave.save()
+                leave.init_request()
+                flash(f'Your request has been submitted', 'success')
+                return redirect(url_for('leave.index'))
     except (IntegrityError, PendingRollbackError) as e:
         db.session.rollback()
         flash(f'{e.orig.diag.message_detail}', 'danger')
@@ -320,7 +242,11 @@ def edit(id):
         abort(403)
     if form.validate_on_submit():
         try:
-            requested = calculate_requested_days(form, leave, current_user)
+            if form.half_day.data == True:
+                requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user, half_day=True)
+            else:
+                # otherwise calculate normal days
+                requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user)
             form.populate_obj(leave)
             leave.days = requested
             leave.save()
@@ -333,6 +259,7 @@ def edit(id):
         for error in form.errors.items():
             print(error)
     return render_template('edit.html', leave=leave, form=form)
+
 
 
 @leave.route('/leave/<int:id>/delete', methods=['GET', 'POST'])
@@ -349,7 +276,7 @@ def delete(id):
             flash('Leave request deleted', 'success')
     else:
         flash('Cannot delete non-pending requests - contact admin', 'danger')
-    return redirect(url_for('leave.index'))
+    return redirect(url_for('leave.history'))
 
 
 @leave.route('/leave/<int:id>/approve', methods=['GET', 'POST'])

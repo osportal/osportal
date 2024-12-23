@@ -34,6 +34,9 @@
           <th class="col-header">
               {{ items.sort('approval', 'Approval required') }}
           </th>
+          <th class="col-header">
+              {{ items.sort('colour') }}
+          </th>
         </tr>
     </thead>
     <tbody>
@@ -57,6 +60,10 @@
         </td>
         <td>
             {{ ltype.render(ltype.approval) }}
+        </td>
+        <td>
+            {{ ltype.hex_colour }}
+            <div style="height: 24px; width: 24px; background-color: {{ ltype.hex_colour }}"></div>
         </td>
         <td>
             {% if current_user.permission('admin.leave_type', crud='update') %}
