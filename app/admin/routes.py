@@ -67,6 +67,7 @@ def dashboard():
         "group_and_count_posts": Dashboard.group_and_count_posts(),
         "group_and_count_pages": Dashboard.group_and_count_pages(),
         "group_and_count_users": Dashboard.group_and_count_users(),
+        "group_and_count_active_users": Dashboard.group_and_count_active_users(),
         "group_and_count_roles": Dashboard.group_and_count_roles(),
         "group_and_count_permissions": Dashboard.group_and_count_permissions(),
         "group_and_count_departments": Dashboard.group_and_count_departments(),
@@ -202,8 +203,8 @@ def leave_types(page):
     return render_template('leave_type/index.html', leave_types=paginated_ltypes)
 
 
-@admin.route('/leaves', defaults={'page': 1}, methods=['GET', 'POST'])
-@admin.route('/leaves/page/<int:page>', methods=['GET', 'POST'])
+@admin.route('/leave-requests', defaults={'page': 1}, methods=['GET', 'POST'])
+@admin.route('/leave-requests/page/<int:page>', methods=['GET', 'POST'])
 @permission_required('admin.leave', crud='read')
 def leaves(page):
     leaves = Leave.query \
@@ -211,7 +212,7 @@ def leaves(page):
     return render_template('leave/index.html', leaves=leaves)
 
 
-@admin.route('/leave/<int:id>', methods=['GET', 'POST'])
+@admin.route('/leave-request/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.leave', crud='read')
 def leave_info(id):
     leave = Leave.query.get_or_404(id)
@@ -908,7 +909,7 @@ def entt_new():
     return render_template('entt/edit.html', form=form)
 
 
-@admin.route('/entitlement-templates/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/entitlement-templates/<int:id>/edit', methods=['GET', 'POST'])
 @permission_required('admin.entt', crud='update')
 def entt_edit(id):
     entt = Entt.query.get(id)
@@ -935,7 +936,7 @@ def entt_delete(id):
     return redirect(url_for('admin.entts'))
 
 
-@admin.route('/leave-type/new', methods=['GET', 'POST'])
+@admin.route('/leave-types/new', methods=['GET', 'POST'])
 @permission_required('admin.leave_type', crud='create')
 def leave_type_new():
     leave_type = LeaveType(active=True, hex_colour='#0066FF')
@@ -956,7 +957,7 @@ def leave_type_new():
     return render_template('leave_type/edit.html', form=form)
 
 
-@admin.route('/leave-type/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/leave-types/<int:id>/edit', methods=['GET', 'POST'])
 @permission_required('admin.leave_type', crud='update')
 def leave_type_edit(id):
     leave_type = LeaveType.query.get(id)
@@ -969,7 +970,7 @@ def leave_type_edit(id):
     return render_template('leave_type/edit.html', form=form, leave_type=leave_type)
 
 
-@admin.route('/leave-type/<int:id>/delete', methods=['POST'])
+@admin.route('/leave-types/<int:id>/delete', methods=['POST'])
 @permission_required('admin.leave_type', crud='delete')
 def leave_type_delete(id):
     leave_type = LeaveType.query.get(id)
@@ -1032,10 +1033,22 @@ def bulk_enable(table):
     return redirect(request.referrer)
 
 
+def check_licence():
+    max_users = current_app.config['MAX_ACTIVE_USERS']
+    active_users = Dashboard.group_and_count_active_users()
+    if active_users['total'] >= max_users:
+        raise Exception('You do not have enough user licences')
+
 @admin.route('/users/new', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='create')
 def users_new():
     user = User()
+    licences = {}
+    if current_app.config['MAX_ACTIVE_USERS']:
+        licences = {
+            "active_users" : Dashboard.group_and_count_active_users(),
+            "max_users" : current_app.config['MAX_ACTIVE_USERS']
+        }
     form = NewUserForm(active=True, send_activation_account_email=True)
     if form.validate_on_submit():
         try:
@@ -1044,6 +1057,9 @@ def users_new():
             # that user.register can also use
             #user.annual_entitlement = user.country.default_annual_allowance
             #user.days_left = user.annual_entitlement
+            if current_app.config['MAX_ACTIVE_USERS']:
+                if form.active.data:
+                    check_licence()
             user.save()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
@@ -1059,7 +1075,7 @@ def users_new():
                 send_activation_email.delay(user)
             flash('Successfully created user', 'success')
             return redirect(url_for('admin.users'))
-    return render_template('user/edit.html', form=form)
+    return render_template('user/edit.html', form=form, **licences)
 
 
 @admin.route('/users/<int:id>', methods=['GET', 'POST'])
@@ -1074,7 +1090,8 @@ def users_info(id):
 @permission_required('admin.role', crud='read')
 def roles_info(id):
     role = Role.query.get_or_404(id)
-    return render_template('role/info.html', role=role)
+    url = url_for('admin.roles_edit', id=role.id)
+    return render_template('role/info.html', url=url, role=role)
 
 
 @admin.route('/permissions/<int:id>', methods=['GET', 'POST'])
@@ -1105,7 +1122,7 @@ def entt_info(id):
     return render_template('entt/info.html', entt=entt)
 
 
-@admin.route('/leaves/<int:id>', methods=['GET', 'POST'])
+@admin.route('/leave-types/<int:id>', methods=['GET', 'POST'])
 @permission_required('admin.leave_type', crud='read')
 def leave_type_info(id):
     ltype = LeaveType.query.get_or_404(id)
@@ -1155,8 +1172,12 @@ def users_edit(id):
                 # this is caught by validators
                 # user cannot assign themselves as authorisers
 
-            if not user.username:
-                user.username = None
+            #if not user.username:
+            #    user.username = None
+
+            if current_app.config['MAX_ACTIVE_USERS']:
+                if form.active.data and not user.active:
+                    check_licence()
 
             form.populate_obj(user)
             #[user.department] = form.departments.data
@@ -1196,6 +1217,7 @@ def users_bulk_welcome_email():
     send_welcome_email.delay(ids)
     flash('{0} user(s) scheduled to be sent a welcome email.'.format(len(ids)), 'success')
     return redirect(url_for('admin.users'))
+
 
 @admin.route('/users/bulk_password_reset', methods=['POST'])
 @permission_required('admin.user', crud='update')
@@ -1314,6 +1336,7 @@ def roles_new():
 @permission_required('admin.role', crud='update')
 def roles_edit(id):
     role = Role.query.get_or_404(id)
+    url = url_for('admin.roles_info', id=role.id)
     form = RoleForm(obj=role)
     if form.validate_on_submit():
         try:
@@ -1328,7 +1351,7 @@ def roles_edit(id):
         else:
             flash('Updated successfully.', 'success')
             return redirect(url_for('admin.roles'))
-    return render_template('role/edit.html', form=form, role=role)
+    return render_template('role/edit.html', form=form, role=role, url=url)
 
 
 @admin.route('/roles/<int:id>/delete', methods=['POST'])

@@ -47,6 +47,26 @@
     	      }}
     	      </div>
     	  {% endif %}
+		  {% if current_user.permission('admin.user', crud='update') %}
+              <div class="btn-group mr-2">
+                  <a class="btn btn-sm btn-outline-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-cog mr-1"></i>Actions
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+		              <a class="dropdown-item" href="{{ url_for('admin.password_reset', id=user.id) }}" role="button">Reset Password</a>
+                        {% if current_user.entt %}
+    	                    {{ forms.action_confirm(
+    	                        id="carry-over-confirm",
+    	                        url=url_for('admin.carry_over_entitlement', id=user.id),
+    	                        title="Carry Over Entitlement", 
+    	                        btn="dropdown-item",
+    	                        icon_only=False,
+    	                        target="#confirmModal") 
+    	                    }}
+    	               {% endif %}
+                  </div>
+              </div>
+		  {% endif %}
     	  </div><!-- end of toolbar -->
     	</div><!-- end of col toolbar -->
     {% endif %}<!-- end of lock check -->
@@ -105,10 +125,6 @@
 			    	<div>{{ user.full_name }}</div>
 			    </div>
 			    <div class="mb-2">
-			    	<div><strong>Display Name</strong></div>
-			    	<div>{{ user.dn }}</div>
-			    </div>
-			    <div class="mb-2">
 			    	<div><strong>Date of Birth</strong></div>
 			    	<div>{{ user.fmt_date(user.dob) }}</div>
 			    </div>
@@ -123,14 +139,14 @@
 			    <div class="mb-2">
 			    	<div><strong>Role</strong></div>
 			    	<div>{{ user.role }}</div>
+                    {% if user.role.superuser %}
+                        <div><span class="badge text-white bg-danger">superuser</span></div>
+                    {% endif %}
 			    </div>
 			    <div class="mb-2">
 			    	<div><strong>Active</strong></div>
 			    	<div>{{ user.render(user.active) }}</div>
 			    </div>
-			{% if current_user.permission('admin.user', crud='update') %}
-			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
-			{% endif %}
                 	</div>
     		</div>
     		<div role="tabpanel" class="tab-pane" id="employment">
@@ -181,18 +197,6 @@
 			        	<div><strong>Days Carried Over</strong></div>
 			        	<div>{{ user.previous_carryover_days }}</div>
 			        </div>
-                    {% if current_user.entt %}
-    	                <div class="btn-group mr-2"> 
-    	                {{ forms.action_confirm(
-    	                    id="carry-over-confirm",
-    	                    url=url_for('admin.carry_over_entitlement', id=user.id),
-    	                    title="Carry Over Entitlement", 
-    	                    btn="btn btn-sm btn-warning",
-    	                    icon_only=False,
-    	                    target="#confirmModal") 
-    	                }}
-    	                </div>
-    	            {% endif %}
     			</div>
             </div>
       		<hr/>

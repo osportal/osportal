@@ -26,6 +26,12 @@
                         autofocus='autofocus') %}
   {% endcall %}
 
+  {% call f.form_group(form.first_name, css_class='sm-margin-bottom') %}
+  {% endcall %}
+
+  {% call f.form_group(form.last_name, css_class='sm-margin-bottom') %}
+  {% endcall %}
+
   {% call f.form_group(form.role, css_class='sm-margin-bottom') %}
   {% endcall %}
 
@@ -49,13 +55,13 @@
   
   {% call f.form_group(form.send_activation_account_email) %}
   {% endcall %}
-  <div class="row">
-    <div class="col-md-6">
+  <div class="row mb-4">
+    <div class="col">
         <button type="submit" class="btn btn-primary btn-block">
           {{ button }}
         </button>
     </div>
-    <div class="col-md-6">
+    <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
       <a href="{{ url_for('admin.users') }}"
           class="btn btn-light bg-opacity-10 btn-block">
@@ -65,6 +71,23 @@
   </div>
   {% endcall %}
   </div>
+
+  {% if max_users %}
+  <div class="col-sm">
+    <div class="form-group">
+        <legend>Licence Information</legend>
+		<div class="mb-2">
+			<div><strong>User Licences</strong></div>
+            <div>{{ max_users }}</div>
+		</div>
+		<div class="mb-2">
+			<div><strong>Active User Count</strong></div>
+			<div>{{ active_users.total }}</div>
+		</div>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% else %}
 
@@ -117,9 +140,6 @@
                     {% call f.form_group(form.last_name, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
-                    {% call f.form_group(form.dn, css_class='sm-margin-bottom') %}
-                    {% endcall %}
-
                     {% call f.form_group(form.dob, css_class='sm-margin-bottom') %}
                     {% endcall %}
 
@@ -132,7 +152,6 @@
                     {% call f.form_group(form.active) %}
                     {% endcall %}
 
-			<a href="{{ url_for('admin.password_reset', id=user.id) }}" role="button" type="button">Reset Password</a>
                 	</div>
     		</div>
     		<div role="tabpanel" class="tab-pane" id="employment">

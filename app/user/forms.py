@@ -29,7 +29,7 @@ class UserForm(ModelForm):
                                ])
     email = StringField('Email', validators=[check_email_exists, DataRequired(), EmailVal()])
     first_name = StringField('First Name', validators=[
-                               Optional(),
+                               DataRequired(),
                                Length(min=2, max=50),
                                ])
     middle_name = StringField('Middle Name', validators=[
@@ -37,13 +37,10 @@ class UserForm(ModelForm):
                                Length(min=2, max=50),
                                ])
     last_name = StringField('Last Name', validators=[
-                               Optional(),
+                               DataRequired(),
                                Length(min=2, max=50),
                                ])
-    dn = StringField('Display Name', validators=[
-                               Optional(),
-                               Length(min=2, max=50),
-                               ])
+    #dn = StringField('Display Name', validators=[ Optional(), Length(min=2, max=50), ])
     contact_number = StringField('Contact Number', validators=[
                                Optional(),
                                Length(min=1, max=25),
@@ -77,8 +74,10 @@ class LoginForm(FlaskForm):
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email',
-                        validators=[DataRequired(), EmailVal()])
+    email = StringField('Email', validators=[DataRequired(), EmailVal()])
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
+    middle_name = StringField('Middle Name', validators=[Optional(), Length(max=50)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
     image_file = FileField('Update Profile Picture',
                            validators=[FileAllowed(['jpg','jpeg','png','gif','webp','tiff','bmp']),
                                        FileSize(max_size=15*1024*1024,

@@ -11,8 +11,6 @@ def is_halfday_business_day(date, user):
     public_holidays = [str(x.start_date.date()) for x in user.check_public_holidays()]
     # Define a list of weekend days (Saturday and Sunday)
     weekend_days = [5, 6]  # Monday is 0 and Sunday is 6
-    # Initialize a counter for business days
-    business_days = 0
     # Iterate through each day in the date range
     current_date = date
     # Check if the current day is a weekend day
@@ -37,7 +35,11 @@ def count_business_days(start_date, end_date, user):
     current_date = start_date
     while current_date <= end_date:
         # Check if the current day is a weekend day
-        if current_date.weekday() not in weekend_days:
+        if not user.entt.weekend:
+            if current_date.weekday() not in weekend_days:
+                if str(current_date.strftime('%Y-%m-%d')) not in public_holidays:
+                    business_days += 1
+        else:
             if str(current_date.strftime('%Y-%m-%d')) not in public_holidays:
                 business_days += 1
         # Move to the next day
@@ -48,22 +50,14 @@ def count_business_days(start_date, end_date, user):
 def calculate_requested_days(start_date, end_date, user, half_day=None):
     if half_day:
         return is_halfday_business_day(start_date, user)
-    requested = (end_date + datetime.timedelta(days=1))
-    requested -= start_date
-    if not current_user.entt.weekend:
-        result = count_business_days(start_date,
-                                     end_date,
-                                     user)
-        return result
-    return requested.days
+    result = count_business_days(start_date, end_date, user)
+    return result
 
 
-def handle_leave_request(requested, ltype):
-    if requested > ltype.max_days:
-        abort(400, 'Exceeds the maximum length of days you can \
-              request in one occurrence')
+def validate_request(ltype, requested, user):
+    if not requested > 0:
+        raise Exception('No working days were requested')
     if ltype.deductable:
-        if not current_user.days_left:
-            abort(400)
-        if requested > current_user.days_left:
-            abort(400, 'Not enough allowance for this request')
+        if requested > user.days_left:
+            raise Exception('You do not have sufficient allowance for this request')
+    return True

@@ -113,13 +113,13 @@
 
 {% macro action_confirm(id, url, title, target='', icon='', btn='btn btn-icon', icon_only=True) %}
 <form class="d-inline" id="{{ id }}" method="POST" action="{{ url }}">
-    <button type="button" class="{{ btn }}" data-toggle="modal" data-target="{{ target }}">
+    <a type="button" class="{{ btn }}" data-toggle="modal" data-target="{{ target }}">
         {% if icon_only %}
         <span class="{{ icon }}" data-bs-toggle="tooltip" title="{{ title }}"></span>
         {% else %}
         <span class="{{ icon }}"></span> {{ title }}
         {% endif %}
-    </button>
+    </a>
 </form>
 {% endmacro %}
 

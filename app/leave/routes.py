@@ -4,7 +4,7 @@ from app.extensions import db
 from app.leave.calculations import (is_halfday_business_day,
                                     count_business_days,
                                     calculate_requested_days,
-                                    handle_leave_request)
+                                    validate_request)
 from app.leave.decorators import check_authoriser_access
 from app.leave.forms import LeaveForm, LeaveHalfDayForm, LeaveDenyForm
 from app.leave.models import Leave, LeaveType
@@ -17,7 +17,7 @@ from flask import render_template, request, url_for, redirect, flash, abort, Blu
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
 
-leave = Blueprint('leave', __name__, template_folder='templates')
+leave = Blueprint('leave', __name__, template_folder='./templates')
 
 @leave.before_request
 @setup_required()
@@ -26,7 +26,7 @@ def before_request():
     if not current_user.entt:
         return render_template('errors/entt_error.html')
     """
-    Protect all post endpoints
+    Protect all leave endpoints
     with login_required
     and enabled custom decorator
     """
@@ -145,9 +145,8 @@ def book():
                 # otherwise calculate normal days
                 requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user)
             # TODO decide if we need to deduct requested from total entitlement
-            # requested should not be 0 days
-            if requested > 0:
-                ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
+            ltype = LeaveType.query.get(form.entt_ltype.data.lt_id)
+            if validate_request(ltype, requested, current_user):
                 leave.user_id=current_user.id
                 leave.ltype_id=ltype.id
                 leave.days = requested
@@ -160,8 +159,7 @@ def book():
         flash(f'{e.orig.diag.message_detail}', 'danger')
     except Exception as e:
         flash(f'{e}', 'danger')
-    return render_template('edit.html', form=form)
-
+    return render_template('edit_leave.html', form=form)
 
 
 @leave.route('/calendar/departments', methods=['GET', 'POST'])
@@ -258,7 +256,7 @@ def edit(id):
     else:
         for error in form.errors.items():
             print(error)
-    return render_template('edit.html', leave=leave, form=form)
+    return render_template('edit_leave.html', leave=leave, form=form)
 
 
 

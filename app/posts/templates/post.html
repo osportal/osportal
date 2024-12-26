@@ -38,7 +38,7 @@
         </a>
         </div>
         <div class="col">
-            <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user.username }}</a>
+            <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user }}</a>
             <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
             {% if post.updated_at %}
                 <small class="text-muted ml-1">(Last Modified: {{ post.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
@@ -77,7 +77,7 @@
             </a>
         </div>
         <div class="col">
-			<a class="mr-1" href="{{ url_for(profile_endpoint, id=c.user.id) }}">{{ c.user.username }}</a>
+			<a class="mr-1" href="{{ url_for(profile_endpoint, id=c.user.id) }}">{{ c.user }}</a>
             <small class="text-muted"><span title="{{ c.created_at.strftime("%-d %b %Y %H:%M") }}">{{ c.pretty_date(c.created_at) }}</span></small>
             {% if c.updated_at %}
                 <small class="text-muted ml-1">(Last Modified: {{ c.updated_at.strftime("%-d %b %Y %H:%M") }})</small>

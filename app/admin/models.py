@@ -87,31 +87,35 @@ class Settings(ResourceMixin):
 class Dashboard(object):
     @classmethod
     def group_and_count_users(cls):
-        return Dashboard._group_and_count(User, User.role)
+        return Dashboard._group_and_count(User, User.id)
+
+    @classmethod
+    def group_and_count_active_users(cls):
+        return Dashboard._active_count(User, User.active)
 
     @classmethod
     def group_and_count_roles(cls):
-        return Dashboard._group_and_count(Role, Role.name)
+        return Dashboard._group_and_count(Role, Role.id)
 
     @classmethod
     def group_and_count_permissions(cls):
-        return Dashboard._group_and_count(Permission, Permission.db_name)
+        return Dashboard._group_and_count(Permission, Permission.id)
 
     @classmethod
     def group_and_count_departments(cls):
-        return Dashboard._group_and_count(Department, Department.name)
+        return Dashboard._group_and_count(Department, Department.id)
 
     @classmethod
     def group_and_count_sites(cls):
-        return Dashboard._group_and_count(Site, Site.name)
+        return Dashboard._group_and_count(Site, Site.id)
 
     @classmethod
     def group_and_count_entts(cls):
-        return Dashboard._group_and_count(Entt, Entt.name)
+        return Dashboard._group_and_count(Entt, Entt.id)
 
     @classmethod
     def group_and_count_leave_types(cls):
-        return Dashboard._group_and_count(LeaveType, LeaveType.active)
+        return Dashboard._group_and_count(LeaveType, LeaveType.id)
 
     @classmethod
     def group_and_count_pages(cls):
@@ -119,19 +123,19 @@ class Dashboard(object):
 
     @classmethod
     def group_and_count_posts(cls):
-        return Dashboard._group_and_count(Post, Post.name)
+        return Dashboard._group_and_count(Post, Post.id)
 
     @classmethod
     def group_and_count_emails(cls):
-        return Dashboard._group_and_count(Email, Email.name)
+        return Dashboard._group_and_count(Email, Email.id)
 
     @classmethod
     def group_and_count_countries(cls):
-        return Dashboard._group_and_count(Country, Country.name)
+        return Dashboard._group_and_count(Country, Country.id)
 
     @classmethod
     def group_and_count_holiday_groups(cls):
-        return Dashboard._group_and_count(PublicHolidayGroup, PublicHolidayGroup.name)
+        return Dashboard._group_and_count(PublicHolidayGroup, PublicHolidayGroup.id)
 
     @classmethod
     def _group_and_count(cls, model, field):
@@ -141,5 +145,16 @@ class Dashboard(object):
         results = {
                 'query': query,
                 'total': model.query.count()
+                }
+        return results
+
+    @classmethod
+    def _active_count(cls, model, field):
+        count = func.count(field)
+        query = model.query.filter(field).all()
+
+        results = {
+                'query': query,
+                'total': len(query)
                 }
         return results

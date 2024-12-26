@@ -25,7 +25,7 @@
             <table class="table table-light" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>Username</th>
+                    <th>Name</th>
                     <th>Created</th>
                 </tr>
             </thead>
@@ -33,7 +33,7 @@
             <tr>
                 <td>
                     <a class="mr-2" href="{{ url_for(profile_endpoint, id=member.id) }}">{{ avatar_img(member, size='48', id='profileImg') }}</a>
-                    <a href="{{ url_for(profile_endpoint, id=member.id) }}">{{ member.username }}</a>
+                    <a href="{{ url_for(profile_endpoint, id=member.id) }}">{{ member }}</a>
                     {% if department.manager == member %}
                         <span class="badge badge-pill badge-light">Manager</span>
                     {% endif %}

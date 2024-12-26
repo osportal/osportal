@@ -9,7 +9,7 @@
 
 {% block content %}
 <h1>
-Hi{% if current_user.username %} {{ current_user.username }}{% endif %}!
+Hi {{ current_user }}!
 <hr>
 </h1>
 
@@ -51,7 +51,7 @@ Hi{% if current_user.username %} {{ current_user.username }}{% endif %}!
         </div>
         <div class="col">
             <span style="font-size: 1em">
-                <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user.id) }}">{{ post.user.username }}</a>
+                <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user.id) }}">{{ post.user }}</a>
                 <span class="text-muted" title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span>
             </span>
     		<h4><a class="article-title btn-link" href="{{ url_for('posts.post', id=post.id) }}">{{ post.name }}</a></h4>

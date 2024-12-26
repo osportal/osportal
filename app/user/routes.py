@@ -146,6 +146,9 @@ def account():
     current_picture = current_user.image_file
     profile_fields = {
        'user_edit_username':current_user.can_permission('user_edit_username'),
+       'user_edit_first_name':current_user.can_permission('user_edit_first_name'),
+       'user_edit_middle_name':current_user.can_permission('user_edit_middle_name'),
+       'user_edit_last_name':current_user.can_permission('user_edit_last_name'),
        'user_edit_email':current_user.can_permission('user_edit_email'),
        'user_edit_image_file':current_user.can_permission('user_edit_image_file'),
        'user_edit_bio':current_user.can_permission('user_edit_bio')
@@ -156,6 +159,12 @@ def account():
                 raise Exception('User is locked')
             if current_user.role.user_edit_username:
                 current_user.username = form.username.data
+            if current_user.role.user_edit_first_name:
+                current_user.first_name = form.first_name.data
+            if current_user.role.user_edit_middle_name:
+                current_user.middle_name = form.middle_name.data
+            if current_user.role.user_edit_last_name:
+                current_user.last_name = form.last_name.data
             if current_user.role.user_edit_email:
                 current_user.email = form.email.data
             if current_user.role.user_edit_bio:

@@ -76,6 +76,9 @@ class Role(ResourceMixin):
     # editable user profile fields
     user_edit_email = db.Column(db.Boolean, nullable=True, default=False)
     user_edit_username = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_first_name = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_middle_name = db.Column(db.Boolean, nullable=True, default=False)
+    user_edit_last_name = db.Column(db.Boolean, nullable=True, default=False)
     user_edit_image_file = db.Column(db.Boolean, nullable=True, default=True)
     user_edit_bio = db.Column(db.Boolean, nullable=True, default=True)
 
@@ -125,9 +128,9 @@ class User(UserMixin, ResourceMixin):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
     middle_name = db.Column(db.String(50), nullable=True)
-    last_name = db.Column(db.String(50), nullable=True)
     dn = db.Column(db.String(50), nullable=True)
     username = db.Column(FmtString(113), unique=True, nullable=False)
     email = db.Column(FmtString(120), unique=True, nullable=False)
@@ -200,10 +203,10 @@ class User(UserMixin, ResourceMixin):
 
 
     def __repr__(self):
-        return self.username
+        return self.display_name
 
     def __str__(self):
-        return self.username + f' ({self.email})'
+        return self.display_name
 
 
     def can_permission(self, permission):
@@ -279,11 +282,14 @@ class User(UserMixin, ResourceMixin):
             return User.calculate_tenure(self.start_date)
 
     @hybrid_property
+    def display_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @hybrid_property
     def full_name(self):
-        if self.first_name and self.middle_name and self.last_name:
+        if self.middle_name:
             return f"{self.first_name} {self.middle_name} {self.last_name}"
-        if self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
 
     @hybrid_property

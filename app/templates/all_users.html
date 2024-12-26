@@ -30,7 +30,7 @@
     <table class="table table-light" style="width: 100%;">
     <thead>
         <tr>
-            <th>Username</th>
+            <th>Name</th>
             <th>Email</th>
             <th>Job Title</th>
             <th>Departments</th>
@@ -41,7 +41,7 @@
     <tr>
         <td>
             <a class="mr-3" href="{{ url_for(profile_endpoint, id=user.id) }}">{{ avatar_img(user, size='80', id='profileImg') }}</a>
-            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, id=user.id) }}">{{ user.username }}</a></span>
+            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, id=user.id) }}">{{ user }}</a></span>
         </td>
         <td style="vertical-align: middle;">
             {{ user.email }}

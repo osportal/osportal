@@ -26,7 +26,7 @@ import secrets
 from sqlalchemy import text
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 
-posts = Blueprint('posts', __name__, template_folder='./templates')
+posts = Blueprint('posts', __name__, template_folder='templates')
 
 
 @posts.before_request
@@ -82,7 +82,7 @@ def post_new():
             user_mentions_notification(post)
             flash(f'Created post', 'success')
             return redirect(url_for('posts.index'))
-    return render_template('edit.html', form=form)
+    return render_template('edit_post.html', form=form)
 
 
 @posts.route("/posts/<int:id>/edit", methods=['GET', 'POST'])
@@ -103,7 +103,7 @@ def post_edit(id):
             user_mentions_notification(post)
             flash(f'Updated post', 'success')
             return redirect(url_for('posts.post', id=post.id))
-    return render_template('edit.html', form=form, post=post)
+    return render_template('edit_post.html', form=form, post=post)
 
 
 @posts.route("/posts/<int:id>/delete", methods=['POST'])

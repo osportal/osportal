@@ -34,13 +34,16 @@
           <input id="select_all" name="select_all" type="checkbox">
         </th>
         <th class="col-header">
+          {{ items.sort('full_name', 'Name') }}
+        </th>
+        <th class="col-header">
           {{ items.sort('username') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
+          {{ items.sort('email') }}
         </th>
         <th class="col-header">
-          {{ items.sort('email') }}
+          {{ items.sort('active') }}
         </th>
         <th class="col-header">
           {{ items.sort('role') }}
@@ -71,17 +74,20 @@
                  type="checkbox" value="{{ user.id }}">
         </td>
         <td>
+            {{ user.full_name }}
+        </td>
+        <td>
             <a href="{{ url_for('admin.users_info', id=user.id) }}">
                 {{ user.username }}
             </a>
         </td>
         <td>
-            {{ user.render(user.active) }}
-        </td>
-        <td>
             {% if user.email %}
             {{ user.email }}
             {% endif %}
+        </td>
+        <td>
+            {{ user.render(user.active) }}
         </td>
         <td>
             {{ user.role }}

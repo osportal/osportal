@@ -28,7 +28,9 @@
     <!-- STATS -->
     <div class="mb-4">
         <h5>Stats</h5>
-        <div><strong class="mr-2">Registered:</strong>{{ user.created_at.strftime("%-d %b %Y %H:%M %z") }}</div>
+        {% if current_user.start_date %}
+        <div><strong class="mr-2">Joined:</strong>{{ user.start_date.strftime("%-d %b %Y %H:%M %z") }}</div>
+        {% endif %}
         <div><strong class="mr-2">Departments:</strong>{{ user.department|count }}</div>
         <div><strong class="mr-2">Posts:</strong>{{ user.posts.count() }}</div>
         <div><strong class="mr-2">Comments:</strong>{{ user.comments.count() }}</div>

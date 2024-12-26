@@ -20,6 +20,7 @@
       {% if current_user.permission('admin.role', crud='update') %}
           <div class="btn-group mr-2"> 
               <a role="button" 
+                 id="edit-url"
                  href="{{ url_for('admin.roles_edit', id=role.id) }}"
                  class="btn btn-sm btn-primary">Edit
               </a>
@@ -59,25 +60,46 @@
 	        	<div><strong>Superuser?</strong></div>
 	        	<div>{{ role.render(role.superuser) }}</div>
 	        </div>
-	        <div class="mb-2">
-	        	<div><strong>Admin Permissions</strong></div>
-		    {% for p in role.permissions %}
-		    <div>{{ p }}</div>
-		    {% endfor %}
-	        </div>
-	        <div class="mb-2">
-	        	<div><strong>General Permissions</strong></div>
-                <div>{{ role.render(role.can_create_posts) }} Create Posts - Users can create new posts</div>
-                <div>{{ role.render(role.can_edit_posts) }} Edit Posts - Users can edit their own posts</div>
-                <div>{{ role.render(role.can_delete_posts) }} Delete Posts - Users can delete their own posts</div>
-                <div>{{ role.render(role.can_create_comments) }} Create Comments - Users can create new comments</div>
-                <div>{{ role.render(role.can_edit_comments) }} Edit Comments - Users can edit their own comments</div>
-                <div>{{ role.render(role.can_delete_comments) }} Delete Comments - Users can delete their own comments</div>
-                <div>{{ role.render(role.user_edit_email) }} Edit Email - Users can edit their email in the profile section</div>
-                <div>{{ role.render(role.user_edit_username) }} Edit Username - Users can edit their username in the profile section</div>
-                <div>{{ role.render(role.user_edit_image_file) }} Edit Image - Users can update their profile picture</div>
-                <div>{{ role.render(role.user_edit_bio) }} Edit Bio - Users can update their biography in the profile section </div>
-        </div>
+
+            <div role="tabpanel" class="tab-pane config-section" id="tab-panel">
+            	<ul class="nav nav-tabs mb-3" role="tablist">
+            		<li class="nav-item">
+            			<a class="nav-link active" href="#general" aria-controls="general" role="tab" data-toggle="tab">General Permissions</a>
+            		</li>
+            		<li class="nav-item">
+            			<a class="nav-link" href="#admin" aria-controls="admin" role="tab" data-toggle="tab">Admin Permissions</a>
+            		</li>
+            	</ul>
+    	        <div class="tab-content">
+    	        	<div role="tabpanel" class="tab-pane active" id="general">
+	                    <div class="mb-2">
+                            <legend>Posts</legend>
+                            <div>{{ role.render(role.can_create_posts) }} Create Posts - Users can create new posts</div>
+                            <div>{{ role.render(role.can_edit_posts) }} Edit Posts - Users can edit their own posts</div>
+                            <div>{{ role.render(role.can_delete_posts) }} Delete Posts - Users can delete their own posts</div>
+                            <legend>Comments</legend>
+                            <div>{{ role.render(role.can_create_comments) }} Create Comments - Users can create new comments</div>
+                            <div>{{ role.render(role.can_edit_comments) }} Edit Comments - Users can edit their own comments</div>
+                            <div>{{ role.render(role.can_delete_comments) }} Delete Comments - Users can delete their own comments</div>
+                            <legend>Profile</legend>
+                            <div>{{ role.render(role.user_edit_email) }} Edit Email - Users can edit their email</div>
+                            <div>{{ role.render(role.user_edit_username) }} Edit Username - Users can edit their username</div>
+                            <div>{{ role.render(role.user_edit_first_name) }} Edit First Name - Users can edit their first name</div>
+                            <div>{{ role.render(role.user_edit_middle_name) }} Edit Middle Name - Users can edit their middle name</div>
+                            <div>{{ role.render(role.user_edit_last_name) }} Edit Last Name - Users can edit their last name</div>
+                            <div>{{ role.render(role.user_edit_image_file) }} Edit Image - Users can update their profile picture</div>
+                            <div>{{ role.render(role.user_edit_bio) }} Edit Bio - Users can update their biography</div>
+                        </div>
+                    </div>
+    		        <div role="tabpanel" class="tab-pane" id="admin">
+	                    <div class="mb-2">
+		                    {% for p in role.permissions %}
+		                        <div>{{ p }}</div>
+		                    {% endfor %}
+	                    </div>
+                    </div>
+                </div>
+            </div>
   </div>
 </div>
 {% include "partials/confirm_dialog.html" %}
@@ -85,4 +107,17 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+
+<script>
+// on load of the page: switch to the currently selected tab
+var hash = window.location.hash;
+var editURL = document.getElementById('edit-url');
+editURL.href = '{{ url }}' + hash;
+$('#tab-panel a[href="' + hash + '"]').tab('show');
+$("ul.nav-tabs > li > a").on("shown.bs.tab", function(e) {
+    var id = $(e.target).attr("href").substr(1);
+    window.location.hash = id;
+    editURL.href = '{{ url }}' + '#' + id;
+});
+</script>
 {% endblock scripts %}

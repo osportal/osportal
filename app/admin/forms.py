@@ -177,7 +177,7 @@ class NewDepartmentForm(ModelForm):
 
 
 class EditDepartmentForm(NewDepartmentForm):
-    head = QuerySelectField('Head',
+    head = QuerySelectField('Head of Department',
                             query_factory=lambda: User.query.filter(DepartmentMembers.user_id==User.id) \
                                     .filter(DepartmentMembers.department_id==request.view_args['id']).all(),
                             widget=Select2Widget(), allow_blank=True, validators=[Optional()])
@@ -201,10 +201,13 @@ class RoleForm(ModelForm):
     can_edit_comments =  BooleanField('Edit Comments - Users can edit their own comments')
     can_delete_comments =  BooleanField('Delete Comments - Users can delete their own comments')
 
-    user_edit_email = BooleanField('Edit Email - Users can edit their email in the profile section', validators=[Optional()])
-    user_edit_username = BooleanField('Edit Username - Users can edit their username in the profile section', validators=[Optional()])
+    user_edit_email = BooleanField('Edit Email - Users can edit their email', validators=[Optional()])
+    user_edit_username = BooleanField('Edit Username - Users can edit their username', validators=[Optional()])
+    user_edit_first_name = BooleanField('Edit First Name - Users can edit their first name', validators=[Optional()])
+    user_edit_middle_name = BooleanField('Edit Middle Name - Users can edit their middle name', validators=[Optional()])
+    user_edit_last_name= BooleanField('Edit Last Name - Users can edit their last name', validators=[Optional()])
     user_edit_image_file = BooleanField('Edit Image - Users can update their profile picture', validators=[Optional()])
-    user_edit_bio = BooleanField('Edit Bio - Users can update their biography in the profile section', validators=[Optional()])
+    user_edit_bio = BooleanField('Edit Bio - Users can update their biography', validators=[Optional()])
 
 
     # Admin Permissions
