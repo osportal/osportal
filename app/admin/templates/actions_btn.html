@@ -12,14 +12,28 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       {% if request.endpoint == 'admin.public_holiday_groups_info' %}
       <li>
-        <a onclick="checkArrayLen('#bulkCopyHolidays')"
+        <a onclick="checkArrayLen('#CopyHolidaysToYears')"
           class="dropdown-item"
           href=""
           role="button"
           data-toggle="modal">
             <i class="bi bi-copy"></i>
             <span class="align-middle">
-                Copy Holidays
+                Copy Holidays to Years
+            </span>
+        </a>
+      </li>
+      {% endif %}
+      {% if request.endpoint == 'admin.public_holiday_groups_info' %}
+      <li>
+        <a onclick="checkArrayLen('#CopyHolidaysToGroups')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <i class="bi bi-copy"></i>
+            <span class="align-middle">
+                Copy Holidays to Groups
             </span>
         </a>
       </li>

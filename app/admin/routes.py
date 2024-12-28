@@ -23,7 +23,8 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              LeaveRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
                              EmailForm, ResetPasswordForm,
-                             PublicHolidayGroupForm, CopyPublicHolidaysForm,
+                             PublicHolidayGroupForm,
+                             CopyHolidaysToYearForm, CopyHolidaysToGroupForm,
                              PublicHolidayYearForm, AdminPostForm)
 from app.admin.models import Dashboard, Settings, Email
 from app.admin.utils import get_settings_value
@@ -830,8 +831,9 @@ def public_holiday_groups_info(id, page):
 
     form = PublicHolidayYearForm(year=int(dropdown_year))
     form.process() # Ensures default values are applied
-    copy_form = CopyPublicHolidaysForm()
-    copy_form.process() # Ensures default values are applied
+    copy_to_year_form = CopyHolidaysToYearForm()
+    copy_to_year_form.process() # Ensures default values are applied
+    copy_to_group_form = CopyHolidaysToGroupForm()
     if list_years:
         if not dropdown_year:
             dropdown_year = list_years[0]
@@ -842,7 +844,8 @@ def public_holiday_groups_info(id, page):
                 .paginate(page, get_settings_value('items_per_admin_page'), True)
     return render_template('public-holiday-group/info.html',
                            form=form,
-                           copy_form=copy_form,
+                           copy_to_year_form=copy_to_year_form,
+                           copy_to_group_form=copy_to_group_form,
                            group=group,
                            years=list_years,
                            dropdown_year=int(dropdown_year),
@@ -1230,15 +1233,27 @@ def users_edit(id):
 
 
 
-@admin.route('/public-holidays-groups/<int:id>/copy-holidays', methods=['POST'])
+@admin.route('/public-holidays-groups/<int:id>/copy-holidays-to-years', methods=['POST'])
 @permission_required('admin.public_holiday', crud='update')
-def copy_public_holidays(id):
+def copy_holidays_to_years(id):
     group = PublicHolidayGroup.query.get_or_404(id)
     form_data = request.form
     years = form_data.getlist('years')
     ids = request.form.get('checked-items').split(",")
-    from app.tasks import bulk_copy_holidays
-    bulk_copy_holidays.delay(ids, years)
+    from app.tasks import bulk_copy_holidays_to_years
+    bulk_copy_holidays_to_years.delay(ids, years)
+    return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
+
+
+@admin.route('/public-holidays-groups/<int:id>/copy-holidays-to-groups', methods=['POST'])
+@permission_required('admin.public_holiday', crud='update')
+def copy_holidays_to_groups(id):
+    group = PublicHolidayGroup.query.get_or_404(id)
+    form_data = request.form
+    groups = form_data.getlist('groups')
+    ids = request.form.get('checked-items').split(",")
+    from app.tasks import bulk_copy_holidays_to_groups
+    bulk_copy_holidays_to_groups.delay(ids, groups)
     return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 

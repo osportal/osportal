@@ -102,7 +102,7 @@ def generate_years():
     return years
 
 
-class CopyPublicHolidaysForm(ModelForm):
+class CopyHolidaysToYearForm(ModelForm):
     year_list = [(year, str(year)) for year in generate_years()]
     years = SelectMultipleField('Select Years to Copy Selected Holidays for',
                                 choices=year_list,
@@ -110,6 +110,15 @@ class CopyPublicHolidaysForm(ModelForm):
                                 widget=Select2Widget(),
                                 render_kw={"multiple": "multiple"},
                                 validators=[DataRequired()])
+
+
+class CopyHolidaysToGroupForm(ModelForm):
+    groups = QuerySelectMultipleField('Select Groups to Copy Selected Holidays for', 
+                                      query_factory=lambda: PublicHolidayGroup.query.all(),
+                                      get_pk=lambda g: g.id,
+                                      widget=Select2Widget(),
+                                      render_kw={"multiple": "multiple"},
+                                      validators=[DataRequired()])
 
 
 class PublicHolidayForm(ModelForm):

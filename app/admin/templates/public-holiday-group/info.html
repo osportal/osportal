@@ -166,22 +166,22 @@
             btn_text="Delete")
         }}
 
-        <!-- Bulk Copy Holidays -->
-        <div class="modal fade" id="bulkCopyHolidays" tabindex="-1" aria-labelledby="bulkCopyLabel" aria-hidden="true">
+        <!-- Copy Holidays to Years Modal -->
+        <div class="modal fade" id="CopyHolidaysToYears" tabindex="-1" aria-labelledby="copyToYearsLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="bulkCopyLabel">Copy Public Holidays</h5>
+                <h5 class="modal-title" id="copyToYearsLabel">Copy Public Holidays to Years</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-                {% set endpoint = 'admin.copy_public_holidays' %}
-                {% set copy_form_kwargs = {'id': group.id} %}
-              {% call forms.form_tag(endpoint, form=copy_form, css_class="bulkforms", **copy_form_kwargs) %}
+                {% set endpoint = 'admin.copy_holidays_to_years' %}
+                {% set copy_to_year_form_kwargs = {'id': group.id} %}
+              {% call forms.form_tag(endpoint, form=copy_to_year_form, css_class="bulkforms", **copy_to_year_form_kwargs) %}
               <div class="modal-body">
                   <div class="mb-4">
-                    {% call forms.form_group(copy_form.years, css_class='sm-margin-bottom') %}
+                    {% call forms.form_group(copy_to_year_form.years, css_class='sm-margin-bottom') %}
                     {% endcall %}
                   </div>
                   <div class="row mb-4">
@@ -193,6 +193,39 @@
                     </div>
               </div>
               {% endcall %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copy Holidays to Groups Modal -->
+        <div class="modal fade" id="CopyHolidaysToGroups" tabindex="-1" aria-labelledby="copyToGroupsLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="copyToGroupsLabel">Copy Public Holidays To Groups</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+                {% set endpoint = 'admin.copy_holidays_to_groups' %}
+                {% set copy_to_group_form_kwargs = {'id': group.id} %}
+              {% call forms.form_tag(endpoint, form=copy_to_group_form, css_class="bulkforms", **copy_to_group_form_kwargs) %}
+              <div class="modal-body">
+                  <div class="mb-4">
+                    {% call forms.form_group(copy_to_group_form.groups, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+                  </div>
+                  <div class="row mb-4">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-light btn-block" data-dismiss="modal">Cancel</button>
+                    </div>
+              </div>
+              {% endcall %}
+              </div>
             </div>
           </div>
         </div>
