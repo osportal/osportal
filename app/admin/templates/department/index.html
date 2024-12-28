@@ -53,16 +53,14 @@
     </thead>
     <tbody>
     {% for department in departments.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.departments_info', id=department.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
                  type="checkbox" value="{{ department.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.departments_info', id=department.id) }}">
-                {{ department.name }}
-            </a>
+            {{ department.name }}
         </td>
         <td>
             {{ department.render(department.active) }}
@@ -143,4 +141,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock scripts %}

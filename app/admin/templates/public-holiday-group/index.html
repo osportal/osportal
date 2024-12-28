@@ -47,16 +47,14 @@
     </thead>
     <tbody>
     {% for group in groups.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.public_holiday_groups_info', id=group.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
                  type="checkbox" value="{{ group.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.public_holiday_groups_info', id=group.id) }}">
-                {{ group.name }}
-            </a>
+            {{ group.name }}
         </td>
         <td>
 	    {% if group.created_at %}
@@ -131,4 +129,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock scripts %}

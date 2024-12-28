@@ -41,7 +41,7 @@
     </thead>
     <tbody>
     {% for country in countries.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.country', id=country.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
@@ -51,7 +51,7 @@
             {{ country.code }}
         </td>
         <td>
-	    <a href="{{ url_for('admin.country', id=country.id) }}">{{ country.name }}</a>
+            {{ country.name }}
         </td>
         <td>
             {% if current_user.permission('admin.country', crud='update') %}
@@ -94,4 +94,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock scripts %}

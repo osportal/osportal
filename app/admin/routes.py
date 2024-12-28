@@ -23,7 +23,7 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              LeaveRequestsForm, ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
                              EmailForm, ResetPasswordForm,
-                             PublicHolidayGroupForm,
+                             PublicHolidayGroupForm, CopyPublicHolidaysForm,
                              PublicHolidayYearForm, AdminPostForm)
 from app.admin.models import Dashboard, Settings, Email
 from app.admin.utils import get_settings_value
@@ -807,11 +807,31 @@ def public_holiday_groups_delete(id):
 @permission_required('admin.public_holiday_group', crud='read')
 def public_holiday_groups_info(id, page):
     group = PublicHolidayGroup.query.get_or_404(id)
-    list_years = PublicHoliday.unique_years_by_group(group.id)
     current_year = datetime.today().year
     paginated_holidays = None
-    form = PublicHolidayYearForm()
-    dropdown_year = request.args.get('year')
+
+    #Fetch years and determine the default year
+    list_years = PublicHoliday.unique_years_by_group(group.id)
+    dropdown_year = None
+
+    # Safely extract and validate the 'year' parameter
+    year_param = request.args.get('year', None)
+    if year_param:
+        try:
+            dropdown_year = int(year_param)
+        except ValueError:
+            dropdown_year = None
+
+    # Determine the default year
+    if list_years:
+        # Default to current_year if it exists in list_years, else default to the earliest year
+        if dropdown_year not in list_years:
+            dropdown_year = current_year if current_year in list_years else list_years[0]
+
+    form = PublicHolidayYearForm(year=int(dropdown_year))
+    form.process() # Ensures default values are applied
+    copy_form = CopyPublicHolidaysForm()
+    copy_form.process() # Ensures default values are applied
     if list_years:
         if not dropdown_year:
             dropdown_year = list_years[0]
@@ -822,9 +842,10 @@ def public_holiday_groups_info(id, page):
                 .paginate(page, get_settings_value('items_per_admin_page'), True)
     return render_template('public-holiday-group/info.html',
                            form=form,
+                           copy_form=copy_form,
                            group=group,
                            years=list_years,
-                           dropdown_year=dropdown_year,
+                           dropdown_year=int(dropdown_year),
                            current_year=current_year,
                            paginated_holidays=paginated_holidays)
 
@@ -1206,6 +1227,19 @@ def users_edit(id):
                            form=form,
                            user=user,
                            url=url)
+
+
+
+@admin.route('/public-holidays-groups/<int:id>/copy-holidays', methods=['POST'])
+@permission_required('admin.public_holiday', crud='update')
+def copy_public_holidays(id):
+    group = PublicHolidayGroup.query.get_or_404(id)
+    form_data = request.form
+    years = form_data.getlist('years')
+    ids = request.form.get('checked-items').split(",")
+    from app.tasks import bulk_copy_holidays
+    bulk_copy_holidays.delay(ids, years)
+    return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 
 @admin.route('/users/bulk_welcome_email', methods=['POST'])

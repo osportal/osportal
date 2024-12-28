@@ -160,7 +160,7 @@ class PublicHolidayGroup(ResourceMixin):
     __tablename__ = "public_holiday_group"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(100), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    description = db.Column(db.String(300), nullable=True)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
     country = db.relationship("Country", foreign_keys=[country_id])
     colour = db.Column(db.String(10), nullable=False, default='#e10078')

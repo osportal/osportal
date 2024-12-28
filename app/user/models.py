@@ -1,6 +1,6 @@
 from app.admin.utils import get_settings_value
 from app.extensions import db
-from app.models import get_class_by_tablename
+from app.models import get_class_by_tablename, Site
 from app.leave.models import Leave
 from app.posts.models import Comment
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
@@ -533,7 +533,9 @@ class User(UserMixin, ResourceMixin):
     def search(cls, query):
         search_query = '%{0}%'.format(query)
         search_chain = (User.email.ilike(search_query),
-                        User.username.ilike(search_query))
+                        User.username.ilike(search_query),
+                        User.job_title.ilike(search_query),
+                        )
 
         return or_(*search_chain)
 

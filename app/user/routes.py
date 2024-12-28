@@ -270,10 +270,15 @@ def password_reset(token):
 @login_required
 def all_users(page):
     search_form = SearchForm()
+
+    sort_by = User.sort_by(request.args.get('sort', 'created_at'),
+                           request.args.get('direction', 'desc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+
     paginated_users = User.query \
         .filter(User.active) \
         .filter(User.search((request.args.get('q', text(''))))) \
-        .order_by(User.username.asc(),) \
+        .order_by(text(order_values)) \
         .paginate(page, get_settings_value('users_per_page'), True)
     return render_template('all_users.html', users=paginated_users, form=search_form)
 

@@ -67,7 +67,7 @@
     </thead>
     <tbody>
     {% for user in users.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.users_info', id=user.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
@@ -77,9 +77,7 @@
             {{ user.full_name }}
         </td>
         <td>
-            <a href="{{ url_for('admin.users_info', id=user.id) }}">
-                {{ user.username }}
-            </a>
+            {{ user.username }}
         </td>
         <td>
             {% if user.email %}
@@ -197,4 +195,5 @@
 <script src="{{ url_for('static', filename='js/importCSV.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/userModalWarning.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from app.celery import celery
-from app.models import get_class_by_tablename
+from app.extensions import db
+from app.models import get_class_by_tablename, PublicHoliday
 
 
 @celery.task()
@@ -33,3 +34,36 @@ def enable_obj(table, ids):
     """
     class_name = get_class_by_tablename(table)
     return class_name.bulk_enable(ids)
+
+
+@celery.task()
+def bulk_copy_holidays(ids, years):
+    """
+    :param ids: list of publicHolidays ids to be copied 
+    :param years: list of selected years for new public holiday
+    :type ids and years: list
+    :return: int
+    """
+    copy_count = 0
+
+    for id in ids:
+        holiday = PublicHoliday.query.get(id)
+        if holiday is None:
+            continue
+        else:
+            for selected_year in years:
+                try:
+                    selected_year = int(selected_year)
+                    new_start_date = holiday.start_date.replace(year=selected_year)
+                except (ValueError, Exception) as e:
+                    continue
+                else:
+                    new_holiday = PublicHoliday(
+                        name=holiday.name,
+                        start_date=new_start_date,
+                        group_id=holiday.group_id
+                    )
+                    db.session.add(new_holiday)
+                    copy_count += 1
+    db.session.commit()
+    return copy_count

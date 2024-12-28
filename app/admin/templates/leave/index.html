@@ -80,11 +80,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
-<script>
-$(document).ready(function() {
-    $('*[data-href]').on('click', function() {
-        window.location = $(this).data("href");
-        });
-});
-</script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock %}

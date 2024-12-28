@@ -59,16 +59,14 @@
     </thead>
     <tbody>
     {% for post in posts.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.posts_info', id=post.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
                  type="checkbox" value="{{ post.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.posts_info', id=post.id) }}">
-                {{ post.name | truncate(70) }}
-            </a>
+            {{ post.name | truncate(70) }}
         </td>
         <td>{{ post.render(post.active) }}</td>
         <td>
@@ -159,4 +157,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock %}

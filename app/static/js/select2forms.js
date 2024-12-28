@@ -2,14 +2,7 @@ $("#manager,#user,#role,#head,#ltype,#country,#site,#public_holiday_group,#entt,
     tags: true,
     width: '100%'
 });
-/*
-$("#departments").select2({
-    multiple: false,
-    tags: true,
-    width: '100%'
-});
-*/
-$("#approvers,#members,#department,#leave_types,#permissions").select2({
+$("#approvers,#members,#department,#leave_types,#permissions,#years").select2({
     multiple: true,
     tags: true,
     width: '100%'

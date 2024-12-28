@@ -22,6 +22,7 @@ from app.validations import (check_site_exists,
                              check_country_exists,
                              check_alpha_code_exists)
 from collections import OrderedDict
+import datetime
 from flask import request
 from flask_admin.form.widgets import Select2Widget
 from flask_wtf import FlaskForm
@@ -83,13 +84,32 @@ class CountryForm(ModelForm):
 
 class PublicHolidayGroupForm(ModelForm):
     name = StringField(validators=[DataRequired(), Length(2, 100)])
-    description = TextAreaField('Description', validators=[Optional(), Length(min=2, max=500)])
+    description = StringField('Description', validators=[Optional(), Length(min=2, max=300)])
     country = QuerySelectField('Country', query_factory=lambda: Country.query.order_by(Country.name.asc()).all(),
                                widget=Select2Widget(), allow_blank=True, validators=[DataRequired()])
     colour = StringField('Colour', widget=ColorInput())
 
+
 class PublicHolidayYearForm(ModelForm):
-    year = SelectField("Filter by Year", choices=[], render_kw={'id': 'year_filter'})
+    year = SelectField("Filter by Year", choices=[], render_kw={'id': 'year_filter', 'class': 'form-control'})
+
+
+def generate_years():
+    current_year = datetime.datetime.today().year
+
+    years = sorted([(current_year - 1 - i) for i in range(6)] + 
+                   [(current_year + i) for i in range(6)])
+    return years
+
+
+class CopyPublicHolidaysForm(ModelForm):
+    year_list = [(year, str(year)) for year in generate_years()]
+    years = SelectMultipleField('Select Years to Copy Selected Holidays for',
+                                choices=year_list,
+                                default=[datetime.datetime.today().year + 1],
+                                widget=Select2Widget(),
+                                render_kw={"multiple": "multiple"},
+                                validators=[DataRequired()])
 
 
 class PublicHolidayForm(ModelForm):

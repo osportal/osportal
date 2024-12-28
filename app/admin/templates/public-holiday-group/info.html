@@ -75,17 +75,21 @@
 
 {% if current_user.permission('admin.public_holiday', crud='read') %}
 
+    
+    
+    <div class="input-group"> 
     {% if current_user.permission('admin.public_holiday', crud='create') %}
-        <a href="{{ url_for('admin.public_holiday_new', id=group.id) }}" class="btn btn-sm btn-primary" type="button">Add Holiday</a>
+<a href="{{ url_for('admin.public_holiday_new', id=group.id) }}"
+    class="btn btn-primary mr-1" role="button" type="button">Add Holiday</a>
     {% endif %}
-    
-    
-    
     {% if paginated_holidays %}
     {% include "actions_btn.html" %}
     {% if years %}
+     <div class="col">
         {{ form.year }}
+     </div>
     {% endif %}
+    </div>
     
 
       <table class="table table-striped">
@@ -162,6 +166,37 @@
             btn_text="Delete")
         }}
 
+        <!-- Bulk Copy Holidays -->
+        <div class="modal fade" id="bulkCopyHolidays" tabindex="-1" aria-labelledby="bulkCopyLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="bulkCopyLabel">Copy Public Holidays</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+                {% set endpoint = 'admin.copy_public_holidays' %}
+                {% set copy_form_kwargs = {'id': group.id} %}
+              {% call forms.form_tag(endpoint, form=copy_form, css_class="bulkforms", **copy_form_kwargs) %}
+              <div class="modal-body">
+                  <div class="mb-4">
+                    {% call forms.form_group(copy_form.years, css_class='sm-margin-bottom') %}
+                    {% endcall %}
+                  </div>
+                  <div class="row mb-4">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-light btn-block" data-dismiss="modal">Cancel</button>
+                    </div>
+              </div>
+              {% endcall %}
+            </div>
+          </div>
+        </div>
+
        {% endif %}<!-- End of if paginated holidays exist -->
 
 {% endif %}<!-- End of Public Holiday read permission -->
@@ -181,11 +216,12 @@
     {% endif %}
     year_filter.addEventListener('change', evt => {
         const value = evt.target.value;
-        console.log(value);
-        //console.log(value);
-        var url ='{{ url_for(request.endpoint,q=q,year='',id=group.id) | safe }}'
-        url += value;
-        location = url;
+        // var url ='{{ url_for(request.endpoint,q=q,year='',id=group.id) | safe }}'
+        // url += value;
+        // location = url;
+        const url = new URL(window.location.href);
+        url.searchParams.set('year', value);
+        window.location.href = url;
       });
 </script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>

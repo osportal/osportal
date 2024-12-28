@@ -13,7 +13,6 @@
 <div>Total: {{ users.items | count }}</div>
 
 {{ forms.search('user.all_users') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 
 
 {% if request.args.get('q') %}
@@ -27,21 +26,33 @@
 
 <!-- Get all Users -->
 <div><!-- Start of row -->
+    <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
     <table class="table table-light" style="width: 100%;">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Job Title</th>
+            <th></th>
+            <th class="col-header">
+              {{ items.sort('full_name', 'Name') }}
+            </th>
+            <th class="col-header">
+              {{ items.sort('email') }}
+            </th>
+            <th class="col-header">
+              {{ items.sort('job_title', 'Job Title') }}
+            </th>
             <th>Departments</th>
-            <th>Site</th>
+            <th class="col-header">
+              {{ items.sort('site') }}
+            </th>
         </tr>
     </thead>
     {% for user in users.items %}
-    <tr>
+    <tr data-href="{{ url_for(profile_endpoint, id=user.id) }}">
+        <td style="width: 5% !important;">
+            <a class="mr-3" href="{{ url_for(profile_endpoint, id=user.id) }}">{{ avatar_img(user, size='80') }}</a>
+        </td>
         <td>
-            <a class="mr-3" href="{{ url_for(profile_endpoint, id=user.id) }}">{{ avatar_img(user, size='80', id='profileImg') }}</a>
-            <span style="font-size: 20px; vertical-align: middle;"><a href="{{ url_for(profile_endpoint, id=user.id) }}">{{ user }}</a></span>
+            <span style="font-size: 20px; vertical-align: middle;">{{ user }}</span>
         </td>
         <td style="vertical-align: middle;">
             {{ user.email }}
@@ -70,3 +81,13 @@
 {% endif %}
 
 {% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function($) {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock scripts %}

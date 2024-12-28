@@ -52,16 +52,14 @@
     </thead>
     <tbody>
     {% for role in roles.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.roles_info', id=role.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
                  type="checkbox" value="{{ role.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.roles_info', id=role.id) }}">
-                {{ role.name }}
-            </a>
+            {{ role.name }}
         </td>
         <td>{{ role.render(role.superuser) }}</td>
         <td>{{ role.description }}</td>
@@ -122,4 +120,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock %}

@@ -50,16 +50,14 @@
     </thead>
     <tbody>
     {% for site in sites.items %}
-      <tr>
+    <tr data-href="{{ url_for('admin.sites_info', id=site.id) }}">
         <td>
           <label for="bulk_ids"></label>
           <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
                  type="checkbox" value="{{ site.id }}">
         </td>
         <td>
-            <a href="{{ url_for('admin.sites_info', id=site.id) }}">
-                {{ site.name }}
-            </a>
+            {{ site.name }}
         </td>
         <td>{{ site.country }}</td>
         <td>
@@ -135,4 +133,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/adminIndex.js') }}"></script>
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
 {% endblock scripts %}
