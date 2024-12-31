@@ -30,6 +30,7 @@ from app.utils.populate import create_default_settings
 
 from app.extensions import (
         db,
+        continuum,
         login_manager,
         mail,
         migrate,
@@ -99,6 +100,7 @@ def create_app():
 def extensions(app):
     """ Initialize 1 or more extensions """
     db.init_app(app)
+    continuum.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db, render_as_batch=True, compare_type=True)
     mail.init_app(app)

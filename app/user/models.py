@@ -7,6 +7,7 @@ from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from flask_continuum import VersioningMixin
 from flask_login import UserMixin, logout_user, current_user
 from flask import url_for, current_app, request
 import json
@@ -124,7 +125,7 @@ class Role(ResourceMixin):
 
 
 
-class User(UserMixin, ResourceMixin):
+class User(UserMixin, ResourceMixin, VersioningMixin):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
