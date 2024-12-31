@@ -1,6 +1,7 @@
 from app.extensions import db
 from app.utils.util_sqlalchemy import ResourceMixin, StripStr
 from app.leave.models import LeaveType
+from collections import OrderedDict
 import datetime
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -83,19 +84,23 @@ class EnttLeaveTypes(ResourceMixin):
 # Entitlement Template
 class Entt(ResourceMixin):
     __tablename__ = 'entt'
+    UNIT = OrderedDict([
+        ('days', 'Days'),
+        ('hours', 'Hours')
+        ])
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), unique=True, nullable=False)
     description = db.Column(db.String(300), nullable=True)
     #TODO need nullable changing to False
-    annual_leave_days = db.Column(db.Integer, nullable=True, default=0)
-    max_carryover_days = db.Column(db.Integer, nullable=True, default=0)
-    max_carryover_hours = db.Column(db.Integer, nullable=True, default=0)
+    default_entitlement = db.Column(db.Integer, nullable=True, default=0)
+    working_hours_per_day = db.Column(db.Integer, nullable=True, default=8)
+    #TODO make sure to include cap within transfer carry over days button
+    entitlement_caps = db.Column(db.Integer, nullable=True, default=0)
+    max_carryovers = db.Column(db.Integer, nullable=True, default=0)
     weekend = db.Column(db.Boolean, nullable=False, default=False)
     half_day = db.Column(db.Boolean, nullable=False, default=True)
-    #TODO time_unit (days or hours)
-    #TODO make sure to include within transfer carry over days button
-    # cap_days caps annual_leave_days (should be display as Allowance cap (days))
-    # cap_hours caps annual_leave_hours
+    time_unit = db.Column(db.Enum(*UNIT, name='role_types', native_enum=False),
+                          index=True, nullable=False, server_default='days')
 
     ph_group_id = db.Column(db.Integer,
                             db.ForeignKey('public_holiday_group.id'),
@@ -119,6 +124,21 @@ class Entt(ResourceMixin):
 
         return or_(*search_chain)
 
+    # Example values
+    # default_entitlement = 10
+    # entitlement_unit = 'days'
+
+    # Conversion logic (if needed)
+    def convert_entitlement(self, value, unit, target_unit, hours_per_day):
+        if unit == target_unit:
+            return value
+        if unit == 'days' and target_unit == 'hours':
+            return value * hours_per_day
+        if unit == 'hours' and target_unit == 'days':
+            return value / hours_per_day
+        raise ValueError("Unsupported unit conversion")
+    # Usage
+    #converted_value = convert_entitlement(default_entitlement, entitlement_unit, 'hours', self.working_hours_per_day)
 
 
 class Site(ResourceMixin):

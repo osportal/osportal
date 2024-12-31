@@ -1292,7 +1292,7 @@ def password_reset(id):
             flash(e, 'danger')
         else:
             flash('The password for this user has been reset', 'success')
-            return redirect(url_for('admin.users_edit', id=user.id))
+            return redirect(url_for('admin.users_info', id=user.id))
     return render_template('user/reset_password.html', form=form, user=user)
 
 
@@ -1597,15 +1597,15 @@ def plugins():
 @entt_required()
 def carry_over_entitlement(id):
     user = User.query.get_or_404(id)
-    if user.days_left <= user.entt.max_carryover_days:
-        new_days =  user.entt.annual_leave_days + user.days_left
+    if user.days_left <= user.entt.max_carryover:
+        new_days =  user.entt.default_entitlement + user.days_left
         user.previous_carryover_days = user.days_left
         user.days_left = new_days
         user.used_days = 0
     else:
         # if user has more days than is permitted for carryover, carry across max
-        user.days_left = user.entt.annual_leave_days + user.entt.max_carryover_days
-        user.previous_carryover_days = user.entt.max_carryover_days
+        user.days_left = user.entt.default_entitlement + user.entt.max_carryover
+        user.previous_carryover_days = user.entt.max_carryover
         user.used_days = 0
     user.save()
     return redirect(url_for('admin.users_info', id=id))

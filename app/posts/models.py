@@ -17,7 +17,7 @@ class Post(ResourceMixin):
     # relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),
                         index=True, nullable=False)
-    #post_author = db.relationship('User', foreign_keys=[user_id])
+    author = db.relationship('User', foreign_keys=[user_id])
     comments = db.relationship('Comment', backref='parent', passive_deletes=True, lazy='dynamic')
 
     def __repr__(self):
@@ -31,12 +31,13 @@ class Post(ResourceMixin):
         self.is_pin = False
         self.save()
 
-
     @classmethod
     def search(cls, query):
+        from app.user.models import User
         search_query = '%{0}%'.format(query)
         search_chain = (Post.name.ilike(search_query),
                         Post.content.ilike(search_query))
+                        #getattr(User, 'first_name').ilike(search_query))
 
         return or_(*search_chain)
 

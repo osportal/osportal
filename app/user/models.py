@@ -313,7 +313,7 @@ class User(UserMixin, ResourceMixin):
 
     def get_annual_leave_days(self):
         if self.entt:
-            return self.entt.annual_leave_days
+            return self.entt.default_entitlement
         return 0
 
     def get_entt_id(self):

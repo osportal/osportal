@@ -28,8 +28,8 @@
     <!-- STATS -->
     <div class="mb-4">
         <h5>Stats</h5>
-        {% if current_user.start_date %}
-        <div><strong class="mr-2">Joined:</strong>{{ user.start_date.strftime("%-d %b %Y %H:%M %z") }}</div>
+        {% if user.start_date %}
+        <div><strong class="mr-2">Joined:</strong>{{ user.start_date.strftime("%-d %b %Y") }}</div>
         {% endif %}
         <div><strong class="mr-2">Departments:</strong>{{ user.department|count }}</div>
         <div><strong class="mr-2">Posts:</strong>{{ user.posts.count() }}</div>

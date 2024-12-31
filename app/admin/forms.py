@@ -275,11 +275,14 @@ class PermissionForm(ModelForm):
 
 class EnttForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_entt_exists])
-    active = BooleanField('Active')
     description = StringField('Description', validators=[Optional(), Length(2,300)])
-    annual_leave_days = IntegerField('Default Annual Leave Entitlement (days)', validators=[DataRequired()])
-    max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[DataRequired()])
-    max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[DataRequired()])
+    time_unit = SelectField('Time Unit', [DataRequired()], choices=choices_from_dict(Entt.UNIT, prepend_blank=False))
+    default_entitlement_days = IntegerField('Default Annual Leave Entitlement (days)', validators=[Optional()])
+    default_entitlement_hours = IntegerField('Default Annual Leave Entitlement (hours)', validators=[Optional()])
+    entitlement_cap_days = IntegerField('Entitlement Cap (days)', validators=[Optional()])
+    entitlement_cap_hours = IntegerField('Entitlement Cap (hours)', validators=[Optional()])
+    max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[Optional()])
+    max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[Optional()])
     weekend = BooleanField('Enable Weekends')
     half_day = BooleanField('Enable Half Days')
 
