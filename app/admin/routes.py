@@ -46,6 +46,8 @@ from app.utils.csv import load_csv, dump_csv, dump_table_selected_ids
 from app.utils.util_sqlalchemy import ResourceMixin
 from app.utils.zip import export_zipfile, import_zipfile
 from PIL import Image, UnidentifiedImageError
+from sqlalchemy_continuum import transaction_class
+from sqlalchemy_continuum.utils import versioned_objects, count_versions
 
 
 admin = Blueprint('admin', __name__, template_folder='templates', url_prefix='/admin')
@@ -1609,3 +1611,47 @@ def carry_over_entitlement(id):
         user.used_days = 0
     user.save()
     return redirect(url_for('admin.users_info', id=id))
+
+
+@admin.route('/users/<int:id>/changes', defaults={'page':1}, methods=['GET', 'POST'])
+@admin.route('/users/<int:id>/changes/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.user', crud='read')
+def user_history(id, page):
+    # initial model query
+    user = User.query.get_or_404(id)
+    # version model
+    v_model = get_class_by_tablename("user_version")
+    # transaction model
+    t_model = get_class_by_tablename('transaction')
+    versions = v_model.query.filter_by(id=user.id) \
+                            .join(t_model, t_model.id==v_model.transaction_id) \
+                            .order_by(t_model.issued_at.desc()) \
+                            .paginate(page=page, per_page=5)
+    # version count
+    count = count_versions(user)
+    return render_template('user/changes.html',
+                           user=user,
+                           versions=versions,
+                           count=count)
+
+
+@admin.route('/leave-request/<int:id>/changes', defaults={'page':1}, methods=['GET', 'POST'])
+@admin.route('/leave-request/<int:id>/changes/page/<int:page>', methods=['GET', 'POST'])
+@permission_required('admin.leave', crud='read')
+def leave_history(id, page):
+    # initial model query
+    leave = Leave.query.get_or_404(id)
+    # version model
+    v_model = get_class_by_tablename("leave_version")
+    # transaction model
+    t_model = get_class_by_tablename('transaction')
+    versions = v_model.query.filter_by(id=leave.id) \
+                            .join(t_model, t_model.id==v_model.transaction_id) \
+                            .order_by(t_model.issued_at.desc()) \
+                            .paginate(page=page, per_page=5)
+    # version count
+    count = count_versions(leave)
+    return render_template('leave/changes.html',
+                           leave=leave,
+                           versions=versions,
+                           count=count)

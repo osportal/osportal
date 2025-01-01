@@ -1,6 +1,7 @@
 from app.extensions import db
 from app.utils.util_sqlalchemy import ResourceMixin, StripStr
 import datetime
+from flask_continuum import VersioningMixin
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -32,7 +33,7 @@ class LeaveActioned(ResourceMixin):
     authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', primary_key=True)
 
 
-class Leave(ResourceMixin):
+class Leave(ResourceMixin, VersioningMixin):
     __tablename__ = 'leave'
     STATUS = ['Pending', 'Approved', 'Declined', 'Revoked']
     id = db.Column(db.Integer, primary_key=True)

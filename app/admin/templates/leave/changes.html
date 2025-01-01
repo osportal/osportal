@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{%- from "macros/navigation.html" import sidebaritems with context -%}
+{% import 'macros/pagination.html' as items %}
+
+{% block title %}Leave Request {{ leave.id }} - Change History{% endblock title %}
+{% set active = 'admin.leaves' %}
+
+{% block content %}
+
+{% set extra_setting_links = admin_leave_sidebar(user=current_user) %}
+{% include "menu.html" %}
+{{ sidebaritems(extra_setting_links) }}
+
+<legend>Change History for <a href="{{ url_for('admin.leave_info', id=leave.id) }}">Leave Request {{ leave.id }}</a></legend>
+<div>Total: {{ count }}</div>
+{% for version in versions.items %}
+    <div class="card mt-4 mb-4">
+        <div class="card-header">
+            <span class="h6 mr-2">#{{ version.transaction.id }}</span><!-- Transaction id -->
+            <span class="h6 me-2">{{ version.transaction.issued_at.strftime("%-d %b %Y") }}</span>
+            <span class="ml-2 text-muted">{{ version.transaction.issued_at.strftime("%H:%M:%S %z") }}</span>
+        </div>
+        <div class="card-body">
+            {% for key, values in version.changeset.items() %}
+                {% if key in ["created_at", "updated_at"] %}
+                    {% if values[0] %}
+                        {% set before_value = values[0].strftime("%-d %b %Y %H:%M:%S") %}
+                    {% else %}
+                        {% set before_value = values[0] %}
+                    {% endif %}
+                    {% if values[1] %}
+                        {% set post_value = values[1].strftime("%-d %b %Y %H:%M:%S") %}
+                    {% else %}
+                        {% set post_value = values[1] %}
+                    {% endif %}
+                    <div>{{ key }}: <span class="text-danger fw-bold">{{ before_value }}</span> > <span class="text-success fw-bold">{{ post_value }}</span></div>
+                {% else %}
+                    {% if key not in ["last_notification_read_time", "password"] %}
+                        <div>{{ key }}: <span class="text-danger fw-bold">{{ values[0] }}</span> > <span class="text-success fw-bold">{{ values[1] }}</span></div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+{% if count > 0 %}
+{{  items.paginate(versions, kwargs={'id': leave.id}) }}
+{% endif %}
+
+{% endblock content %}

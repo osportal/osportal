@@ -127,7 +127,6 @@ class Role(ResourceMixin):
 
 class User(UserMixin, ResourceMixin, VersioningMixin):
     __tablename__ = 'user'
-
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
@@ -153,10 +152,8 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
     start_date = db.Column(db.Date, nullable=True)
 
     # Login Info
-    current_login_time = db.Column(db.DateTime, default=datetime.utcnow())
-    current_login_ip_address = db.Column(db.String(50))
-    previous_login_time = db.Column(db.DateTime, default=datetime.utcnow())
-    previous_login_ip_address = db.Column(db.String(50))
+    login_time = db.Column(db.DateTime, default=datetime.utcnow())
+    login_ip_address = db.Column(db.String(50))
 
     # Leave Days
     leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
@@ -450,11 +447,8 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         such as current and previous login times
         as well as ip addresses etc.
         """
-        self.previous_login_time = self.current_login_time
-        self.current_login_time = datetime.utcnow()
-
-        self.previous_login_ip_address = self.current_login_ip_address
-        self.current_login_ip_address = ip_address
+        self.login_time = datetime.utcnow()
+        self.login_ip_address = ip_address
 
         return self.save()
 

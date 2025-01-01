@@ -47,6 +47,12 @@
     	      }}
     	      </div>
     	  {% endif %}
+    	  <div class="btn-group mr-2"> 
+    	      <a role="button" href="{{ url_for('admin.user_history', id=user.id) }}"
+    	         class="btn btn-sm btn-info">
+                  <i class="bi bi-clock-history"></i> History
+    	      </a>
+    	  </div>
 		  {% if current_user.permission('admin.user', crud='update') %}
               <div class="btn-group mr-2">
                   <a class="btn btn-sm btn-outline-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

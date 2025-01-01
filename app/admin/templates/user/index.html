@@ -96,10 +96,10 @@
         <td>
         </td>
         <td>
-        {% if user.current_login_time %}
-            {{ user.pretty_date(user.current_login_time) }}
-            <time class="from-now" data-datetime="{{ user.current_login_time }}">
-                <div class="text-muted">{{ user.current_login_time.strftime(("%-d %b %Y %H:%M %z")) }}</div>
+        {% if user.login_time %}
+            {{ user.pretty_date(user.login_time) }}
+            <time class="from-now" data-datetime="{{ user.login_time }}">
+                <div class="text-muted">{{ user.login_time.strftime(("%-d %b %Y %H:%M %z")) }}</div>
             </time>
           {% endif %}
         </td>
