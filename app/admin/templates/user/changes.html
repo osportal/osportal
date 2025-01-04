@@ -22,7 +22,7 @@
         </div>
         <div class="card-body">
             {% for key, values in version.changeset.items() %}
-                {% if key in ["login_time", "created_at", "updated_at"] %}
+                {% if key in ["login_time", "created_at", "updated_at", "last_notification_read_time"] %}
                     {% if values[0] %}
                         {% set before_value = values[0].strftime("%-d %b %Y %H:%M:%S") %}
                     {% else %}
@@ -35,9 +35,7 @@
                     {% endif %}
                     <div>{{ key }}: <span class="text-danger fw-bold">{{ before_value }}</span> > <span class="text-success fw-bold">{{ post_value }}</span></div>
                 {% else %}
-                    {% if key not in ["last_notification_read_time", "password"] %}
                     <div>{{ key }}: <span class="text-danger fw-bold">{{ values[0] }}</span> > <span class="text-success fw-bold">{{ values[1] }}</span></div>
-                    {% endif %}
                 {% endif %}
             {% endfor %}
         </div>

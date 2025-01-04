@@ -1,15 +1,10 @@
 {% extends "layout.html" %}
 {% import 'macros/form.html' as f with context %}
 
-
-{% if request.endpoint.endswith('edit') %}
-    {% set endpoint = 'leave.edit' %}
-    {% set form_kwargs = {'id': leave.id} %}
-    {% set heading = 'Edit Leave' %}
-{% else %}
-    {% set endpoint = 'leave.book' %}
-    {% set heading = 'Add Leave' %}
-{% endif %}
+{% set is_edit = leave.id is not none %}
+{% set endpoint = 'leave.manage' %}
+{% set heading = 'Edit Leave' if is_edit else 'Add Leave' %}
+{% set form_kwargs = {'id': leave.id} if is_edit else {} %}
 
 {% block title %}{{ heading }}{% endblock %}
 
@@ -21,7 +16,6 @@
 
 <div class="row">
   <div class="col-md-5 well">
-    {% if request.endpoint.endswith('edit') %}
     <!-- Edit Request Form  -->
     {% call f.form_tag(endpoint, form=form, fid='submitRequestForm', **form_kwargs) %}
 
@@ -52,50 +46,12 @@
               {% endcall %}
           </div>
           <div class="col">
-              <a href="{{ url_for('leave.history') }}" role="button" class="btn btn-light btn-block">
+              <a href="{{ url_for('leave.history') if is_edit else url_for('leave.index') }}" role="button" class="btn btn-light btn-block">
                   Cancel
               </a>
           </div>
       </div><!-- End of btn row -->
    {% endcall %}
-   {% else %}
-   <!-- New Leave Form -->
-    {% call f.form_tag(endpoint, form=form, fid='submitRequestForm')%}
-
-      {% call f.form_group(form.entt_ltype) %}
-      {% endcall %}
-
-      {% if form.half_day %}
-          {% call f.form_group(form.half_day) %}
-          {% endcall %}
-      {% endif %}
-
-      {% call f.form_group(form.start_date) %}
-      {% endcall %}
-      
-      {% call f.form_group(form.end_date) %}
-      {% endcall %}
-
-      {% call f.form_group(form.details) %}
-      {% endcall %}
-
-      <div class="form-group">
-          <span id="calculate-days-val"></span>
-      </div>
-
-      <div class="row">
-          <div class="col">
-              {% call f.form_group(form.submit, css_class="btn btn-primary form-control") %}
-              {% endcall %}
-          </div>
-          <div class="col">
-              <a href="{{ url_for('leave.index') }}" role="button" class="btn btn-light btn-block">
-                  Cancel
-              </a>
-          </div>
-      </div><!-- End of btn row -->
-   {% endcall %}
-   {% endif %}
    </div><!-- End of col -->
 </div><!-- End of row -->
 {% endblock content %}
@@ -105,8 +61,8 @@
 {#
 <script>
     authoriser = '{{ current_user.authoriser }}';
-    daysLeft = '{{ current_user.days_left }}';// use for pie chart
-    daysUsed = '{{ current_user.used_days }}';// use for pie chart
+    daysLeft = '{{ current_user.entitlement_rem }}';// use for pie chart
+    daysUsed = '{{ current_user.entitlement_used }}';// use for pie chart
     const selectType = document.querySelector('#leave-type-select');
     const submitForm= document.querySelector('#submitRequestForm');
     const submitBtn = document.querySelector('#submitRequestBtn');

@@ -1598,19 +1598,54 @@ def plugins():
 @permission_required('admin.user', crud='update')
 @entt_required()
 def carry_over_entitlement(id):
+    """
+    Carry over the user's remaining entitlement, ensuring it respects the maximum carryover 
+    and overall entitlement cap. If there's room within the cap, carry over additional days.
+    """
     user = User.query.get_or_404(id)
-    if user.days_left <= user.entt.max_carryover:
-        new_days =  user.entt.default_entitlement + user.days_left
-        user.previous_carryover_days = user.days_left
-        user.days_left = new_days
-        user.used_days = 0
-    else:
-        # if user has more days than is permitted for carryover, carry across max
-        user.days_left = user.entt.default_entitlement + user.entt.max_carryover
-        user.previous_carryover_days = user.entt.max_carryover
-        user.used_days = 0
+    
+    # Maximum carryover allowed
+    max_carryover = min(user.entitlement_rem, user.entt.max_carryover)
+    
+    # Calculate the potential new entitlement
+    potential_entitlement = user.entt.default_entitlement + max_carryover
+    entitlement_cap = user.entt.entitlement_cap  # Assume this attribute defines the cap
+    
+    # Adjust carryover to reach the cap if there's room
+    if potential_entitlement > entitlement_cap:
+        # Reduce carryover to not exceed the entitlement cap
+        max_carryover = entitlement_cap - user.entt.default_entitlement
+    
+    # Calculate the final entitlement within the cap
+    new_entitlement = user.entt.default_entitlement + max_carryover
+    
+    # Update user attributes
+    user.previous_carryover = max_carryover
+    user.entitlement_rem = new_entitlement
+    user.entitlement_used = 0  # Reset used entitlement for the new period
+    
+    # Save changes to the database
     user.save()
+    
     return redirect(url_for('admin.users_info', id=id))
+
+
+@admin.route("/user/<int:id>/init_entt", methods=['GET', 'POST'])
+@permission_required('admin.user', crud='update')
+@entt_required()
+def init_template(id):
+    """
+    Initialise entitlement template when said template is added to user
+    """
+    user = User.query.get_or_404(id)
+    try:
+        user.init_entt()
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    else:
+        flash('Initialised entitlement template', 'success')
+    return redirect(url_for('admin.users_info', id=id))
+
 
 
 @admin.route('/users/<int:id>/changes', defaults={'page':1}, methods=['GET', 'POST'])

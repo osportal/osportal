@@ -1,6 +1,7 @@
 from app.extensions import db
 from app.utils.util_sqlalchemy import ResourceMixin, StripStr
 import datetime
+from decimal import Decimal
 from flask_continuum import VersioningMixin
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -28,9 +29,9 @@ class LeaveType(ResourceMixin):
 
 class LeaveActioned(ResourceMixin):
     __tablename__ = 'leave_actioned'
-    id = db.Column(db.Integer, nullable=True, unique=True) # used in import zip job
-    leave_id = db.Column(db.Integer, db.ForeignKey('leave.id'), onupdate='CASCADE', primary_key=True)
-    authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True) # used in import zip job
+    leave_id = db.Column(db.Integer, db.ForeignKey('leave.id'), onupdate='CASCADE', nullable=False)
+    authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', nullable=False)
 
 
 class Leave(ResourceMixin, VersioningMixin):
@@ -42,20 +43,38 @@ class Leave(ResourceMixin, VersioningMixin):
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     half_day = db.Column(db.Boolean)
-    days = db.Column(db.Numeric(precision=4, scale=1))
+    duration = db.Column(db.Numeric(precision=6, scale=2), nullable=False)
     ltype_id = db.Column(db.Integer, db.ForeignKey('leave_type.id'), nullable=True)
     ltype = db.relationship('LeaveType', foreign_keys=[ltype_id])
     details = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    actioned_by = db.relationship('User', secondary='leave_actioned', backref='actioned_leaves', lazy='select', uselist=False)
+    actioned_by = db.relationship('User',
+                                  secondary='leave_actioned',
+                                  backref='actioned_leaves',
+                                  lazy='select',
+                                  uselist=False)
     status_details = db.Column(db.String(120), nullable=True)
+    time_unit = db.Column(
+        db.Enum('days', 'hours', name='leave_time_unit', native_enum=False),
+        nullable=False,
+        server_default='days'
+    )
 
     @hybrid_property
     def num_days(self):
         # https://stackoverflow.com/questions/19965018/python-decimal-checking-if-integer
-        if self.days.as_integer_ratio()[1] == 1:
-            return int(self.days)
-        return self.days
+        return self.user.entt.convert_entitlement(
+            value=self.duration,
+            unit=self.time_unit,  # Use leave's stored time unit
+            target_unit='days',
+            hours_per_day=self.user.entt.working_hours_per_day
+        )
+
+    def convert_to_int(self, value):
+        # Check if the value is a Decimal and has no decimal part
+        if isinstance(value, Decimal) and value % 1 == 0:
+            return int(value)  # Convert to integer
+        return value  # Return as is if there's a decimal part
 
     @hybrid_property
     def hex_colour(self):

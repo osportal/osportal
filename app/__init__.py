@@ -101,6 +101,7 @@ def extensions(app):
     """ Initialize 1 or more extensions """
     db.init_app(app)
     continuum.init_app(app)
+    continuum.track_models = False
     login_manager.init_app(app)
     migrate.init_app(app, db, render_as_batch=True, compare_type=True)
     mail.init_app(app)

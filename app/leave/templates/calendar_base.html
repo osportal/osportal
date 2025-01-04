@@ -44,8 +44,8 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
     authoriser = '{{ current_user.authoriser }}';
-    daysLeft = '{{ current_user.days_left }}';// use for pie chart
-    daysUsed = '{{ current_user.used_days }}';// use for pie chart
+    daysLeft = '{{ current_user.entitlement_rem }}';// use for pie chart
+    daysUsed = '{{ current_user.entitlement_used }}';// use for pie chart
 </script>
 
 <script>
@@ -122,7 +122,7 @@ $(document).on('click', function (e) {
 });
 </script>
 
-{% if current_user.days_left == 0 and current_user.used_days == 0 %}
+{% if current_user.entitlement_rem == 0 and current_user.entitlement_used == 0 %}
 {% else %}
 <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/chart-pie-demo.js') }}"></script>

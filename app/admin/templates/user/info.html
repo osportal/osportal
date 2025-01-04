@@ -60,15 +60,24 @@
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 		              <a class="dropdown-item" href="{{ url_for('admin.password_reset', id=user.id) }}" role="button">Reset Password</a>
-                        {% if current_user.entt %}
-    	                    {{ forms.action_confirm(
-    	                        id="carry-over-confirm",
-    	                        url=url_for('admin.carry_over_entitlement', id=user.id),
-    	                        title="Carry Over Entitlement", 
-    	                        btn="dropdown-item",
-    	                        icon_only=False,
-    	                        target="#confirmModal") 
-    	                    }}
+                       {% if current_user.entt %}
+    	                   {{ forms.action_confirm(
+    	                       id="carry-over-confirm",
+    	                       url=url_for('admin.carry_over_entitlement', id=user.id),
+    	                       title="Carry Over Entitlement", 
+    	                       btn="dropdown-item",
+    	                       icon_only=False,
+    	                       target="#confirmModal") 
+    	                   }}
+    	               {% endif %}
+                       {% if current_user.entt %}
+    	                   {{ forms.action_confirm(
+    	                       url=url_for('admin.init_template', id=user.id),
+    	                       title="Initialise Entitlement Template", 
+    	                       btn="dropdown-item",
+    	                       icon_only=False,
+    	                       target="#confirmModal") 
+    	                   }}
     	               {% endif %}
                   </div>
               </div>
@@ -181,7 +190,7 @@
     			<div class="form-group">
 			        <div class="mb-2">
 			        	<div><strong>Entitlement Template</strong></div>
-			        	<div>{{ user.entt }}</div>
+                        <div><a href="{{ url_for('admin.entt_info', id=user.entt.id) }}">{{ user.entt }}</a></div>
 			        </div>
 			        <div class="mb-2">
 			        	<div><strong>Leave Authoriser</strong></div>
@@ -192,16 +201,16 @@
 			        	<div>{{ user.fmt_date(user.leave_year_start) }}</div>
 			        </div>
 			        <div class="mb-2">
-			        	<div><strong>Days Left</strong></div>
-			        	<div>{{ user.days_left }}</div>
+			        	<div><strong>Entitlement Remaining</strong></div>
+			        	<div>{{ user.entitlement_rem }}</div>
 			        </div>
 			        <div class="mb-2">
-			        	<div><strong>Used Days</strong></div>
-			        	<div>{{ user.used_days }}</div>
+			        	<div><strong>Entitlement Used</strong></div>
+			        	<div>{{ user.entitlement_used }}</div>
 			        </div>
 			        <div class="mb-2">
-			        	<div><strong>Days Carried Over</strong></div>
-			        	<div>{{ user.previous_carryover_days }}</div>
+			        	<div><strong>Entitlement Carried Over</strong></div>
+			        	<div>{{ user.previous_carryover }}</div>
 			        </div>
     			</div>
             </div>

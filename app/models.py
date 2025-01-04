@@ -91,12 +91,11 @@ class Entt(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(50), unique=True, nullable=False)
     description = db.Column(db.String(300), nullable=True)
-    #TODO need nullable changing to False
-    default_entitlement = db.Column(db.Integer, nullable=True, default=0)
-    working_hours_per_day = db.Column(db.Integer, nullable=True, default=8)
-    #TODO make sure to include cap within transfer carry over days button
-    entitlement_caps = db.Column(db.Integer, nullable=True, default=0)
-    max_carryovers = db.Column(db.Integer, nullable=True, default=0)
+    default_entitlement = db.Column(db.Numeric(precision=6, scale=2), nullable=False, default=0)
+    working_hours_per_day = db.Column(db.Numeric(precision=6, scale=2), nullable=True, default=8)
+    entitlement_cap = db.Column(db.Numeric(precision=6, scale=2), nullable=False, default=0)
+    max_carryover = db.Column(db.Numeric(precision=6, scale=2), nullable=False, default=0)
+
     weekend = db.Column(db.Boolean, nullable=False, default=False)
     half_day = db.Column(db.Boolean, nullable=False, default=True)
     time_unit = db.Column(db.Enum(*UNIT, name='role_types', native_enum=False),
@@ -124,12 +123,10 @@ class Entt(ResourceMixin):
 
         return or_(*search_chain)
 
-    # Example values
-    # default_entitlement = 10
-    # entitlement_unit = 'days'
-
-    # Conversion logic (if needed)
-    def convert_entitlement(self, value, unit, target_unit, hours_per_day):
+    def convert_entitlement(self, value, unit, target_unit, hours_per_day=8):
+        # if entt does not have a working_hours_per_day value, default to 8
+        if self.working_hours_per_day:
+            hours_per_day = self.working_hours_per_day
         if unit == target_unit:
             return value
         if unit == 'days' and target_unit == 'hours':
@@ -137,8 +134,6 @@ class Entt(ResourceMixin):
         if unit == 'hours' and target_unit == 'days':
             return value / hours_per_day
         raise ValueError("Unsupported unit conversion")
-    # Usage
-    #converted_value = convert_entitlement(default_entitlement, entitlement_unit, 'hours', self.working_hours_per_day)
 
 
 class Site(ResourceMixin):

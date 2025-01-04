@@ -178,9 +178,9 @@ class NewUserForm(UserForm):
 
     # Leave
     leave_year_start = DateField('Leave Year Start', validators=[Optional()])
-    previous_carryover_days = DecimalField('Days Carried Over', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
-    used_days = DecimalField('Used Days', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
-    days_left = DecimalField('Days Left', validators=[Optional(), NumberRange(min=0, max=100)],places=1)
+    previous_carryover = DecimalField('Days Carried Over', validators=[Optional(), NumberRange(min=0, max=9999.99)],places=2)
+    entitlement_used = DecimalField('Entitlement Used (days or hours)', validators=[Optional(), NumberRange(min=0, max=9999.99)],places=2)
+    entitlement_rem = DecimalField('Entitlement Remaining (days or hours)', validators=[Optional(), NumberRange(min=0, max=9999.99)],places=2)
 
 
 class SiteForm(ModelForm):
@@ -250,7 +250,7 @@ class RoleForm(ModelForm):
     superuser = BooleanField('Superuser?')
 
 
-exclusions = ['leave_actioned', 'role_permission', 'notification', 'department_members']
+exclusions = ['role_permission', 'notification', 'department_members']
 custom = ['plugin', 'data']
 # create dict from above custom list
 additions = {index: element for element, index in enumerate(custom)}
@@ -277,12 +277,12 @@ class EnttForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_entt_exists])
     description = StringField('Description', validators=[Optional(), Length(2,300)])
     time_unit = SelectField('Time Unit', [DataRequired()], choices=choices_from_dict(Entt.UNIT, prepend_blank=False))
-    default_entitlement_days = IntegerField('Default Annual Leave Entitlement (days)', validators=[Optional()])
-    default_entitlement_hours = IntegerField('Default Annual Leave Entitlement (hours)', validators=[Optional()])
-    entitlement_cap_days = IntegerField('Entitlement Cap (days)', validators=[Optional()])
-    entitlement_cap_hours = IntegerField('Entitlement Cap (hours)', validators=[Optional()])
-    max_carryover_days = IntegerField('Maximum Carry Over Days', validators=[Optional()])
-    max_carryover_hours = IntegerField('Maximum Carry Over Hours', validators=[Optional()])
+
+    working_hours_per_day = DecimalField('Working Hours Per Day', validators=[Optional(), NumberRange(min=0, max=9999.99)], places=2)
+    default_entitlement = DecimalField('Default Annual Leave Entitlement (days/hours)', validators=[DataRequired(), NumberRange(min=0, max=9999.99)], places=2)
+    entitlement_cap = DecimalField('Entitlement Cap (days/hours)', validators=[DataRequired(), NumberRange(min=0, max=9999.99)], places=2)
+    max_carryover = DecimalField('Maximum Carry Over (days/hours)', validators=[DataRequired(), NumberRange(min=0, max=9999.99)], places=2)
+
     weekend = BooleanField('Enable Weekends')
     half_day = BooleanField('Enable Half Days')
 

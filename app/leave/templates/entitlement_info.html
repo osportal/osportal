@@ -29,7 +29,7 @@
 	        Entitlement Information
 	    </div>
 	    <div class="card-body">
-            {% if current_user.days_left == 0 and current_user.used_days == 0 %}
+            {% if current_user.entitlement_rem == 0 and current_user.entitlement_used == 0 %}
             {% else %}
             <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
                 <canvas id="myPieChart" style="display: block; width: 292px; height: 208px;" width="292" height="208" class="chartjs-render-monitor"></canvas>

@@ -56,16 +56,26 @@
         	<div>{{ entt.description }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Default Annual Leave Days</strong></div>
+        	<div><strong>Time Unit</strong></div>
+        	<div>{{ entt.time_unit }}</div>
+        </div>
+        {% if entt.time_unit == 'hours' %}
+        <div class="mb-2">
+        	<div><strong>Working Hours Per Day</strong></div>
+        	<div>{{ entt.working_hours_per_day }}</div>
+        </div>
+        {% endif %}
+        <div class="mb-2">
+        	<div><strong>Default Entitlement</strong></div>
         	<div>{{ entt.default_entitlement }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Maximum Carry Over Days</strong></div>
-        	<div>{{ entt.max_carryover_days }}</div>
+        	<div><strong>Entitlement Cap</strong></div>
+        	<div>{{ entt.entitlement_cap }}</div>
         </div>
         <div class="mb-2">
-        	<div><strong>Maximum Carry Over Hours</strong></div>
-        	<div>{{ entt.max_carryover_hours }}</div>
+        	<div><strong>Maximum Carry Over</strong></div>
+        	<div>{{ entt.max_carryover }}</div>
         </div>
         <div class="mb-2">
         	<div><strong>Public Holiday Group</strong></div>

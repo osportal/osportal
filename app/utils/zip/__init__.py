@@ -127,7 +127,6 @@ def import_zipfile(backup, erase=True):
         "db/post.json",
         "db/comment.json",
         "db/leave.json",
-        "db/leave_actioned.json",
     ]
     # Upgrade the database to the point in time that the import was taken from
     #migration_upgrade(revision=alembic_version)

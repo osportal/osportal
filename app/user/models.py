@@ -7,6 +7,7 @@ from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from decimal import Decimal
 from flask_continuum import VersioningMixin
 from flask_login import UserMixin, logout_user, current_user
 from flask import url_for, current_app, request
@@ -15,6 +16,7 @@ import jwt
 import os
 from sqlalchemy import text, or_, func
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.declarative import declared_attr
 from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -127,6 +129,9 @@ class Role(ResourceMixin):
 
 class User(UserMixin, ResourceMixin, VersioningMixin):
     __tablename__ = 'user'
+    __versioning__ = {
+        'exclude': ['password', 'updated_at']  # Exclude this field from versioning
+    }
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
@@ -143,6 +148,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
     bio = db.Column(db.String(255), nullable=True)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
     entt_id = db.Column(db.Integer, db.ForeignKey('entt.id'), nullable=True)
+    site_id = db.Column(db.Integer, db.ForeignKey('site.id'), nullable=True)
 
     last_notification_read_time = db.Column(db.DateTime)
 
@@ -157,9 +163,10 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     # Leave Days
     leave_year_start = db.Column(db.Date, default=datetime.now().date().replace(month=1, day=1))
-    used_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    days_left = db.Column(db.Numeric(precision=4, scale=1), default=0)
-    previous_carryover_days = db.Column(db.Numeric(precision=4, scale=1), default=0)
+
+    entitlement_used = db.Column(db.Numeric(precision=6, scale=2), default=0)
+    entitlement_rem = db.Column(db.Numeric(precision=6, scale=2), default=0)
+    previous_carryover = db.Column(db.Numeric(precision=6, scale=2), default=0)
 
     # RELATIONSHIPS
     role = db.relationship("Role", foreign_keys=[role_id], backref='user')
@@ -168,8 +175,10 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
                                  remote_side=id,
                                  backref=db.backref('lauthoriser', lazy='dynamic')
                                  )
+     # Explicitly specify the foreign key for the relationship with 'Leave'
     leaves = db.relationship('Leave',
-                             backref='user',
+                             backref=db.backref('user', lazy='select'),
+                             foreign_keys=[Leave.user_id],  # Specify which foreign key to use
                              cascade='delete',
                              lazy=True)
     posts = db.relationship('Post',
@@ -186,10 +195,6 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
                                     backref='user',
                                     cascade='delete',
                                     lazy='dynamic')
-    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
-    country = db.relationship('Country', foreign_keys=[country_id], backref='user')
-
-    site_id = db.Column(db.Integer, db.ForeignKey('site.id'))
     site = db.relationship('Site', foreign_keys=[site_id], backref='user')
 
 
@@ -199,6 +204,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         #self.annual_entitlement = self.country.default_annual_allowance
         #self.days_left = self.annual_entitlement
 
+    # Ensure the password is not used in version history by overriding the method for getting the version
+    @declared_attr
+    def __versioned__(cls):
+        return {
+            'exclude': ['password', 'updated_at'],  # Make sure password isn't included in version history
+        }
 
     def __repr__(self):
         return self.display_name
@@ -318,6 +329,13 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         if self.entt:
             return self.entt.id
         return 0
+
+    def init_entt(self):
+        if self.entt:
+            self.entitlement_rem = self.entt.default_entitlement
+            self.entitlement_used = 0 # Reset used entitlement for the chosen template 
+            self.previous_carryover = 0 # Reset previous carry over days for the chosen template 
+            return self.save()
 
     def get_leave_types(self):
         if self.entt:
@@ -443,9 +461,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     def update_login_activity(self, ip_address):
         """
-        Update account metadata
-        such as current and previous login times
-        as well as ip addresses etc.
+        Update metadata for login times and ip addresses etc.
         """
         self.login_time = datetime.utcnow()
         self.login_ip_address = ip_address
@@ -453,12 +469,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         return self.save()
 
     def deduct_leave_days(self, days):
-        self.used_days = self.used_days + days
-        self.days_left = self.days_left - days
+        self.entitlement_used += Decimal(days)
+        self.entitlement_rem -= Decimal(days)
 
     def reinstate_allowance_days(self, days):
-        self.used_days -= days
-        self.days_left += days
+        self.entitlement_used -= Decimal(days)
+        self.entitlement_rem += Decimal(days)
 
     def is_active(self):
         return self.active
@@ -570,11 +586,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         return delete_count
 
     def display_leave_allowance(self):
+        unit = self.entt.time_unit.title()
         columns = [
             [self.get_annual_leave_days(), 'Annual Entitlement'],
-            [self.days_left, 'Days Left'],
-            [self.used_days,'Used and Authorised Days'],
-            [self.previous_carryover_days, 'Days Carried Over']
+            [self.entitlement_rem, f'{unit} Left'],
+            [self.entitlement_used, f'Used and Authorised {unit}'],
+            [self.previous_carryover, f'{unit} Carried Over']
         ]
         for column in columns:
             if column[0] is not None:

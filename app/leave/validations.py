@@ -75,5 +75,5 @@ def check_allowance(form, field):
             if form.half_day.data == True:
                 requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user, half_day=True)
         requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user)
-        if requested > current_user.days_left:
+        if requested > current_user.entitlement_rem:
                 raise ValidationError(f'You do not have sufficient leave allowance for requested days.')

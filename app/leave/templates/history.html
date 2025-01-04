@@ -22,7 +22,7 @@
                     {{ items.sort('end_date', 'End Date') }}
                 </th>
                 <th scope="col">
-                    {{ items.sort('days', 'Total Duration') }}
+                    {{ items.sort('duration', 'Total Duration') }}
                 </th>
                 <th scope="col">
                     {{ items.sort('status', 'Status') }}
@@ -44,14 +44,14 @@
                 {{ leave.end_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ leave.num_days }} days
+                {{ leave.num_days }} Days{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}
             </td>
             <td>
                 {{ leave.status }}
             </td>
             <td>
                 {% if leave.status == 'Pending' %}
-                    <a role="button" class="btn btn-sm btn-primary m-1" href="{{ url_for('leave.edit', id=leave.id) }}">Edit</a>
+                    <a role="button" class="btn btn-sm btn-primary" href="{{ url_for('leave.manage', id=leave.id) }}">Edit</a>
                     {{ forms.action_confirm(
                         id="delete" ~ leave.id,
                         url=url_for('leave.delete', id=leave.id),
