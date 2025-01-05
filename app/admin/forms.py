@@ -113,7 +113,7 @@ class CopyHolidaysToYearForm(ModelForm):
 
 
 class CopyHolidaysToGroupForm(ModelForm):
-    groups = QuerySelectMultipleField('Select Groups to Copy Selected Holidays for', 
+    groups = QuerySelectMultipleField('Select Groups to Copy Selected Holidays for',
                                       query_factory=lambda: PublicHolidayGroup.query.all(),
                                       get_pk=lambda g: g.id,
                                       widget=Select2Widget(),

@@ -114,5 +114,43 @@
         </a>
       </li>
       {% endif %}
+      {% if request.endpoint == 'admin.users' %}
+      <li>
+        <a onclick="checkArrayLen('#bulkEditEntt')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <span class="align-middle">
+                <i class="bi bi-file-earmark-font"></i>
+                Edit Entitlement Template
+            </span>
+        </a>
+      </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkEditRole')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <span class="align-middle">
+                <i class="bi bi-hammer"></i>
+                Edit Role
+            </span>
+        </a>
+      </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkEditSite')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <span class="align-middle">
+                <i class="bi bi-building"></i>
+                Edit Site
+            </span>
+        </a>
+      </li>
+      {% endif %}
     </ul>
 </div>

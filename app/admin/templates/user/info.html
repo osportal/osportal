@@ -190,7 +190,13 @@
     			<div class="form-group">
 			        <div class="mb-2">
 			        	<div><strong>Entitlement Template</strong></div>
-                        <div><a href="{{ url_for('admin.entt_info', id=user.entt.id) }}">{{ user.entt }}</a></div>
+                        <div>
+                            {% if user.entt %}
+                            <a href="{{ url_for('admin.entt_info', id=user.entt.id) }}">{{ user.entt }}</a>
+                            {% else %}
+                            {{ user.entt }}
+                            {% endif %}
+                        </div>
 			        </div>
 			        <div class="mb-2">
 			        	<div><strong>Leave Authoriser</strong></div>

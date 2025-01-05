@@ -598,8 +598,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
                 if column[0].as_integer_ratio()[1] == 1:
                     column[0] = int(column[0])
                     yield column
-                else:
-                    yield column
+            yield column
 
     def is_last_superuser(self):
         if self.role:

@@ -1,6 +1,8 @@
 from app.celery import celery
-from app.user.models import User, Role, Permission
+from app.models import Entt, Site
 from app.posts.models import Comment
+from app.user.models import User, Role, Permission
+
 from flask import url_for
 
 @celery.task()
@@ -20,6 +22,57 @@ def reset_users_passwords(ids):
     return: int
     """
     return User.bulk_password_reset(ids)
+
+@celery.task()
+def update_entt(ids, entt):
+    """
+    Update user entitlement template
+    type ids: list
+    type entt: string id
+    return: int
+    """
+    save_count = 0
+    entt = Entt.query.get(int(entt))
+    for id in ids:
+        user = User.query.get(id)
+        user.entt = entt
+        user.save()
+        save_count += 1
+    return save_count
+
+@celery.task()
+def update_role(ids, role):
+    """
+    Update user role
+    type ids: list
+    type role: string id
+    return: int
+    """
+    save_count = 0
+    role = Role.query.get(int(role))
+    for id in ids:
+        user = User.query.get(id)
+        user.role = role
+        user.save()
+        save_count += 1
+    return save_count
+
+@celery.task()
+def update_site(ids, site):
+    """
+    Update user site
+    type ids: list
+    type site: string id
+    return: int
+    """
+    save_count = 0
+    site = Site.query.get(int(site))
+    for id in ids:
+        user = User.query.get(id)
+        user.site = site
+        user.save()
+        save_count += 1
+    return save_count
 
 @celery.task()
 def new_comment_notification(id):

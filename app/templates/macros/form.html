@@ -123,6 +123,7 @@
 </form>
 {% endmacro %}
 
+{#
 {% macro modal_bulk_action(id, label, title, text, url, btn_text) %}
 <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ label }}" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -146,5 +147,46 @@
   </div>
 </div>
 {% endmacro %}
+#}
 
-
+{%- macro modal_bulk_action(id, label, title, text, url=None, btn_text='', form=None, form_fields=None, url_args={}) -%}
+  {% set action_url = url_for(url, **url_args) if url else '#' %}
+  <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ label }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="{{ label }}">{{ title }}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        {% if text %}
+          <p>{{ text }}</p>
+        {% endif %}
+          {% if form %}
+            {% call form_tag(endpoint=url, form=form, fid=id + "-form", method="POST", css_class="bulkforms", **url_args) %}
+              {% if form_fields %}
+                {% for field in form_fields %}
+                  {% call form_group(field) %}
+                  {% endcall %}
+                {% endfor %}
+              {% endif %}
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">{{ btn_text }}</button>
+                <button type="button" class="btn btn-light ml-2" data-dismiss="modal">Cancel</button>
+              </div>
+            {% endcall %}
+          {% else %}
+            <form class="bulkforms" action="{{ action_url }}" method="POST" id="{{ id }}-form">
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">{{ btn_text }}</button>
+                <button type="button" class="btn btn-light ml-2" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endmacro %}

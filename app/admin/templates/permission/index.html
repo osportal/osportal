@@ -133,14 +133,20 @@
     </tbody>
   </table>
 {{ items.paginate(permissions) }}
+
+{% with %}
+{% set url_args = {'table': 'permission'} %}
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
     text="Are you sure you want to delete the selected permissions?",
-    url=url_for('admin.bulk_delete', table='permission'),
-    btn_text="Delete")
+    url='admin.bulk_delete',
+    btn_text="Delete",
+    url_args=url_args)
 }}
+{% endwith %}
+
 {% include "partials/confirm_dialog.html" %}
 {% endif %}
 

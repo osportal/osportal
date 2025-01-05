@@ -87,30 +87,48 @@
 </table>
 {{ items.paginate(leave_types) }}
 
+{% with %}
+{% set url_args = {'table': 'leave_type'} %}
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
     text="Are you sure you want to delete the selected types?",
-    url=url_for('admin.bulk_delete', table='leave_type'),
-    btn_text="Delete")
+    url='admin.bulk_delete',
+    btn_text="Delete",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
+{% with %}
+{% set url_args = {'table': 'leave_type'} %}
 {{ forms.modal_bulk_action(
     id="bulkDisable",
     label="bulkDisableLabel",
     title="Disable",
     text="Are you sure you want to disable the selected types?",
-    url=url_for('admin.bulk_disable', table='leave_type'),
-    btn_text="Disable")
+    url='admin.bulk_disable',
+    btn_text="Disable",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
+{% with %}
+{% set url_args = {'table': 'leave_type'} %}
 {{ forms.modal_bulk_action(
     id="bulkEnable",
     label="bulkEnableLabel",
     title="Enable",
     text="Are you sure you want to enable the selected types?",
-    url=url_for('admin.bulk_enable', table='leave_type'),
-    btn_text="Enable")
+    url='admin.bulk_enable',
+    btn_text="Enable",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
 {% include "partials/confirm_dialog.html" %}
 
 {% endblock content %}

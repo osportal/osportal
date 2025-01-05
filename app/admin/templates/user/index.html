@@ -145,46 +145,109 @@
   </table>
 {{ items.paginate(users) }}
 
+{% with %}
+{% set url_args = {'table': 'user'} %}
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
     text="Are you sure you want to delete the selected users?",
-    url=url_for('admin.bulk_delete', table='user'),
-    btn_text="Delete")
+    url='admin.bulk_delete',
+    btn_text="Delete",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
+{% with %}
+{% set url_args = {'table': 'user'} %}
 {{ forms.modal_bulk_action(
     id="bulkDisable",
     label="bulkDisableLabel",
     title="Disable",
     text="Are you sure you want to disable the selected users?",
-    url=url_for('admin.bulk_disable', table='user'),
-    btn_text="Disable")
+    url='admin.bulk_disable',
+    btn_text="Disable",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
+{% with %}
+{% set url_args = {'table': 'user'} %}
 {{ forms.modal_bulk_action(
     id="bulkEnable",
     label="bulkEnableLabel",
     title="Enable",
     text="Are you sure you want to enable the selected users?",
-    url=url_for('admin.bulk_enable', table='user'),
-    btn_text="Enable")
+    url='admin.bulk_enable',
+    btn_text="Enable",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
 {{ forms.modal_bulk_action(
     id="bulkPasswordReset",
     label="bulkPasswordResetLabel",
     title="Send Password Reset Email",
     text="Are you sure you want to send a password reset email to the selected users?",
-    url=url_for('admin.users_bulk_password_reset'),
-    btn_text="Send")
+    url='admin.users_bulk_password_reset',
+    btn_text="Send"
+    )
 }}
+
 {{ forms.modal_bulk_action(
     id="bulkWelcomeEmail",
     label="bulkWelcomeEmailLabel",
     title="Send Welcome Email",
     text="Are you sure you want to send a welcome email to the selected users?",
-    url=url_for('admin.users_bulk_welcome_email'),
+    url='admin.users_bulk_welcome_email',
     btn_text="Send")
 }}
+
+{% with %}
+  {% set form_fields = [user_form.entt] %}
+  {{ forms.modal_bulk_action(
+      id="bulkEditEntt",
+      label="bulkEditEnttLabel",
+      title="Bulk Edit Entitlement Template",
+      text="",
+      url='admin.bulk_edit_entt',
+      btn_text="Submit",
+      form=user_form,
+      form_fields=form_fields
+  ) }}
+{% endwith %}
+
+{% with %}
+  {% set form_fields = [user_form.role] %}
+  {{ forms.modal_bulk_action(
+      id="bulkEditRole",
+      label="bulkEditRoleLabel",
+      title="Bulk Edit User Role",
+      text="",
+      url='admin.bulk_edit_role',
+      btn_text="Submit",
+      form=user_form,
+      form_fields=form_fields
+  ) }}
+{% endwith %}
+
+{% with %}
+  {% set form_fields = [user_form.site] %}
+  {{ forms.modal_bulk_action(
+      id="bulkEditSite",
+      label="bulkEditSiteLabel",
+      title="Bulk Edit User Site",
+      text="",
+      url='admin.bulk_edit_site',
+      btn_text="Submit",
+      form=user_form,
+      form_fields=form_fields
+  ) }}
+{% endwith %}
+
 
 {% endif %}<!-- end if users exist -->
 {% include "partials/confirm_dialog.html" %}
@@ -196,4 +259,5 @@
 <script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/userModalWarning.js') }}"></script>
 <script src="{{ url_for('static', filename='js/selectTableRow.js') }}"></script>
+<script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
 {% endblock %}

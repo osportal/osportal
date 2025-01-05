@@ -157,78 +157,50 @@
       </table>
       {{ items.paginate(paginated_holidays, kwargs={'id':group.id, 'year': current_year }) }}
 
+        {% with %}
+        {% set url_args = {'table': 'public_holiday'} %}
         {{ forms.modal_bulk_action(
             id="bulkDelete",
             label="bulkDeleteLabel",
             title="Delete",
             text="Are you sure you want to delete the selected holidays?",
-            url=url_for('admin.bulk_delete', table='public_holiday'),
-            btn_text="Delete")
+            url='admin.bulk_delete',
+            btn_text="Delete",
+            url_args=url_args)
         }}
+        {% endwith %}
 
-        <!-- Copy Holidays to Years Modal -->
-        <div class="modal fade" id="CopyHolidaysToYears" tabindex="-1" aria-labelledby="copyToYearsLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="copyToYearsLabel">Copy Public Holidays to Years</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-                {% set endpoint = 'admin.copy_holidays_to_years' %}
-                {% set copy_to_year_form_kwargs = {'id': group.id} %}
-              {% call forms.form_tag(endpoint, form=copy_to_year_form, css_class="bulkforms", **copy_to_year_form_kwargs) %}
-              <div class="modal-body">
-                  <div class="mb-4">
-                    {% call forms.form_group(copy_to_year_form.years, css_class='sm-margin-bottom') %}
-                    {% endcall %}
-                  </div>
-                  <div class="row mb-4">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
-                    </div>
-                    <div class="col">
-                        <button type="button" class="btn btn-light btn-block" data-dismiss="modal">Cancel</button>
-                    </div>
-              </div>
-              {% endcall %}
-              </div>
-            </div>
-          </div>
-        </div>
+        {% with %}
+          {% set form_fields = [copy_to_year_form.years] %}
+          {% set url_args = {'id': group.id} %}
+          {{ forms.modal_bulk_action(
+              id="CopyHolidaysToYears",
+              label="copyToYearsLabel",
+              title="Copy Public Holidays to years",
+              text="",
+              url='admin.copy_holidays_to_years',
+              btn_text="Submit",
+              form=copy_to_year_form,
+              form_fields=form_fields,
+              url_args=url_args)
+          }}
+        {% endwith %}
 
-        <!-- Copy Holidays to Groups Modal -->
-        <div class="modal fade" id="CopyHolidaysToGroups" tabindex="-1" aria-labelledby="copyToGroupsLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="copyToGroupsLabel">Copy Public Holidays To Groups</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-                {% set endpoint = 'admin.copy_holidays_to_groups' %}
-                {% set copy_to_group_form_kwargs = {'id': group.id} %}
-              {% call forms.form_tag(endpoint, form=copy_to_group_form, css_class="bulkforms", **copy_to_group_form_kwargs) %}
-              <div class="modal-body">
-                  <div class="mb-4">
-                    {% call forms.form_group(copy_to_group_form.groups, css_class='sm-margin-bottom') %}
-                    {% endcall %}
-                  </div>
-                  <div class="row mb-4">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
-                    </div>
-                    <div class="col">
-                        <button type="button" class="btn btn-light btn-block" data-dismiss="modal">Cancel</button>
-                    </div>
-              </div>
-              {% endcall %}
-              </div>
-            </div>
-          </div>
-        </div>
+        {% with %}
+          {% set form_fields = [copy_to_group_form.groups] %}
+          {% set url_args = {'id': group.id} %}
+          {{ forms.modal_bulk_action(
+              id="CopyHolidaysToGroups",
+              label="copyToGroupsLabel",
+              title="Copy Public Holidays to Groups",
+              text="",
+              url='admin.copy_holidays_to_groups',
+              btn_text="Submit",
+              form=copy_to_group_form,
+              form_fields=form_fields,
+              url_args=url_args)
+          }}
+        {% endwith %}
 
        {% endif %}<!-- End of if paginated holidays exist -->
 
@@ -257,5 +229,4 @@
         window.location.href = url;
       });
 </script>
-<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock scripts %}

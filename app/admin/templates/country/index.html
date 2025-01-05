@@ -77,15 +77,21 @@
 </table>
 {{ items.paginate(countries) }}
 
+{% with %}
+{% set url_args = {'table': 'country'} %}
 {{ forms.modal_bulk_action(
     id="bulkDelete",
     label="bulkDeleteLabel",
     title="Delete",
     text="Are you sure you want to delete the selected countries?
     (associated public holidays will also be deleted)",
-    url=url_for('admin.bulk_delete', table='country'),
-    btn_text="Delete")
+    url='admin.bulk_delete',
+    btn_text="Delete",
+    url_args=url_args
+    )
 }}
+{% endwith %}
+
 {% include "partials/confirm_dialog.html" %}
 
 {% endif %}

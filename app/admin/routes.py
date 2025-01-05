@@ -227,6 +227,7 @@ def leave_info(id):
 @permission_required('admin.user', crud='read')
 def users(page):
     search_form = SearchForm()
+    user_form = NewUserForm()
     #import_form = ImportCSVForm()
     #import_form.csv_type.data = 'user'
 
@@ -242,6 +243,7 @@ def users(page):
     return render_template('user/index.html',
                            #form=import_form,
                            form=search_form,
+                           user_form=user_form,
                            users=paginated_users)
 
 
@@ -1259,6 +1261,42 @@ def copy_holidays_to_groups(id):
     return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 
+@admin.route('/users/bulk_edit_entt', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def bulk_edit_entt():
+    ids = request.form.get('checked-items').split(",")
+    form_data = request.form.get('entt')
+    # stops circular import error
+    from app.user.tasks import update_entt
+    update_entt.delay(ids, form_data)
+    flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
+
+
+@admin.route('/users/bulk_edit_role', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def bulk_edit_role():
+    ids = request.form.get('checked-items').split(",")
+    form_data = request.form.get('role')
+    # stops circular import error
+    from app.user.tasks import update_role
+    update_role.delay(ids, form_data)
+    flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
+
+
+@admin.route('/users/bulk_edit_site', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def bulk_edit_site():
+    ids = request.form.get('checked-items').split(",")
+    form_data = request.form.get('site')
+    # stops circular import error
+    from app.user.tasks import update_site
+    update_site.delay(ids, form_data)
+    flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
+
+
 @admin.route('/users/bulk_welcome_email', methods=['POST'])
 @permission_required('admin.user', crud='update')
 def users_bulk_welcome_email():
@@ -1599,34 +1637,33 @@ def plugins():
 @entt_required()
 def carry_over_entitlement(id):
     """
-    Carry over the user's remaining entitlement, ensuring it respects the maximum carryover 
+    Carry over the user's remaining entitlement, ensuring it respects the maximum carryover
     and overall entitlement cap. If there's room within the cap, carry over additional days.
     """
     user = User.query.get_or_404(id)
-    
+
     # Maximum carryover allowed
     max_carryover = min(user.entitlement_rem, user.entt.max_carryover)
-    
+
     # Calculate the potential new entitlement
     potential_entitlement = user.entt.default_entitlement + max_carryover
     entitlement_cap = user.entt.entitlement_cap  # Assume this attribute defines the cap
-    
+
     # Adjust carryover to reach the cap if there's room
     if potential_entitlement > entitlement_cap:
         # Reduce carryover to not exceed the entitlement cap
         max_carryover = entitlement_cap - user.entt.default_entitlement
-    
+
     # Calculate the final entitlement within the cap
     new_entitlement = user.entt.default_entitlement + max_carryover
-    
+
     # Update user attributes
     user.previous_carryover = max_carryover
     user.entitlement_rem = new_entitlement
     user.entitlement_used = 0  # Reset used entitlement for the new period
-    
+
     # Save changes to the database
     user.save()
-    
     return redirect(url_for('admin.users_info', id=id))
 
 
