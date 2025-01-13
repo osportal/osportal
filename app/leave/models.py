@@ -3,6 +3,7 @@ from app.utils.util_sqlalchemy import ResourceMixin, StripStr
 import datetime
 from decimal import Decimal
 from flask_continuum import VersioningMixin
+from flask import current_app
 from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -78,12 +79,9 @@ class Leave(ResourceMixin, VersioningMixin):
 
     @hybrid_property
     def hex_colour(self):
-        #avoid circular import
-        from app.admin.utils import get_settings_value
         if self.status == 'Pending':
-            return get_settings_value('pending_colour')
-        else:
-            return self.ltype.get_hex_colour()
+            return current_app.config['PENDING_HEX']
+        return self.ltype.hex_colour
 
     def full_calendar_add_one_day(self):
         return self.end_date + datetime.timedelta(days=1)

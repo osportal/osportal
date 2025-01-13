@@ -30,9 +30,6 @@
 			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
 		</li>
 		<li class="nav-item">
-			<a class="nav-link" href="#cal" aria-controls="cal" role="tab" data-toggle="tab">Calendar</a>
-		</li>
-		<li class="nav-item">
 			<a class="nav-link" href="#pagi" aria-controls="pagi" role="tab" data-toggle="tab">Pagination</a>
 		</li>
 	</ul>
@@ -60,13 +57,6 @@
                 {% call f.form_group(form.system_email) %}
                 {% endcall %}
                 {% call f.form_group(form.alert_email) %}
-                {% endcall %}
-			</div>
-        </div>
-        <!-- CALENDAR CONFIG -->
-		<div role="tabpanel" class="tab-pane" id="cal">
-			<div class="form-group">
-                {% call f.colour_field(form.pending_colour) %}
                 {% endcall %}
 			</div>
         </div>

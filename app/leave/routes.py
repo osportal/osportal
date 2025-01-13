@@ -13,7 +13,8 @@ from app.user.models import User
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 
 import datetime
-from flask import render_template, request, url_for, redirect, flash, abort, Blueprint,jsonify, current_app,Response
+from flask import (render_template, request, url_for, redirect, flash, abort,
+                   Blueprint,jsonify, current_app, Response)
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
 
@@ -55,7 +56,7 @@ def calendar_settings():
         'initial_view':  'dayGridMonth',
         'display_leave_time': 'false',
         'leave_types': calendar_legend(),
-        'pending_colour': get_settings_value('pending_colour'),
+        'pending_colour': current_app.config['PENDING_HEX'],
         'public_hol_colour': current_user.entt.get_phg_colour()
     }
     return params

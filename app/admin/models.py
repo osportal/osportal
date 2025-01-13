@@ -43,9 +43,6 @@ class Settings(ResourceMixin):
     company_website = db.Column(db.String(40), nullable=True)
     forgot_password = db.Column(db.Boolean, nullable=False, default=True)
 
-    # Calendar
-    pending_colour = db.Column(StripStr(10), nullable=False, default='#eb5009')
-
     # Pagination
     items_per_admin_page = db.Column(db.Integer, nullable=False, default=50)
     posts_per_page = db.Column(db.Integer, nullable=False, default=25)

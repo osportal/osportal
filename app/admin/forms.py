@@ -356,9 +356,6 @@ class SettingsForm(FlaskForm):
                                    validators=[Optional()]
                                    )
 
-    #Calendar
-    pending_colour = StringField('Pending Colour', widget=ColorInput())
-
 
 class EmailForm(FlaskForm):
     name = StringField('Display Name', validators=[DataRequired(), Length(1, 50)])
