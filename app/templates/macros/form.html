@@ -97,15 +97,15 @@
 
 {# Render a form for searching. #}
 {%- macro search(endpoint) -%}
-  {% call form_tag(endpoint, form=form, method='get') %}
+  {% call form_tag(endpoint, form=form, method='get', css_class="btn-group") %}
     <label for="q"></label>
-    <div class="input-group mb-2">
-            <input type="text" class="form-control"
-             id="q" name="q" value="{{ request.args.get('q', '') }}"
-             placeholder="Search by typing, then press enter...">
-        <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i>
-        </button>
+    <div class="input-group">
+        <input type="text" class="form-control" id="q" name="q" value="{{ request.args.get('q', '') }}">
+        <div class="input-group-prepend">
+            <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+            </button>
+        </div>
     </div>
   {% endcall %}
 {%- endmacro -%}

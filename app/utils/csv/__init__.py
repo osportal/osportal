@@ -1,9 +1,12 @@
+from app.admin.utils import check_licence
 from app.models import get_class_by_tablename
 from app.user.models import User
 from app.extensions import db
 import csv
 from datetime import datetime
+from flask import current_app
 from io import BytesIO, StringIO
+from sqlalchemy.exc import PendingRollbackError, IntegrityError
 
 
 def dump_table_selected_ids(tablename, ids):
@@ -117,13 +120,26 @@ def load_csv(cls, dict_reader):
     date_only_columns = ['start_date', 'leave_year_start']
     errors = []
     new_line = {}
+    increment = 0  # Tracks the number of additional active users being processed
+
+    is_user_import = (cls.__name__.lower() == 'user') # if cls import is User
+
+
     for i, line in enumerate(dict_reader):
         try:
+            is_active_user = True  # Default assumption
+
             for k, v in line.items():
                 if v.lower() == 'true':
                     line[k]=True
                 elif v.lower() == 'false':
                     line[k]=False
+
+                # Determine if user is active based on the 'active' column
+                if k == 'active' and line[k] is False:
+                    is_active_user = False
+
+
                 # if theres no data for a column do not add to new dict
                 if line[k] != '' or None:
                     new_line[k] = line[k]
@@ -141,9 +157,18 @@ def load_csv(cls, dict_reader):
                 print(k)
                 print(v)
             '''
+            # Check license only for active users
+            if is_user_import and is_active_user and current_app.config['MAX_ACTIVE_USERS']:
+                increment += 1
+                check_licence(increment)
+
             obj = cls(**{str(k): v for k, v in new_line.items() if type(k) != bool})
             db.session.add(obj)
             db.session.commit()
+        except IntegrityError as integrity_error:
+            db.session.rollback()
+            exception = f"Line {i+1}: IntegrityError: {integrity_error.orig.diag.message_detail}"
+            errors.append(exception)
         except Exception as e:
             exception = f'Line {i+1}: {e.__class__.__name__}: {e}'
             errors.append(exception)

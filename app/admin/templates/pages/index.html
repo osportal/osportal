@@ -5,28 +5,31 @@
 {% import 'macros/pagination.html' as items %}
 
 {% set table_name = 'page' %}
-
-{% block title %}Page Settings{% endblock %}
-
-{% block content %}
-
 {% set endpoint = 'admin.pages' %}
 {% set button = 'Save' %}
-{% set extra_setting_links = admin_pages_sidebar(user=current_user) %}
 
+
+{% block title %}Page - Admin{% endblock %}
+
+{% block content %}
+{% set extra_setting_links = admin_pages_sidebar(user=current_user) %}
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{{ forms.search('admin.pages') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 
 {% if pages.total == 0 %}
     {% if request.args.get('q') %}
         <h3>No results found.</h3>
+        {{ forms.search('admin.pages') }}
     {% endif %}
 {% else %}
 
-{% include "actions_btn.html" %}
+  <div class="btn-toolbar" role="toolbar">
+    {% include "actions_btn.html" %}
+    {{ forms.search('admin.pages') }}
+    <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+  </div>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -35,10 +38,13 @@
             <input id="select_all" name="select_all" type="checkbox">
           </th>
           <th class="col-header">
-              Name
+              {{ items.sort('name') }}
           </th>
           <th class="col-header">
-              Active
+              {{ items.sort('route') }}
+          </th>
+          <th class="col-header">
+              {{ items.sort('active') }}
           </th>
         </tr>
     </thead>
@@ -52,6 +58,9 @@
         </td>
         <td>
             {{ page.name }}
+        </td>
+        <td>
+            {{ page.route }}
         </td>
         <td>
             {{ page.render(page.active) }}
@@ -123,6 +132,7 @@
     )
 }}
 {% endwith %}
+
 {% include "partials/confirm_dialog.html" %}
 
 {% endif %}

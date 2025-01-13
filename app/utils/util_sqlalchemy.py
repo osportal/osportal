@@ -1,9 +1,10 @@
 from app.extensions import db
-import datetime
-from flask import Markup, abort
+from app.admin.utils import check_licence
+from flask import Markup, abort, current_app
 from sqlalchemy import func
 from sqlalchemy.types import TypeDecorator
 
+import datetime
 
 class StripStr(TypeDecorator):
     """ White space at beginning and end of string is stripped (does NOT strip all spaces).
@@ -126,10 +127,20 @@ class ResourceMixin(db.Model):
             obj = cls.query.get(id)
             if obj is None:
                 continue
+
+            if cls.__name__ == 'User': # if cls is User
+                if not obj.active: # only consider inactive objects that are to be enabled
+                    check_licence(1)
             obj.active = True
             db.session.add(obj)
             enable_count += 1
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception as commit_error:
+            print(f"DEBUG: Commit error: {commit_error}")
+            db.session.rollback()
+            raise
+
         return enable_count
 
     @classmethod

@@ -13,16 +13,20 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{{ forms.search('admin.roles') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 
 {% if roles.total == 0 %}
     {% if request.args.get('q') %}
         <h3>No results found.</h3>
+        {{ forms.search('admin.roles') }}
     {% endif %}
 {% else %}
 
-{% include "actions_btn.html" %}
+  <div class="btn-toolbar" role="toolbar">
+    {% include "actions_btn.html" %}
+    {{ forms.search('admin.roles') }}
+    <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+  </div>
+
   <table class="table table-striped">
     <thead>
       <tr>

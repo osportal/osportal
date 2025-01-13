@@ -589,7 +589,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         unit = self.entt.time_unit.title()
         columns = [
             [self.get_annual_leave_days(), 'Annual Entitlement'],
-            [self.entitlement_rem, f'{unit} Left'],
+            [self.entitlement_rem, f'{unit} Remaining'],
             [self.entitlement_used, f'Used and Authorised {unit}'],
             [self.previous_carryover, f'{unit} Carried Over']
         ]
@@ -598,7 +598,8 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
                 if column[0].as_integer_ratio()[1] == 1:
                     column[0] = int(column[0])
                     yield column
-            yield column
+            else:
+                yield column
 
     def is_last_superuser(self):
         if self.role:

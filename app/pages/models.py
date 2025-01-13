@@ -1,5 +1,6 @@
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from app.extensions import db
+from sqlalchemy import text, or_
 
 class Page(ResourceMixin):
     __tablename__ = 'page'
@@ -12,3 +13,11 @@ class Page(ResourceMixin):
 
     def __repr__(self):
         return self.name
+
+    @classmethod
+    def search(cls, query):
+        search_query = '%{0}%'.format(query)
+        search_chain = (Page.name.ilike(search_query),
+                        Page.route.ilike(search_query),)
+
+        return or_(*search_chain)

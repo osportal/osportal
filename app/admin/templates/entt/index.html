@@ -12,18 +12,19 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{{ forms.search('admin.entts') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
-
 {% if entts.total == 0 %}
     {% if request.args.get('q') %}
         <h3>No results found.</h3>
+        {{ forms.search('admin.entts') }}
     {% endif %}
 {% else %}
 
-{% include "actions_btn.html" %}
+  <div class="btn-toolbar" role="toolbar">
+    {% include "actions_btn.html" %}
+    {{ forms.search('admin.entts') }}
+    <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+  </div>
 
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 <table class="table table-striped">
     <thead>
         <tr>

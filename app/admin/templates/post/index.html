@@ -13,16 +13,19 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{{ forms.search('admin.posts') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
-
 {% if posts.total == 0 %}
     {% if request.args.get('q') %}
         <h3>No results found.</h3>
+        {{ forms.search('admin.posts') }}
     {% endif %}
 {% else %}
 
-{% include "actions_btn.html" %}
+  <div class="btn-toolbar" role="toolbar">
+    {% include "actions_btn.html" %}
+    {{ forms.search('admin.posts') }}
+    <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+  </div>
+
 <div class="table-wrapper">
   <table class="table table-striped">
     <thead>

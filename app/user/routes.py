@@ -91,11 +91,13 @@ def forgot_password():
 @user.route('/notifications/page/<int:page>', methods=['GET', 'POST'])
 @login_required
 def notifications(page):
-    current_user.last_notification_read_time = datetime.utcnow()
-    db.session.commit() #commit being read, otherwise notification still appears
     notifications = current_user.notifications \
                     .order_by(Notification.created_at.desc()) \
                     .paginate(page, get_settings_value('items_per_admin_page'), True)
+    if notifications.items:
+        # update only if there are notifications
+        current_user.last_notification_read_time = datetime.utcnow()
+        db.session.commit() #commit being read, otherwise notification still appears
     return render_template('notifications.html', notifications=notifications)
 
 

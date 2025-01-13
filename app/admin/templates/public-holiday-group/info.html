@@ -79,8 +79,10 @@
     
     <div class="input-group"> 
     {% if current_user.permission('admin.public_holiday', crud='create') %}
-<a href="{{ url_for('admin.public_holiday_new', id=group.id) }}"
-    class="btn btn-primary mr-1" role="button" type="button">Add Holiday</a>
+    <a href="{{ url_for('admin.public_holiday_new', id=group.id) }}"
+        class="btn btn-primary mr-1" role="button" type="button">
+        Add Holiday
+    </a>
     {% endif %}
     {% if paginated_holidays %}
     {% include "actions_btn.html" %}

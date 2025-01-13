@@ -35,8 +35,8 @@ class LeaveForm(FlaskForm):
                             validators=[Optional(), Length(min=2, max=1000)],
                             render_kw={"placeholder": "(Optional)"}
                             )
-    #submit = SubmitField('Submit', validators=[check_allowance], render_kw={'id': 'submitRequestBtn'})
-    submit = SubmitField('Submit', render_kw={'id': 'submitRequestBtn'})
+    submit = SubmitField('Submit', validators=[check_allowance], render_kw={'id': 'submitRequestBtn'})
+    #submit = SubmitField('Submit', render_kw={'id': 'submitRequestBtn'})
 
 
 class LeaveHalfDayForm(LeaveForm):

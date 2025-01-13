@@ -80,6 +80,8 @@ def validate_request(ltype, requested, user):
         raise Exception('No working days were requested')
 
     if ltype.deductable:
+        if user.entitlement_rem is None:
+            raise Exception('Entitlement Remaining is NULL. Please contact your administrator')
         if user.entt.time_unit == "days" and requested > user.entitlement_rem:
             raise Exception('You do not have sufficient allowance for this request')
         elif user.entt.time_unit == "hours" and requested > user.entitlement_rem:

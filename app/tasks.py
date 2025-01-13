@@ -39,7 +39,7 @@ def enable_obj(table, ids):
 @celery.task()
 def bulk_copy_holidays_to_years(ids, years):
     """
-    :param ids: list of publicHolidays ids to be copied 
+    :param ids: list of publicHolidays ids to be copied
     :param years: list of selected years for new public holiday
     :type ids and years: list
     :return: int
@@ -72,7 +72,7 @@ def bulk_copy_holidays_to_years(ids, years):
 @celery.task()
 def bulk_copy_holidays_to_groups(ids, groups):
     """
-    :param ids: list of publicHolidays ids to be copied 
+    :param ids: list of publicHolidays ids to be copied
     :param years: list of selected groups
     :type ids and groups: list
     :return: int

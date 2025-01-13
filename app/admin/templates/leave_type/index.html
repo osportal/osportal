@@ -12,9 +12,12 @@
 {% include "menu.html" %}
 {{ sidebaritems(extra_setting_links) }}
 
-{% include "actions_btn.html" %}
+<div class="btn-toolbar" role="toolbar">
+  {% include "actions_btn.html" %}
+  {{ forms.search('admin.leave_types') }}
+  <input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+</div>
 
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
 <table class="table table-striped">
     <thead>
         <tr>

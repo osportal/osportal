@@ -71,6 +71,8 @@ def check_allowance(form, field):
     ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()
     if ltype.get_deductable():
         from flask_login import current_user
+        if current_user.entitlement_rem is None:
+            raise ValidationError(f'Your remaining entitlement is NULL. Please contact your administrator')
         if hasattr(form, 'half_day'):
             if form.half_day.data == True:
                 requested = calculate_requested_days(form.start_date.data, form.end_date.data, current_user, half_day=True)

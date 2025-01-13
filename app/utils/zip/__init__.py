@@ -9,10 +9,13 @@ import tempfile
 import zipfile
 
 from alembic.migration import MigrationContext
+from app.admin.models import Dashboard
+from app.admin.utils import check_licence
 from app.extensions import db
+from app.user.models import User
 from app.models import get_class_by_tablename
 from app.utils.zip.freeze import freeze_export
-from flask import current_app
+from flask import current_app, flash
 from flask_migrate import upgrade as migration_upgrade
 from io import BytesIO
 from pathlib import Path
@@ -114,25 +117,41 @@ def import_zipfile(backup, erase=True):
     mysql = current_app.config["SQLALCHEMY_DATABASE_URI"].startswith("mysql")
     side_db = dataset.connect(current_app.config["SQLALCHEMY_DATABASE_URI"])
     first = [
-        "db/page.json",
-        "db/leave_type.json",
+        "db/comment.json",
         "db/country.json",
-        "db/public_holiday.json",
-        "db/settings.json",
-        "db/role.json",
-        "db/user.json",
         "db/department.json",
         "db/department_members.json",
-        "db/notification.json",
-        "db/post.json",
-        "db/comment.json",
+        "db/email",
+        "db/entt",
+        "db/entt_leave_types",
         "db/leave.json",
+        "db/leave_type.json",
+        "db/leave_actioned.json",
+        "db/notification.json",
+        "db/public_holiday_group.json",
+        "db/public_holiday.json",
+        "db/page.json",
+        "db/permission.json",
+        "db/post.json",
+        "db/role.json",
+        "db/role_permission.json",
+        "db/settings.json",
+        "db/site.json",
+        "db/user.json",
     ]
     # Upgrade the database to the point in time that the import was taken from
     #migration_upgrade(revision=alembic_version)
     def insertion(table_filenames):
+        increment = 0
+        max_users = current_app.config.get("MAX_ACTIVE_USERS", None)
+
+        # Precompute active users if license check is enabled
+        if max_users:
+            active_users = Dashboard.group_and_count_active_users().get("total", 0)
+            print(f"DEBUG: Current active users: {active_users}, Max licenses: {max_users}")
+
         for member in table_filenames:
-            print(f"inserting {member}...")
+            #print(f"inserting {member}...")
             if member.startswith("db/"):
                 table_name = member[3:-5]
                 # Try to open a file but skip if it doesn't exist.
@@ -147,13 +166,34 @@ def import_zipfile(backup, erase=True):
                     saved = json.loads(data)
                     count = len(saved["results"])
                     for i, entry in enumerate(saved["results"]):
-                        print(f"inserting {member} {i}/{count}")
+                        #print(f"inserting {member} {i}/{count}")
+                        print(f"DEBUG: Processing entry in table {table_name}: {entry}")
+
+                        # Normalize 'active' field check
+                        is_active = str(entry.get("active", "")).lower() == "true"
+
+                        # Skip license check if not a 'user' table or entry is not active
+                        if (max_users and table_name == "user" and is_active):
+                            # Check if user already exists in the database (e.g., by unique field like email)
+                            user_exists = db.session.query(User).filter_by(email=entry.get("email")).first()
+                            if user_exists:
+                                print(f"DEBUG: Skipping duplicate user {entry.get('email')}")
+                                continue
+                            increment += 1
+                            check_licence(increment)
+
                         try:
                             table.insert(entry)
-                        # if unique constraint violation, skip
-                        except (ProgrammingError,IntegrityError):
-                            pass
-                        db.session.commit()
+                            # Increment new active user count after successful insert
+                        except (ProgrammingError,IntegrityError) as db_error:
+                            # if unique constraint violation, skip
+                            #print(f"Skipping due to database error: {db_error}")
+                            db.session.rollback()
+                            continue #skip to next entry
+                        except Exception as user_error:
+                            raise user_error
+                        else:
+                            db.session.commit()
                     if postgres:
                         # This command is to set the next primary key ID for the re-inserted tables in Postgres. However,
                         # this command is very difficult to translate into SQLAlchemy code. Because Postgres is not

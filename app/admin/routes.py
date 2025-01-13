@@ -27,7 +27,7 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              CopyHolidaysToYearForm, CopyHolidaysToGroupForm,
                              PublicHolidayYearForm, AdminPostForm)
 from app.admin.models import Dashboard, Settings, Email
-from app.admin.utils import get_settings_value
+from app.admin.utils import get_settings_value, check_licence
 from app.department.models import Department, DepartmentMembers
 from app.extensions import db
 from app.models import (Site, Country,
@@ -203,7 +203,7 @@ def leave_types(page):
         .order_by(text(order_values)) \
         .paginate(page, get_settings_value('items_per_admin_page'), True)
 
-    return render_template('leave_type/index.html', leave_types=paginated_ltypes)
+    return render_template('leave_type/index.html', form=search_form, leave_types=paginated_ltypes)
 
 
 @admin.route('/leave-requests', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -292,9 +292,14 @@ def permissions(page):
 @permission_required('admin.page', crud='read')
 def pages(page):
     search_form = SearchForm()
-    pages = Page.query \
-            .paginate(page, get_settings_value('items_per_admin_page'), False)
-    return render_template('pages/index.html', pages=pages, form=search_form)
+    sort_by = Page.sort_by(request.args.get('sort', 'name'),
+                              request.args.get('direction', 'asc'))
+    order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+    paginated_pages= Page.query \
+        .filter(Page.search((request.args.get('q', text(''))))) \
+        .order_by(text(order_values)) \
+        .paginate(page, get_settings_value('items_per_admin_page'), True)
+    return render_template('pages/index.html', pages=paginated_pages, form=search_form)
 
 
 @admin.route('/pages/new', methods=['GET', 'POST'])
@@ -1061,12 +1066,6 @@ def bulk_enable(table):
     return redirect(request.referrer)
 
 
-def check_licence():
-    max_users = current_app.config['MAX_ACTIVE_USERS']
-    active_users = Dashboard.group_and_count_active_users()
-    if active_users['total'] >= max_users:
-        raise Exception('You do not have enough user licences')
-
 @admin.route('/users/new', methods=['GET', 'POST'])
 @permission_required('admin.user', crud='create')
 def users_new():
@@ -1087,7 +1086,7 @@ def users_new():
             #user.days_left = user.annual_entitlement
             if current_app.config['MAX_ACTIVE_USERS']:
                 if form.active.data:
-                    check_licence()
+                    check_licence(1)
             user.save()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
@@ -1205,7 +1204,7 @@ def users_edit(id):
 
             if current_app.config['MAX_ACTIVE_USERS']:
                 if form.active.data and not user.active:
-                    check_licence()
+                    check_licence(1)
 
             form.populate_obj(user)
             #[user.department] = form.departments.data
