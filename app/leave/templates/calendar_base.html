@@ -8,25 +8,6 @@
 <div id="calendar-container">
     {% block calendar_content %}
     <div id="calendar"></div>
-    <!-- Legend -->
-    <div class="mt-2">
-        <ul style="text-align: center; list-style: none;">
-            {% for type in leave_types %}
-            <span class="mr-2">
-                <span class="icon">
-                    {% if type == 'Pending' %}
-                        {{ legend_circle(colour=pending_colour) }}
-                    {% elif type == 'Public Holiday' %}
-                        {{ legend_circle(colour=public_hol_colour) }}
-                    {% else %}
-                        {{ legend_circle(colour=type.hex_colour) }}
-                    {% endif %}
-                </span>
-                <span class="text" style="vertical-align: middle;">{{ type }}</span>
-            </span>
-            {% endfor %}
-        </ul>
-    </div>
     {% endblock calendar_content %}
 </div>
 

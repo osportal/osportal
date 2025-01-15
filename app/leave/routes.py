@@ -34,16 +34,6 @@ def before_request():
     pass
 
 
-def calendar_legend():
-    types = []
-    types.append('Pending')
-    if current_user.check_public_holidays():
-        types.append('Public Holiday')
-    query = LeaveType.query.filter(LeaveType.active==True).all()
-    types += query
-    return types
-
-
 def calendar_settings():
     params = {
         'theme': 'bootstrap',
@@ -55,8 +45,6 @@ def calendar_settings():
         #'initial_view':  'multiMonthYear',
         'initial_view':  'dayGridMonth',
         'display_leave_time': 'false',
-        'leave_types': calendar_legend(),
-        'pending_colour': current_app.config['PENDING_HEX'],
         'public_hol_colour': current_user.entt.get_phg_colour()
     }
     return params

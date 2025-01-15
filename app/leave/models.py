@@ -80,7 +80,7 @@ class Leave(ResourceMixin, VersioningMixin):
     @hybrid_property
     def hex_colour(self):
         if self.status == 'Pending':
-            return current_app.config['PENDING_HEX']
+            return '#eb5009'
         return self.ltype.hex_colour
 
     def full_calendar_add_one_day(self):
