@@ -304,11 +304,6 @@ class LeaveTypeSettingsForm(ModelForm):
     approval = BooleanField('Approval required?')
 
 
-class LeaveRequestsForm(ModelForm):
-    #status = SelectField('Status', choices=[Leave.STATUS], validators=[DataRequired()])
-    status = SelectField('Status', validators=[DataRequired()], choices=Leave.STATUS)
-
-
 class SearchForm(FlaskForm):
     q = StringField('Search terms', [Optional(), Length(1, 256)])
 

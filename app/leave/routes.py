@@ -45,7 +45,6 @@ def calendar_settings():
         #'initial_view':  'multiMonthYear',
         'initial_view':  'dayGridMonth',
         'display_leave_time': 'false',
-        'public_hol_colour': current_user.entt.get_phg_colour()
     }
     return params
 
@@ -204,12 +203,19 @@ def department(id):
                            )
 
 
-@leave.route('/leave/history', defaults={'page': 1}, methods=['GET', 'POST'])
-@leave.route('/leave/history/page/<int:page>', methods=['GET', 'POST'])
-def history(page):
+@leave.route('/leave/history', defaults={'page_param_first': 1, 'page_param_second': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/history/leave_page/<int:page_param_first>/holiday_page/<int:page_param_second>', methods=['GET', 'POST'])
+def history(page_param_first, page_param_second):
     form = leave_form()
-    leaves = current_user.paginated_leaves(page)
-    return render_template('history.html', form=form, leaves=leaves)
+    leaves = current_user.paginated_leaves(page_param_first)
+    paginated_holidays = current_user.entt.paginated_holidays(page_param_second)
+    return render_template('history.html',
+                           form=form,
+                           leaves=leaves,
+                           paginated_holidays=paginated_holidays,
+                           page_param_first=page_param_first,
+                           page_param_second=page_param_second
+                           )
 
 
 @leave.route('/leave/authorise', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -277,42 +283,23 @@ def approve(id):
          # Validate time_unit consistency
         if leave.time_unit != leave.user.entt.time_unit:
             raise Exception(
-                f"""Leave time unit '{leave.time_unit}' does not match the 
+                f"""Leave time unit '{leave.time_unit}' does not match the
                 user's current entitlement time unit '{leave.user.entt.time_unit}'"""
             )
         # Add the current user to the actioned_entries relationship
+        """
         leave_actioned = LeaveActioned(
                 leave_id=leave.id,
                 authoriser_id=current_user.id
         )
+        """
         leave.status = 'Approved'
         #leave.actioned_by=current_user
 
-        if leave.ltype.deductable == True:
-            # Determine the requested leave amount (consider half-day logic)
-            #requested = 0.5 if leave.half_day else leave.days
+        leave.is_deductable()
 
-            # User's entitlement time unit
-            user_unit = leave.user.entt.time_unit  # 'days' or 'hours'
-            
-            # Convert requested days to the user's entitlement unit if needed
-            equivalent_amount = leave.user.entt.convert_entitlement(
-                value=leave.duration,
-                unit=leave.time_unit,
-                target_unit=user_unit
-            )
-
-            print(equivalent_amount)
-            
-
-            # Check if the user has enough entitlement remaining
-            if equivalent_amount > leave.user.entitlement_rem:
-                raise Exception('User does not have enough allowance for this request')
-
-            # Deduct the equivalent amount
-            leave.user.deduct_leave_days(equivalent_amount)
         leave.save()
-        leave_actioned.save()
+        #leave_actioned.save()
     except Exception as e:
         db.session.rollback()
         flash(f'{e}', 'danger')

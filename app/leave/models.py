@@ -30,7 +30,7 @@ class LeaveType(ResourceMixin):
 
 class LeaveActioned(ResourceMixin):
     __tablename__ = 'leave_actioned'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True) # used in import zip job
+    id = db.Column(db.Integer, primary_key=True) # used in import zip job
     leave_id = db.Column(db.Integer, db.ForeignKey('leave.id'), onupdate='CASCADE', nullable=False)
     authoriser_id = db.Column(db.Integer, db.ForeignKey('user.id'), onupdate='CASCADE', nullable=False)
 
@@ -100,8 +100,30 @@ class Leave(ResourceMixin, VersioningMixin):
             from app.email import send_leave_request_email
             send_leave_request_email.delay(leave.id)
 
+    def is_deductable(self):
+        if self.ltype.deductable == True:
+            # Determine the requested leave amount (consider half-day logic)
+            #requested = 0.5 if leave.half_day else leave.days
+
+            # User's entitlement time unit
+            user_unit = self.user.entt.time_unit  # 'days' or 'hours'
+            # Convert requested days to the user's entitlement unit if needed
+            equivalent_amount = self.user.entt.convert_entitlement(
+                value=self.duration,
+                unit=self.time_unit,
+                target_unit=user_unit
+            )
+
+            # Check if the user has enough entitlement remaining
+            if equivalent_amount > self.user.entitlement_rem:
+                raise Exception('User does not have enough allowance for this request')
+
+            # Deduct the equivalent amount
+            self.user.deduct_leave_days(equivalent_amount)
+
     def init_request(self):
         if self.ltype.approval == True:
             self.request_notification()
         elif self.ltype.approval == False:
+            self.is_deductable()
             self.status_update('Approved')

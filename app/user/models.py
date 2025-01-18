@@ -333,8 +333,8 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
     def init_entt(self):
         if self.entt:
             self.entitlement_rem = self.entt.default_entitlement
-            self.entitlement_used = 0 # Reset used entitlement for the chosen template 
-            self.previous_carryover = 0 # Reset previous carry over days for the chosen template 
+            self.entitlement_used = 0 # Reset used entitlement for the chosen template
+            self.previous_carryover = 0 # Reset previous carry over days for the chosen template
             return self.save()
 
     def get_leave_types(self):
@@ -478,6 +478,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     def is_active(self):
         return self.active
+
 
     def paginated_leaves(self, page):
         sort_by = Leave.sort_by(request.args.get('sort', 'start_date'),

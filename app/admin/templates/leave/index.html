@@ -60,9 +60,7 @@
             {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}
         </td>
         <td>
-            <a href="{{ url_for('admin.leave_status_edit', id=leave.id) }}">
             {{ leave.status }}
-            </a>
         </td>
         <td>
             {{ leave.user.authoriser }}

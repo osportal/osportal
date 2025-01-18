@@ -3,7 +3,8 @@ from app.utils.util_sqlalchemy import ResourceMixin, StripStr
 from app.leave.models import LeaveType
 from collections import OrderedDict
 import datetime
-from sqlalchemy import or_
+from flask import request
+from sqlalchemy import or_, text
 from sqlalchemy.ext.hybrid import hybrid_property
 import sqlalchemy
 
@@ -122,6 +123,17 @@ class Entt(ResourceMixin):
         search_chain = (Entt.name.ilike(search_query),)
 
         return or_(*search_chain)
+
+    def paginated_holidays(self, page):
+        sort_by = PublicHoliday.sort_by(request.args.get('sort', 'start_date'),
+                               request.args.get('direction', 'desc'))
+        order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+        holidays = PublicHoliday.query \
+                .filter(PublicHoliday.group_id==self.ph_group_id) \
+                .order_by(text(order_values)) \
+                .paginate(page, 10, False)
+        return holidays
+
 
     def convert_entitlement(self, value, unit, target_unit, hours_per_day=8):
         # if entt does not have a working_hours_per_day value, default to 8

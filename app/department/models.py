@@ -45,6 +45,22 @@ class Department(ResourceMixin):
                         Leave.status!='Revoked')
         return leaves.all()
 
+    """
+    def get_public_hols(self):
+        # Get all members in the department
+        department_members = db.session.query(User).join(DepartmentMembers) \
+            .filter(DepartmentMembers.department_id == self.id).all()
+
+        # Aggregate holidays for each user
+        all_holidays = set()  # Use a set to avoid duplicates
+        for user in department_members:
+            if user.entt and user.entt.public_holiday_group:
+                all_holidays.update(user.entt.public_holiday_group.holidays)
+
+        return all_holidays
+    """
+
+
     @classmethod
     def search(cls, query):
         search_query = '%{0}%'.format(query)

@@ -20,7 +20,7 @@ from app.admin.forms import (SearchForm, NewUserForm, RoleForm, PermissionForm,
                              SiteForm,
                              EnttForm,
                              SettingsForm, PageForm, LeaveTypeSettingsForm,
-                             LeaveRequestsForm, ImportCSVForm, ExportCSVForm,
+                             ImportCSVForm, ExportCSVForm,
                              ImportZipForm, PublicHolidayForm, CountryForm,
                              EmailForm, ResetPasswordForm,
                              PublicHolidayGroupForm,
@@ -838,7 +838,10 @@ def public_holiday_groups_info(id, page):
         if dropdown_year not in list_years:
             dropdown_year = current_year if current_year in list_years else list_years[0]
 
-    form = PublicHolidayYearForm(year=int(dropdown_year))
+    if dropdown_year:
+        form = PublicHolidayYearForm(year=int(dropdown_year))
+    else:
+        form = PublicHolidayYearForm()
     form.process() # Ensures default values are applied
     copy_to_year_form = CopyHolidaysToYearForm()
     copy_to_year_form.process() # Ensures default values are applied
@@ -857,7 +860,7 @@ def public_holiday_groups_info(id, page):
                            copy_to_group_form=copy_to_group_form,
                            group=group,
                            years=list_years,
-                           dropdown_year=int(dropdown_year),
+                           dropdown_year=dropdown_year,
                            current_year=current_year,
                            paginated_holidays=paginated_holidays)
 
@@ -1015,19 +1018,6 @@ def leave_type_delete(id):
     else:
         flash(f'Successfully deleted {leave_type.name}', 'success')
     return redirect(url_for('admin.leave_types'))
-
-
-@admin.route('/leaves/<int:id>/status/edit', methods=['GET', 'POST'])
-@permission_required('admin.leave', crud='update')
-def leave_status_edit(id):
-    leave = Leave.query.get(id)
-    form = LeaveRequestsForm(obj=leave)
-    if form.validate_on_submit():
-        form.populate_obj(leave)
-        leave.save()
-        flash('The status for the leave request has been updated', 'success')
-        return redirect(url_for('admin.leaves'))
-    return render_template('leave/status_edit.html', form=form, leave=leave)
 
 
 @admin.route('/<table>/bulk_delete', methods=['POST'])

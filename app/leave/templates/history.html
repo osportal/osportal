@@ -4,10 +4,9 @@
 
 {% block title %}Leave History{% endblock title %}
 
-{% set delete_endpoint = 'leave.delete' %}
-
 {% block calendar_content %}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+<legend>Leave History</legend>
 <div class="table-wrapper">
     <table class="table">
         <thead class="thead">
@@ -67,7 +66,47 @@
         </tbody>
     </table>
 </div><!-- End of table wrapper -->
-{{ items.paginate(leaves) }}
+<div class="leaves-pagination">
+    {{ items.multi_pagination(leaves, 'leave.history', 'page_param_first', 'page_param_second', page_param_second) }}
+</div>
+
+<legend>Public Holidays</legend>
+
+<!-- PUBLIC HOLIDAYS TABLE -->
+<div class="table-wrapper">
+    <table class="table">
+        <thead class="thead">
+            <tr>
+                <th scope="col">
+                    {{ items.sort('name', 'Name') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('start_date', 'Start Date') }}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for holiday in paginated_holidays.items %}
+        <tr>
+            <td>
+                {{ holiday.name }}
+            </td>
+            <td>
+                {{ holiday.start_date.strftime("%-d %b %Y") }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div><!-- End of table wrapper -->
+
+<!-- Render holidays pagination -->
+<div class="holidays-pagination">
+    {{ items.multi_pagination(paginated_holidays, 'leave.history', 'page_param_second', 'page_param_first', page_param_first) }}
+</div>
+
+
+
 
 {% include "partials/confirm_dialog.html" %}
 {% endblock calendar_content %}

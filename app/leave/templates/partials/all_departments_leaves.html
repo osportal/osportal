@@ -6,7 +6,7 @@
 
               {
                   id: '{{ e.id }}',
-                  title : '{{ e.user }}',
+                  title : '{{ e.user }} - {{ e.ltype.name }}',
                   start : '{{ e.start_date}}',
                   end : '{{ e.full_calendar_add_one_day() }}',
                   extendedProps:{
