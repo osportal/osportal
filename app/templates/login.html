@@ -1,41 +1,49 @@
 {% extends "layout.html" %}
 {% import 'macros/form.html' as f with context %}
+{% from 'macros/logo.html' import osportal_logo %}
 
 {% block title %}Login{% endblock %}
-
-{% block content %}
-
 {% set endpoint = 'user.login' %}
 {% set button = 'Login' %}
-{% set legend = 'Login' %}
 
-<div>
-<legend>{{ legend }}</legend>
-<hr>
-    <div>
-    {% call f.form_tag(endpoint, form=form) %}
-    
-    {% call f.form_group(form.identity) %}
-    {% endcall %}
-    
-    {% call f.form_group(form.password) %}
-    {% endcall %}
-    
-    {% call f.form_group(form.remember) %}
-    {% endcall %}
 
-    <button type="submit" class="btn btn-primary btn-block">
-        {{ button }}
-    </button>
-    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}"/>
-    {% endcall %}
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-5">
+        {% block flash_messages %}
+        {% endblock flash_messages %}
+        {% include "flash_messages.html" %}
+        <div class="text-center">
+        {{ osportal_logo(size='60', url='') }}
+        </div>
+        <div class="bg-white p-4 mt-3">
+        {% call f.form_tag(endpoint, form=form) %}
+        
+        {% call f.form_group(form.identity) %}
+        {% endcall %}
+        
+        {% call f.form_group(form.password) %}
+        {% endcall %}
+        
+        {% call f.form_group(form.remember) %}
+        {% endcall %}
+
+        <button type="submit" class="btn btn-primary btn-block">
+            {{ button }}
+        </button>
+        <input type="hidden" name="next" value="{{ request.args.get('next', '') }}"/>
+        {% endcall %}
+
+        <br>
+        <!-- IF FORGOT PASSWORD IS ENABLED -->
+        {% if forgot %}
+            <p><a href="{{ url_for('user.forgot_password') }}">Forgot Password?</a></p>
+        {% endif %}
+        </div>
     </div>
-    <br>
-    <!-- IF FORGOT PASSWORD IS ENABLED -->
-    {% if forgot %}
-        <p><a href="{{ url_for('user.forgot_password') }}">Forgot Password?</a></p>
-    {% endif %}
 </div>
 
 
-{% endblock %}
+{% endblock content %}

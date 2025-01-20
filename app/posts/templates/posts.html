@@ -8,10 +8,6 @@
 {% set profile_endpoint = 'user.profile' %}
 
 {% block content %}
-<h1>
-Hi {{ current_user }}!
-<hr>
-</h1>
 
 <legend>{{ heading }}</legend>
 {% if current_user.can_permission('can_create_posts') or current_user.permission('admin.post', crud='create') %}

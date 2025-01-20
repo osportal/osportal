@@ -1,0 +1,6 @@
+
+{% macro osportal_logo(size="40", url="main.index") -%}
+<a class="navbar-brand waves-effect" {% if not url %}href=""{% else %}href="{{ url_for(url) }}"{% endif %}>
+    <img class="brand-logo" src="{{ url_for('static', filename='img/logo/vector/default-monochrome.svg') }}" style="height: {{ size }}px;" alt="osPortal" />
+</a>
+{% endmacro %}

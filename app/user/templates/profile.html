@@ -5,14 +5,14 @@
 
     {% if user.bio %}
     <div class="mb-4">
-        <div class="text-muted">{{ user.bio | safe}}</div>
+        <div>{{ user.bio | safe}}</div>
     </div>
     {% endif %}
     
     <!-- Departments -->
     {% if active_depts | count > 0 %}
     <div class="mb-4">
-        <h5>Departments</h5>
+        <legend>Departments</legend>
         <div id="groups-list" style="list-style-type: none">
             {% for d in active_depts %}
                 <li>
@@ -27,7 +27,7 @@
 
     <!-- STATS -->
     <div class="mb-4">
-        <h5>Stats</h5>
+        <legend>Stats</legend>
         {% if user.start_date %}
         <div><strong class="mr-2">Joined:</strong>{{ user.start_date.strftime("%-d %b %Y") }}</div>
         {% endif %}

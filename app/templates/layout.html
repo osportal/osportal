@@ -23,22 +23,14 @@
         {% endblock %}
     </head>
     <body>
+    {% block navbar %}
     {% include "navbar.html" %}
+    {% endblock %}
 	<div class="container" style="margin-bottom: 75px; margin-top: 110px;">
-        <div id="flash-messages">
-		{% with messages = get_flashed_messages(with_categories=true) %}
-		    {% if messages %}
-		        {% for category, message in messages %}
-		    	    <div class="alert alert-{{ category }}">
-		                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    	                        <span aria-hidden="true">&times;</span>
-  		                </button>
-			            {{ message }}
-			        </div>
-		    	{% endfor %}
-		    {% endif %}
-		{% endwith %}
-        </div>
+        {% block flash_messages %}
+            {% include "flash_messages.html" %}
+        {% endblock flash_messages %}
+
         {% block content %}
         {% endblock %}
 	</div>

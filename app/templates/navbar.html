@@ -1,6 +1,7 @@
+{% from 'macros/logo.html' import osportal_logo %}
 <nav class="navbar fixed-top navbar-expand-lg bg-white shadow scrolling-navbar"> 
 	<div class="container">
-        {% include "logo.html" %}
+        {{ osportal_logo() }}
 	    <button class="navbar-light navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" 
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-light navbar-toggler-icon"></span>
@@ -10,9 +11,6 @@
 		    {% if current_user.is_authenticated %}
 		    <ul class="navbar-nav mr-auto">
 		        <li class="nav-item">
-		    	<a class="nav-link waves-effect" href="{{ url_for('main.index') }}">Home</a>
-		        </li>
-		        <li class="nav-item">
 		    	<a class="nav-link waves-effect" href="{{ url_for('leave.index') }}">Calendar</a>
 		        </li>
 		        <li class="nav-item">
@@ -20,6 +18,9 @@
 		        </li>
 		        <li class="nav-item">
 		    	<a class="nav-link waves-effect" href="{{ url_for('department.all') }}">Departments</a>
+		        </li>
+		        <li class="nav-item">
+		    	<a class="nav-link waves-effect" href="{{ url_for('main.index') }}">Posts</a>
 		        </li>
                 {% for page in pages_menu_bar() %}
 		            <li class="nav-item">
