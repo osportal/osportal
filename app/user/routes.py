@@ -93,7 +93,7 @@ def forgot_password():
 def notifications(page):
     notifications = current_user.notifications \
                     .order_by(Notification.created_at.desc()) \
-                    .paginate(page, get_settings_value('items_per_admin_page'), True)
+                    .paginate(page, 30, True)
     if notifications.items:
         # update only if there are notifications
         current_user.last_notification_read_time = datetime.utcnow()
@@ -215,7 +215,7 @@ def posts(id, page):
     paginated_posts = user.posts \
             .filter(Post.active) \
             .order_by(Post.created_at.desc()) \
-            .paginate(page, get_settings_value('posts_per_page'), True)
+            .paginate(page, 30, True)
     return render_template('profile_posts.html', posts=paginated_posts, user=user)
 
 
@@ -226,7 +226,7 @@ def comments(id, page):
     user = User.query.get_or_404(id)
     paginated_comments = user.comments \
             .order_by(Comment.created_at.desc()) \
-            .paginate(page, get_settings_value('comments_per_page'), True)
+            .paginate(page, 30, True)
     return render_template('profile_comments.html', page=page, comments=paginated_comments, user=user)
 
 
@@ -279,9 +279,9 @@ def all_users(page):
 
     paginated_users = User.query \
         .filter(User.active) \
-        .filter(User.search((request.args.get('q', text(''))))) \
+        .filter(User.search(request.args.get('q', ''))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('users_per_page'), True)
+        .paginate(page, 30, True)
     return render_template('all_users.html', users=paginated_users, form=search_form)
 
 

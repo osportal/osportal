@@ -42,16 +42,13 @@
     		<li class="nav-item">
     			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
     		</li>
-    		<li class="nav-item">
-    			<a class="nav-link" href="#pagi" aria-controls="pagi" role="tab" data-toggle="tab">Pagination</a>
-    		</li>
     	</ul>
     	<div class="tab-content">
     		<div role="tabpanel" class="tab-pane active" id="general">
     			<div class="form-group">
     			    <div class="mb-2">
-    			    	<div><strong>Intranet Name/Title</strong></div>
-    			    	<div>{{ settings.site_name }}</div>
+    			    	<div><strong>osPortal Name</strong></div>
+    			    	<div>{{ settings.osportal_name }}</div>
     			    </div>
     			    <div class="mb-2">
     			    	<div><strong>Company Name</strong></div>
@@ -86,35 +83,6 @@
     			    <div class="mb-2">
     			    	<div><strong>Alert Email</strong></div>
     			    	<div>{{ settings.alert_email }}</div>
-    			    </div>
-    			</div>
-            </div>
-            <!-- PAGINATION CONFIG -->
-    		<div role="tabpanel" class="tab-pane" id="pagi">
-    			<div class="form-group">
-    			    <div class="mb-2">
-    			    	<div><strong>Items Per Admin Page</strong></div>
-    			    	<div>{{ settings.items_per_admin_page }}</div>
-    			    </div>
-    			    <div class="mb-2">
-    			    	<div><strong>Users Per Page</strong></div>
-    			    	<div>{{ settings.users_per_page }}</div>
-    			    </div>
-    			    <div class="mb-2">
-    			    	<div><strong>Departments Per Page</strong></div>
-    			    	<div>{{ settings.departments_per_page }}</div>
-    			    </div>
-    			    <div class="mb-2">
-    			    	<div><strong>Posts Per Page</strong></div>
-    			    	<div>{{ settings.posts_per_page }}</div>
-    			    </div>
-    			    <div class="mb-2">
-    			    	<div><strong>Comments Per Page</strong></div>
-    			    	<div>{{ settings.comments_per_page }}</div>
-    			    </div>
-    			    <div class="mb-2">
-    			    	<div><strong>Leave Requests Per Page</strong></div>
-    			    	<div>{{ settings.leaves_per_page }}</div>
     			    </div>
     			</div>
             </div>

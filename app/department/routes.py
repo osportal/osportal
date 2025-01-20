@@ -26,7 +26,7 @@ def all(page):
         .filter(Department.active) \
         .filter(Department.search((request.args.get('q', text(''))))) \
         .order_by(Department.name.asc(),) \
-        .paginate(page, get_settings_value('departments_per_page'), True)
+        .paginate(page, 30, True)
     return render_template('departments.html', departments=paginated_departments, form=search_form)
 
 
@@ -34,5 +34,5 @@ def all(page):
 @department.route('/departments/<int:id>/page/<int:page>', methods=['GET', 'POST'])
 def info(id, page):
     department = Department.query.filter(Department.id==id).filter(Department.active).first_or_404()
-    paginated_members = department.members.paginate(page, get_settings_value('users_per_page'), True)
+    paginated_members = department.members.paginate(page, 30, True)
     return render_template('department.html', department=department, members=paginated_members)

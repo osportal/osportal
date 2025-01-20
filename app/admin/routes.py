@@ -70,6 +70,7 @@ def dashboard():
         "group_and_count_posts": Dashboard.group_and_count_posts(),
         "group_and_count_pages": Dashboard.group_and_count_pages(),
         "group_and_count_users": Dashboard.group_and_count_users(),
+        "max_active_users": current_app.config['MAX_ACTIVE_USERS'],
         "group_and_count_active_users": Dashboard.group_and_count_active_users(),
         "group_and_count_roles": Dashboard.group_and_count_roles(),
         "group_and_count_permissions": Dashboard.group_and_count_permissions(),
@@ -96,7 +97,7 @@ def emails(page):
     paginated_emails = Email.query \
         .filter(Email.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
     return render_template('email/index.html',
                            form=search_form,
                            emails=paginated_emails)
@@ -113,7 +114,7 @@ def countries(page):
     paginated_countries = Country.query \
         .filter(Country.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
     return render_template('country/index.html',
                            form=search_form,
                            countries=paginated_countries)
@@ -142,7 +143,7 @@ def sites(page):
     paginated_sites = Site.query \
         .filter(Site.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('site/index.html',
                            form=search_form,
@@ -163,7 +164,7 @@ def departments(page):
     paginated_departments = Department.query \
         .filter(Department.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('department/index.html',
                            form=search_form,
@@ -183,7 +184,7 @@ def entts(page):
     paginated_entts = Entt.query \
         .filter(Entt.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('entt/index.html', form=search_form, entts=paginated_entts)
 
@@ -201,7 +202,7 @@ def leave_types(page):
     paginated_ltypes = LeaveType.query \
         .filter(LeaveType.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('leave_type/index.html', form=search_form, leave_types=paginated_ltypes)
 
@@ -211,7 +212,7 @@ def leave_types(page):
 @permission_required('admin.leave', crud='read')
 def leaves(page):
     leaves = Leave.query \
-            .paginate(page, get_settings_value('items_per_admin_page'), False)
+            .paginate(page, 30, False)
     return render_template('leave/index.html', leaves=leaves)
 
 
@@ -238,7 +239,7 @@ def users(page):
     paginated_users = User.query \
         .filter(User.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('user/index.html',
                            #form=import_form,
@@ -259,7 +260,7 @@ def roles(page):
     paginated_roles = Role.query \
         .filter(Role.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('role/index.html',
                            form=search_form,
@@ -280,7 +281,7 @@ def permissions(page):
     paginated_permissions = Permission.query \
         .filter(Permission.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('permission/index.html',
                            form=search_form,
@@ -298,7 +299,7 @@ def pages(page):
     paginated_pages= Page.query \
         .filter(Page.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
     return render_template('pages/index.html', pages=paginated_pages, form=search_form)
 
 
@@ -376,7 +377,7 @@ def posts(page):
     paginated_posts = Post.query \
         .filter(Post.search((request.args.get('q', text(''))))) \
         .order_by(Post.is_pin.desc(), text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('post/index.html',
                            form=search_form,
@@ -459,10 +460,18 @@ def settings_edit():
     settings = Settings.query.first_or_404()
     form = SettingsForm(obj=settings)
     if form.validate_on_submit():
-        form.populate_obj(settings)
-        settings.save()
-        flash('Settings saved successfully.', 'success')
-        return redirect(url_for('admin.settings'))
+        try:
+            form.populate_obj(settings)
+            settings.save()
+        except (IntegrityError, PendingRollbackError) as e:
+            db.session.rollback()
+            flash(f'{e.orig.diag.message_detail}', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'{e}', 'danger')
+        else:
+            flash('Settings saved successfully.', 'success')
+            return redirect(url_for('admin.settings'))
     return render_template('settings/edit.html', form=form, url=url)
 
 
@@ -746,7 +755,7 @@ def public_holiday_groups(page):
     paginated_groups = PublicHolidayGroup.query \
         .filter(PublicHolidayGroup.search((request.args.get('q', text(''))))) \
         .order_by(text(order_values)) \
-        .paginate(page, get_settings_value('items_per_admin_page'), True)
+        .paginate(page, 30, True)
 
     return render_template('public-holiday-group/index.html',
                            form=search_form,
@@ -853,7 +862,7 @@ def public_holiday_groups_info(id, page):
         paginated_holidays = PublicHoliday.query \
                 .filter(PublicHoliday.group_id==group.id,
                         PublicHoliday.filter_year(dropdown_year)) \
-                .paginate(page, get_settings_value('items_per_admin_page'), True)
+                .paginate(page, 30, True)
     return render_template('public-holiday-group/info.html',
                            form=form,
                            copy_to_year_form=copy_to_year_form,

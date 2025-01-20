@@ -59,7 +59,7 @@ def index(page):
         .filter(Post.active) \
         .filter(Post.search((request.args.get('q', text(''))))) \
         .order_by(Post.is_pin.desc(), text(order_values)) \
-        .paginate(page, get_settings_value('posts_per_page'), True)
+        .paginate(page, 30, True)
     return render_template('posts.html', posts=paginated_posts, pinned_posts=pinned_posts, form=form)
 
 
@@ -164,7 +164,7 @@ def comment(id):
             .order_by(Comment.id.desc()).count()
     #NOTE if asc/desc is changed above, filter gt / lt has to be changed accordingly.
     #NOTE if above is changed, previous comment notifications will not work as expected.
-    page = int(math.ceil(comment_in_post / float(get_settings_value('posts_per_page'))))
+    page = int(math.ceil(comment_in_post / float(30)))
     url_kwargs = f'#cid{comment.id}'
     url = url_for('posts.post', id=comment.post_id, page=page) + url_kwargs
     return redirect(url)

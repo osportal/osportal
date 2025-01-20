@@ -35,17 +35,6 @@ def anonymous_required(url='/'):
     return decorator
 
 
-def registration_enabled():
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if get_settings_value('user_registration') != True:
-                abort(403)
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
-
-
 def forgot_password_enabled():
     def decorator(f):
         @wraps(f)

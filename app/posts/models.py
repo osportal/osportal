@@ -48,7 +48,7 @@ class Post(ResourceMixin):
         comments = Comment.query \
                 .filter(Comment.post_id==self.id) \
                 .order_by(text(order_values)) \
-                .paginate(page, get_settings_value('comments_per_page'), False)
+                .paginate(page, 30, False)
         return comments
 
 

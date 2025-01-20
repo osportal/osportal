@@ -9,15 +9,15 @@
 		        <table class="table table-striped">
 		        <tr>
 		        	<td>Name</td>
-		        	<td>{{ current_user }}</td>
+		        	<td>{{ user }}</td>
 		        </tr>
 		        <tr>
 		        	<td>Authoriser</td>
-		        	<td>{{ current_user.authoriser }}</td>
+		        	<td>{{ user.authoriser }}</td>
 		        </tr>
 		        <tr>
 		        	<td>Leave Year Start</td>
-		        	<td>{{ current_user.leave_year_start_fmt }}</td>
+		        	<td>{{ user.leave_year_start_fmt }}</td>
 		        </tr>
                 </table>
             </div>
@@ -29,7 +29,7 @@
 	        Entitlement Information
 	    </div>
 	    <div class="card-body">
-            {% if not current_user.entitlement_rem or not current_user.entitlement_used %}
+            {% if not user.entitlement_rem or not user.entitlement_used %}
             {% else %}
             <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
                 <canvas id="myPieChart" style="display: block; width: 292px; height: 208px;" width="292" height="208" class="chartjs-render-monitor"></canvas>
@@ -54,7 +54,7 @@
             </div>
             {% endif %}
 		<table class="table table-striped">
-            {% for col in current_user.display_leave_allowance() %}
+            {% for col in user.display_leave_allowance() %}
 		    <tr>
                 <td>{{ col[1] }}</td>
                 <td>{{ col[0] }}</td>

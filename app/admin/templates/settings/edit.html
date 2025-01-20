@@ -29,14 +29,11 @@
 		<li class="nav-item">
 			<a class="nav-link" href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a>
 		</li>
-		<li class="nav-item">
-			<a class="nav-link" href="#pagi" aria-controls="pagi" role="tab" data-toggle="tab">Pagination</a>
-		</li>
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane active" id="general">
 			<div class="form-group">
-                {% call f.form_group(form.site_name) %}
+                {% call f.form_group(form.osportal_name) %}
                 {% endcall %}
                 {% call f.form_group(form.company_name) %}
                 {% endcall %}
@@ -57,25 +54,6 @@
                 {% call f.form_group(form.system_email) %}
                 {% endcall %}
                 {% call f.form_group(form.alert_email) %}
-                {% endcall %}
-			</div>
-        </div>
-        <!-- PAGINATION CONFIG -->
-		<div role="tabpanel" class="tab-pane" id="pagi">
-			<div class="form-group">
-                {% call f.form_group(form.items_per_admin_page) %}
-                {% endcall %}
-                {% call f.form_group(form.users_per_page) %}
-                {% endcall %}
-                {% call f.form_group(form.departments_per_page) %}
-                {% endcall %}
-                {% call f.form_group(form.posts_per_page) %}
-                {% endcall %}
-                {% call f.form_group(form.comments_per_page) %}
-                {% endcall %}
-                {% call f.form_group(form.leaves_per_page) %}
-                {% endcall %}
-                {% call f.form_group(form.notifications_per_page) %}
                 {% endcall %}
 			</div>
         </div>

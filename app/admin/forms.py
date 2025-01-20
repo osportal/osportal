@@ -309,7 +309,7 @@ class SearchForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    site_name = StringField('Intranet Name/Title', validators=[DataRequired(), Length(2, 25)])
+    osportal_name = StringField('osPortal Name', validators=[DataRequired(), Length(2, 25)])
     company_name = StringField('Company Name', validators=[Optional(), Length(2, 30)])
     company_website = StringField('Company Website', validators=[Optional(), Length(3, 40)])
     forgot_password = BooleanField('Enable Forgotten Password', validators=[Optional()])
@@ -327,15 +327,6 @@ class SettingsForm(FlaskForm):
                                         widget=Select2Widget(), allow_blank=True,
                                         validators=[Optional()]
                                         )
-
-    # Pagination
-    items_per_admin_page = IntegerField('Max. items per admin page', validators=[DataRequired(), NumberRange(5, 250)])
-    users_per_page = IntegerField('Max. users per page', validators=[DataRequired(), NumberRange(5, 250)])
-    departments_per_page = IntegerField('Max. departments per page', validators=[DataRequired(), NumberRange(5, 250)])
-    posts_per_page = IntegerField('Max. posts per page', validators=[DataRequired(), NumberRange(5, 250)])
-    comments_per_page = IntegerField('Max. comments per page', validators=[DataRequired(), NumberRange(5, 250)])
-    leaves_per_page = IntegerField('Max. leaves per page', validators=[DataRequired(), NumberRange(5, 250)])
-    notifications_per_page = IntegerField('Max. notifications per page', validators=[DataRequired(), NumberRange(5, 250)])
 
     #Email
     system_email = QuerySelectField('System Email',

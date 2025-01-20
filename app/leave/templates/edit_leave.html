@@ -46,7 +46,7 @@
               {% endcall %}
           </div>
           <div class="col">
-              <a href="{{ url_for('leave.history') if is_edit else url_for('leave.index') }}" role="button" class="btn btn-light btn-block">
+              <a href="{{ url_for('leave.history', page_param_first=current_user.id) if is_edit else url_for('leave.index') }}" role="button" class="btn btn-light btn-block">
                   Cancel
               </a>
           </div>

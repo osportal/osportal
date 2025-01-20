@@ -4,7 +4,7 @@ from app.leave.models import LeaveType
 from collections import OrderedDict
 import datetime
 from flask import request
-from sqlalchemy import or_, text
+from sqlalchemy import or_, text, extract
 from sqlalchemy.ext.hybrid import hybrid_property
 import sqlalchemy
 
@@ -125,13 +125,15 @@ class Entt(ResourceMixin):
         return or_(*search_chain)
 
     def paginated_holidays(self, page):
+        current_year = datetime.datetime.now().year
         sort_by = PublicHoliday.sort_by(request.args.get('sort', 'start_date'),
                                request.args.get('direction', 'desc'))
         order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
         holidays = PublicHoliday.query \
                 .filter(PublicHoliday.group_id==self.ph_group_id) \
+                .filter(extract('year', PublicHoliday.start_date) == current_year) \
                 .order_by(text(order_values)) \
-                .paginate(page, 10, False)
+                .paginate(page, 3, False)
         return holidays
 
 

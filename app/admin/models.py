@@ -38,19 +38,10 @@ class Settings(ResourceMixin):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
     setup = db.Column(db.Boolean, default=True, nullable=False)
-    site_name = db.Column(db.String(25), nullable=False)
+    osportal_name = db.Column(db.String(25), nullable=False, default='osPortal')
     company_name = db.Column(db.String(30), nullable=True)
     company_website = db.Column(db.String(40), nullable=True)
     forgot_password = db.Column(db.Boolean, nullable=False, default=True)
-
-    # Pagination
-    items_per_admin_page = db.Column(db.Integer, nullable=False, default=50)
-    posts_per_page = db.Column(db.Integer, nullable=False, default=25)
-    comments_per_page = db.Column(db.Integer, nullable=False, default=25)
-    users_per_page = db.Column(db.Integer, nullable=False, default=25)
-    departments_per_page = db.Column(db.Integer, nullable=False, default=25)
-    notifications_per_page = db.Column(db.Integer, nullable=False, default=25)
-    leaves_per_page = db.Column(db.Integer, nullable=False, default=25)
 
     # Auth
     auth_type = db.Column(db.String(20), nullable=True)

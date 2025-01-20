@@ -1,4 +1,5 @@
 from app.admin.utils import get_settings_value
+from app.admin.forms import SearchForm
 from app.decorators import setup_required
 from app.extensions import db
 from app.leave.calculations import (is_halfday_business_day,
@@ -115,6 +116,7 @@ def index():
     return render_template('personal_calendar.html',
                            public_holidays=public_holidays,
                            user_leaves=user_leaves,
+                           user=current_user,
                            **settings
                            )
 
@@ -180,6 +182,7 @@ def departments():
                            leaves=current_user.all_departments_leaves(),
                            public_holidays=public_holidays,
                            form=form,
+                           user=current_user,
                            **settings
                            )
 
@@ -199,51 +202,56 @@ def department(id):
                            public_holidays=public_holidays,
                            leaves=leaves,
                            form=form,
+                           user=current_user,
                            **settings
                            )
 
 
-@leave.route('/leave/history', defaults={'page_param_first': 1, 'page_param_second': 1}, methods=['GET', 'POST'])
-@leave.route('/leave/history/leave_page/<int:page_param_first>/holiday_page/<int:page_param_second>', methods=['GET', 'POST'])
-def history(page_param_first, page_param_second):
+@leave.route('/leave/history/user/<int:page_param_first>', defaults={'page_param_second': 1, 'page_param_third': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/history/user/<int:page_param_first>/leave_page/<int:page_param_second>/holiday_page/<int:page_param_third>', methods=['GET', 'POST'])
+def history(page_param_first, page_param_second, page_param_third ):
+    user = User.query.get_or_404(page_param_first)
+    heading = None
+    if current_user != user:
+        if current_user != user.authoriser:
+            abort(403)
+        else:
+            heading = f'{user} Records'
     form = leave_form()
-    leaves = current_user.paginated_leaves(page_param_first)
-    paginated_holidays = current_user.entt.paginated_holidays(page_param_second)
+    leaves = user.paginated_leaves(page_param_second)
+    paginated_holidays = user.entt.paginated_holidays(page_param_third)
     return render_template('history.html',
                            form=form,
                            leaves=leaves,
+                           user=user,
+                           heading=heading,
                            paginated_holidays=paginated_holidays,
                            page_param_first=page_param_first,
-                           page_param_second=page_param_second
+                           page_param_second=page_param_second,
+                           page_param_third=page_param_third
                            )
 
 
-@leave.route('/leave/authorise', defaults={'page': 1}, methods=['GET', 'POST'])
-@leave.route('/leave/authorise/page/<int:page>', methods=['GET', 'POST'])
+@leave.route('/leave/authorise', defaults={'page_param_first': 1, 'page_param_second': 1, 'page_param_third': 1}, methods=['GET', 'POST'])
+@leave.route('/leave/authorise/pending/<int:page_param_first>/actioned/<int:page_param_second>/users/<int:page_param_third>', methods=['GET', 'POST'])
 @check_authoriser_access()
-def authorise(page):
-    form = leave_form()
-    leaves = current_user.paginated_pending_authoriser_requests(page)
-    actioned_leaves = current_user.paginated_actioned_authoriser_requests(page)
-    return render_template('pending_requests.html',
-                           form=form,
+def authorise(page_param_first, page_param_second, page_param_third):
+    #form = leave_form()
+    search_form = SearchForm()
+    deny_form = LeaveDenyForm()
+    leaves = current_user.paginated_pending_authoriser_requests(page_param_first)
+    actioned_leaves = current_user.paginated_actioned_authoriser_requests(page_param_second)
+    users = current_user.paginated_authoriser_users(page_param_third)
+    return render_template('authorise.html',
+                           form=search_form,
+                           deny_form=deny_form,
                            leaves=leaves,
                            actioned_leaves=actioned_leaves,
+                           users=users,
+                           page_param_first=page_param_first,
+                           page_param_second=page_param_second,
+                           page_param_third=page_param_third
                            )
-
-@leave.route('/leave/authorise/history', defaults={'page': 1}, methods=['GET', 'POST'])
-@leave.route('/leave/authorise/history/page/<int:page>', methods=['GET', 'POST'])
-@check_authoriser_access()
-def authorise_history(page):
-    form = leave_form()
-    deny_form = LeaveDenyForm()
-    actioned_leaves = current_user.paginated_actioned_authoriser_requests(page)
-    return render_template('authorise_history.html',
-                           form=form,
-                           actioned_leaves=actioned_leaves,
-                           deny_form=deny_form
-                           )
-
 
 
 @leave.route('/leave/<int:id>/delete', methods=['GET', 'POST'])

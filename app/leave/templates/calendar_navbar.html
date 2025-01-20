@@ -27,10 +27,10 @@
   </div>
 
   {% if current_user.leaves %}
-  <a role="button" href="{{ url_for('leave.history') }}" class="btn btn-secondary mr-1 mb-2 {{ is_active('leave.history') }}">Leave History</a>
+  <a role="button" href="{{ url_for('leave.history', page_param_first=current_user.id) }}" class="btn btn-secondary mr-1 mb-2 {% if current_user == user %}{{ is_active('leave.history') }}{% endif %}">Leave History</a>
   {% endif %}
 
-  {% if current_user.count_authoriser_requests() %}
+  {% if current_user.is_authoriser() %}
   <a role="button" class="btn btn-secondary {{ is_active('leave.authorise') }} mr-1 mb-2" href="{{ url_for('leave.authorise') }}">
       <span>Authorise</span>
           {% set authpendingcount =  current_user.pending_authoriser_requests().count() %}
@@ -39,7 +39,6 @@
           {% endif %}
       </span>
   </a>
-  <a role="button" class="btn btn-secondary {{ is_active('leave.authorise_history') }} mr-1 mb-2" href="{{ url_for('leave.authorise_history') }}">Auth History</a>
   {% endif %}
 
   <a role="button" class="btn btn-primary mr-1 mb-2" href="{{ url_for('leave.manage') }}">Book Time Off</a>

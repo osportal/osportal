@@ -1,0 +1,203 @@
+{% extends "calendar_base.html" %}
+{%- import "macros/pagination.html" as items -%}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Authorise{% endblock title %}
+
+{% set decline_btn = 'Decline' %}
+{% set decline_endpoint = 'leave.decline' %}
+
+{% set revoke_btn = 'Revoke' %}
+{% set revoke_endpoint = 'leave.revoke' %}
+
+{% block calendar_content %}
+
+<!-- IF PENDING REQUESTS EXIST -->
+{% if leaves.items %}
+<legend>Pending requests</legend>
+<div class="table-wrapper mb-4">
+    <table class="table">
+        <thead class="thead">
+            <tr>
+                <th scope="col">
+                    {{ items.sort('user', 'Requested By') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('ltype', 'Type') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('start_date', 'Start Date') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('end_date', 'End Date') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('duration', 'Duration') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('status', 'Status') }}
+                </th>
+                <th scope="col">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for leave in leaves.items %}
+        <tr>
+            <td>
+                <a href="{{ url_for('leave.history', page_param_first=leave.user.id) }}">{{ leave.user }}</a>
+            </td>
+            <td>
+                {{ leave.ltype }}
+            </td>
+            <td>
+                {{ leave.start_date.strftime("%-d %b %Y") }}
+            </td>
+            <td>
+                {{ leave.end_date.strftime("%-d %b %Y") }}
+            </td>
+            <td>
+                {{ leave.num_days }} days
+            </td>
+            <td>
+                <span>{{ leave.status }}</span>
+            </td>
+            <td>
+                <span>
+                      <a class="btn btn-sm btn-success" href="{{ url_for('leave.approve', id=leave.id) }}">Approve</a>
+                      <a class="btn btn-sm btn-danger" href="{{ url_for('leave.decline', id=leave.id) }}">Decline</a>
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="holidays-pagination">
+    {{ items.multi_pagination(leaves, 'leave.authorise', 'page_param_first', 'page_param_second', 'page_param_third', page_param_second, page_param_third) }}
+    </div>
+</div>
+{% endif %}
+
+<!-- IF ACTIONED REQUESTS EXIST -->
+{% if actioned_leaves.items %}
+<div class="table-wrapper mb-4">
+    <table class="table">
+    <legend>Actioned requests</legend>
+        <thead class="thead">
+            <tr>
+                <th scope="col">
+                    {{ items.sort('user', 'Requested By') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('ltype', 'Type') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('start_date', 'Start Date') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('end_date', 'End Date') }}
+                </th>
+                <th scope="col">
+                    {{ items.sort('duration', 'Duration') }}
+                </th>
+                <th class="col-header">
+                    Last Actioned By
+                </th>
+                <th scope="col">
+                    {{ items.sort('status', 'Status') }}
+                </th>
+                <th scope="col">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for leave in actioned_leaves.items %}
+        <tr>
+            <td>
+                <a href="{{ url_for('leave.history', page_param_first=leave.user.id) }}">{{ leave.user }}</a>
+            </td>
+            <td>
+                {{ leave.ltype }}
+            </td>
+            <td>
+                {{ leave.start_date.strftime("%-d %b %Y") }}
+            </td>
+            <td>
+                {{ leave.end_date.strftime("%-d %b %Y") }}
+            </td>
+            <td>
+                {{ leave.num_days }} days
+            </td>
+            <td>
+                <span>{{ leave.actioned_by }}</span>
+            </td>
+            <td>
+                <span>{{ leave.status }}</span>
+            </td>
+            <td>
+                {% if leave.status == 'Approved' %}
+                <a href="{{url_for('leave.revoke', id=leave.id)}}" class="btn btn-sm btn-warning">
+                    Revoke
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+    
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="holidays-pagination">
+    {{ items.multi_pagination(actioned_leaves, 'leave.authorise', 'page_param_second', 'page_param_first', 'page_param_third', page_param_first, page_param_third) }}
+    </div>
+</div>
+{% endif %}
+
+<legend>Users</legend>
+{{ f.search('leave.authorise') }}
+<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
+
+{% if request.args.get('q') %}
+    {% if users.items | count == 0 %}
+        <h5>No results found.</h5>
+    {% endif %}
+{% endif %}
+
+{% if users.items %}
+<div class="table-wrapper mb-4">
+    <table class="table">
+        <thead class="thead">
+            <tr>
+                <th scope="col">
+                    {{ items.sort('full_name', 'Name') }}
+                </th>
+                <th scope="col">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users.items %}
+        <tr data-href="{{ url_for('leave.history', page_param_first=user.id) }}">
+            <td>
+                {{ user }}
+            </td>
+        </tr>
+    
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="holidays-pagination">
+    {{ items.multi_pagination(users, 'leave.authorise', 'page_param_third', 'page_param_first', 'page_param_second', page_param_first, page_param_second) }}
+    </div>
+</div>
+{% endif %}
+{% endblock calendar_content %}
+
+{% block scripts %}
+<script>
+$(document).ready(function($) {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock scripts %}

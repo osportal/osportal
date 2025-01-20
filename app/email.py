@@ -50,10 +50,10 @@ def send_email(subject, recipients, html_body,
 
 @celery.task(bind=True)
 def send_leave_request_status_update_email(self, leave_id):
-    site_name = get_settings_value('site_name')
+    osportal_name = get_settings_value('osportal_name')
     try:
         leave = Leave.query.get(leave_id)
-        send_email((f'Update on Your {leave.ltype} Request - {site_name}'),
+        send_email((f'Update on Your {leave.ltype} Request - {osportal_name}'),
                    recipients=[leave.user.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -68,10 +68,10 @@ def send_leave_request_status_update_email(self, leave_id):
 @celery.task(bind=True)
 def send_leave_request_email(self, leave_id):
     #token = user.serialize_token()
-    site_name = get_settings_value('site_name')
+    osportal_name = get_settings_value('osportal_name')
     try:
         leave = Leave.query.get(leave_id)
-        send_email((f'{leave.ltype} Request - {leave.user.username} - {site_name}'),
+        send_email((f'{leave.ltype} Request - {leave.user.username} - {osportal_name}'),
                    recipients=[leave.user.authoriser.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -86,9 +86,9 @@ def send_leave_request_email(self, leave_id):
 @celery.task(bind=True)
 def send_password_reset_email(self, user):
     token = user.serialize_token()
-    site_name = get_settings_value('site_name')
+    osportal_name = get_settings_value('osportal_name')
     try:
-        send_email((f'Reset Your Password - {site_name}'),
+        send_email((f'Reset Your Password - {osportal_name}'),
                    recipients=[user.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),
@@ -104,8 +104,8 @@ def send_password_reset_email(self, user):
 @celery.task()
 def send_activation_email(user):
     token = user.serialize_token()
-    site_name = get_settings_value('site_name')
-    send_email((f'Welcome to {site_name}'),
+    osportal_name = get_settings_value('osportal_name')
+    send_email((f'Welcome to {osportal_name}'),
                recipients=[user.email],
                html_body=render_template('email/account_creation.html',
                                          user=user, token=token))

@@ -14,7 +14,7 @@ from flask import url_for, current_app, request
 import json
 import jwt
 import os
-from sqlalchemy import text, or_, func
+from sqlalchemy import text, or_, func, case
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
 from time import time
@@ -487,7 +487,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         leaves = Leave.query \
                 .filter(Leave.user_id==self.id) \
                 .order_by(text(order_values)) \
-                .paginate(page, get_settings_value('leaves_per_page'), False)
+                .paginate(page, 2, False)
         return leaves
 
     def pending_or_approved_leaves(self):
@@ -504,12 +504,6 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
             return True
         return False
 
-    def count_authoriser_requests(self):
-        leaves = db.session.query(Leave).join(User) \
-                .filter(User.authoriser==self) \
-                .count()
-        return leaves
-
     def pending_authoriser_requests(self):
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status=='Pending')
@@ -517,14 +511,21 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     def paginated_pending_authoriser_requests(self, page):
         leaves = self.pending_authoriser_requests() \
-                .paginate(page, get_settings_value('leaves_per_page'), False)
+                .paginate(page, 2, False)
         return leaves
 
     def paginated_actioned_authoriser_requests(self, page):
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status!='Pending') \
-                .paginate(page, get_settings_value('leaves_per_page'), False)
+                .paginate(page, 2, False)
         return leaves
+
+    def paginated_authoriser_users(self, page):
+        users = User.query \
+                .filter(User.authoriser==self) \
+                .filter(User.search((request.args.get('q', text(''))))) \
+                .paginate(page, 1, False)
+        return users
 
     @classmethod
     def calculate_leave_days(cls):
@@ -543,10 +544,16 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     @classmethod
     def search(cls, query):
-        search_query = '%{0}%'.format(query)
+        search_query = f'%{query}%'
+        # Construct dynamic full_name conditions
+        with_middle_name = func.concat(cls.first_name, ' ', cls.middle_name, ' ', cls.last_name).ilike(search_query)
+        without_middle_name = func.concat(cls.first_name, ' ', cls.last_name).ilike(search_query)
+
         search_chain = (User.email.ilike(search_query),
                         User.username.ilike(search_query),
                         User.job_title.ilike(search_query),
+                        with_middle_name,  # Match full name with middle name
+                        without_middle_name  # Match full name without middle name
                         )
 
         return or_(*search_chain)
