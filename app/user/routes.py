@@ -153,7 +153,7 @@ def account():
        'user_edit_last_name':current_user.can_permission('user_edit_last_name'),
        'user_edit_email':current_user.can_permission('user_edit_email'),
        'user_edit_image_file':current_user.can_permission('user_edit_image_file'),
-       'user_edit_bio':current_user.can_permission('user_edit_bio')
+       'user_edit_bio':current_user.can_permission('user_edit_bio'),
     }
     if form.validate_on_submit():
         try:
@@ -171,6 +171,8 @@ def account():
                 current_user.email = form.email.data
             if current_user.role.user_edit_bio:
                 current_user.bio = form.bio.data
+            if current_user.role.user_edit_dob:
+                current_user.dob = form.dob.data
             if current_user.role.user_edit_image_file:
                 if form.image_file.data:
                     # delete existing picture

@@ -153,7 +153,13 @@
 			    </div>
 			    <div class="mb-2">
 			    	<div><strong>Role</strong></div>
-			    	<div>{{ user.role }}</div>
+			    	<div>
+                    {% if user.role %}
+                        <a href="{{ url_for('admin.roles_info', id=user.role.id) }}">{{ user.role }}</a>
+                    {% else %}
+                        {{ user.role }}
+                    {% endif %}
+                    </div>
                     {% if user.role.superuser %}
                         <div><span class="badge text-white bg-danger">superuser</span></div>
                     {% endif %}
@@ -174,16 +180,32 @@
 			    	<div>{{ user.work_tenure }}</div>
 			    </div>
 			    <div class="mb-2">
-			    	<div><strong>Department</strong></div>
-			    	<div>{{ user.department }}</div>
-			    </div>
-			    <div class="mb-2">
 			    	<div><strong>Job Title</strong></div>
 			    	<div>{{ user.job_title }}</div>
 			    </div>
 			    <div class="mb-2">
 			    	<div><strong>Site</strong></div>
-			    	<div>{{ user.site }}</div>
+                    <div>
+                    {% if user.site %}
+                        <a href="{{ url_for('admin.sites_info', id=user.site.id ) }}">{{ user.site }}</a>
+                    {% else %}
+                        {{ user.site }}
+                    {% endif %}
+                    </div>
+			    </div>
+			    <div class="mb-2">
+			    	<div><strong>Departments</strong></div>
+                    <div>
+                    {% if user.department %}
+                        {% for dept in user.department %}
+                        <div>
+                            <a href="{{ url_for('admin.departments_info', id=dept.id) }}">{{ dept }}</a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    {{ user.department }}
+                    {% endif %}
+                    </div>
 			    </div>
             </div>
     		<div role="tabpanel" class="tab-pane" id="leave">
@@ -200,7 +222,13 @@
 			        </div>
 			        <div class="mb-2">
 			        	<div><strong>Leave Authoriser</strong></div>
-			        	<div>{{ user.authoriser }}</div>
+			        	<div>
+                        {% if user.authoriser %}
+                            <a href="{{ url_for('admin.users_info', id=user.authoriser.id) }}">{{ user.authoriser }}</a>
+                        {% else %}
+                            {{ user.authoriser }}
+                        {% endif %}
+                        </div>
 			        </div>
 			        <div class="mb-2">
 			        	<div><strong>Leave Year Start</strong></div>

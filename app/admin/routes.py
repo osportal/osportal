@@ -1188,6 +1188,8 @@ def users_edit(id):
     form = NewUserForm(obj=user, departments=user.department)
     if form.validate_on_submit():
         try:
+            print(form.department.data)
+            print(type(form.department.data))
             """
             if User.is_last_admin(user):
                 flash('You are the last admin, you cannot do that.', 'danger')
@@ -1247,6 +1249,19 @@ def copy_holidays_to_years(id):
     return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 
+@admin.route('/users/bulk_edit_departments', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def bulk_edit_departments():
+    form_data = request.form
+    departments = form_data.getlist('department')
+    ids = request.form.get('checked-items').split(",")
+    # stops circular import error
+    from app.user.tasks import update_departments
+    update_departments.delay(ids, departments)
+    flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
+
+
 @admin.route('/public-holidays-groups/<int:id>/copy-holidays-to-groups', methods=['POST'])
 @permission_required('admin.public_holiday', crud='update')
 def copy_holidays_to_groups(id):
@@ -1269,6 +1284,8 @@ def bulk_edit_entt():
     update_entt.delay(ids, form_data)
     flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
     return redirect(url_for('admin.users'))
+
+
 
 
 @admin.route('/users/bulk_edit_role', methods=['POST'])

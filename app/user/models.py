@@ -67,16 +67,17 @@ class Role(ResourceMixin):
     # Superuser level permissions override any of the permissions
     superuser = db.Column(db.Boolean, default=False)
 
-    # Permissions
-    # posts and comment Permissions
+    # Post Permissions
+    # TODO change nullable=False
     can_create_posts = db.Column(db.Boolean, nullable=True, default=True)
     can_edit_posts = db.Column(db.Boolean, nullable=True, default=True)
     can_delete_posts = db.Column(db.Boolean, nullable=True, default=True)
+    # Comment Permissions
     can_create_comments = db.Column(db.Boolean, nullable=True, default=True)
     can_edit_comments = db.Column(db.Boolean, nullable=True, default=True)
     can_delete_comments = db.Column(db.Boolean, nullable=True, default=True)
 
-    # editable user profile fields
+    # Profile permissions
     user_edit_email = db.Column(db.Boolean, nullable=True, default=False)
     user_edit_username = db.Column(db.Boolean, nullable=True, default=False)
     user_edit_first_name = db.Column(db.Boolean, nullable=True, default=False)

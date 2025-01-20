@@ -252,6 +252,21 @@
   ) }}
 {% endwith %}
 
+{% with %}
+  {% set form_fields = [user_form.department] %}
+  {{ forms.modal_bulk_action(
+      id="bulkEditDepartments",
+      label="bulkEditDepartmentsLabel",
+      title="Edit Departments",
+      text="",
+      url='admin.bulk_edit_departments',
+      btn_text="Submit",
+      form=user_form,
+      form_fields=form_fields
+      )
+  }}
+{% endwith %}
+
 
 {% endif %}<!-- end if users exist -->
 {% include "partials/confirm_dialog.html" %}

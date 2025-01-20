@@ -2,6 +2,7 @@ from app.celery import celery
 from app.models import Entt, Site
 from app.posts.models import Comment
 from app.user.models import User, Role, Permission
+from app.department.models import Department
 
 from flask import url_for
 
@@ -72,6 +73,31 @@ def update_site(ids, site):
         user.site = site
         user.save()
         save_count += 1
+    return save_count
+
+@celery.task()
+def update_departments(ids, departments):
+    """
+    Update user departments
+    type ids: list
+    type departments: string id
+    return: int
+    """
+    save_count = 0
+    department_list = []
+    for dept_id in departments:
+        department = Department.query.get(dept_id)
+        department_list.append(department)
+    for id in ids:
+        user = User.query.get(id)
+        try:
+            user.department = department_list
+        except (ValueError, Exception) as e:
+            print(e)
+            continue
+        else:
+            user.save()
+            save_count += 1
     return save_count
 
 @celery.task()
