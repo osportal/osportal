@@ -1,5 +1,7 @@
+from app.user.models import User
+from sqlalchemy.sql import case
 from app.admin.utils import get_settings_value
-from app.department.models import Department, DepartmentMembers, User
+from app.department.models import Department, DepartmentMembers
 from app.decorators import setup_required
 from flask import render_template, request, url_for, redirect, flash, abort, Blueprint, current_app
 from flask_login import login_required
@@ -33,6 +35,17 @@ def all(page):
 @department.route('/departments/<int:id>', defaults={'page': 1},  methods=['GET', 'POST'])
 @department.route('/departments/<int:id>/page/<int:page>', methods=['GET', 'POST'])
 def info(id, page):
-    department = Department.query.filter(Department.id==id).filter(Department.active).first_or_404()
-    paginated_members = department.members.paginate(page, 30, True)
+    department = Department.query.get_or_404(id)
+
+    # Query users in the department and prioritize the head of department
+    paginated_members = User.query \
+        .join(DepartmentMembers, DepartmentMembers.user_id == User.id) \
+        .filter(DepartmentMembers.department_id == id) \
+        .order_by(
+            case(
+                [(User.id == department.head_id, 0)], else_=1
+            ).asc(),  # Head of department first
+            User.created_at.asc()  # Then order by username ascending
+        ) \
+        .paginate(page, 30, True)
     return render_template('department.html', department=department, members=paginated_members)

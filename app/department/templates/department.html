@@ -26,7 +26,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Created</th>
+                    <th>Email</th>
                 </tr>
             </thead>
             {% for member in members.items %}
@@ -34,15 +34,12 @@
                 <td>
                     <a class="mr-2" href="{{ url_for(profile_endpoint, id=member.id) }}">{{ avatar_img(member, size='48', id='profileImg') }}</a>
                     <a href="{{ url_for(profile_endpoint, id=member.id) }}">{{ member }}</a>
-                    {% if department.manager == member %}
-                        <span class="badge badge-pill badge-light">Manager</span>
+                    {% if department.head == member %}
+                        <span class="badge badge-pill badge-primary">Head of Department</span>
                     {% endif %}
-        	        {% if member.job_title %}
-        	            <span class="text-muted">{{ member.job_title }}</span>
-        	        {% endif %}
                 </td>
                 <td style="vertical-align: middle;">
-                    {{ member.created_at.strftime("%-d %b %Y %H:%M %z") }}
+                    {{ member.email }}
                 </td>
             </tr>
             {% endfor %}
