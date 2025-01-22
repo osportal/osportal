@@ -100,15 +100,27 @@ function appendHiddenInput(item){
 }
 
 function flashError(){
-    const box = `
-    <div class="alert alert-danger">
-        You need to select at least one item
-	    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    	        <span aria-hidden="true">&times;</span>
-  	    </button>
-	</div>
+    const modal = `
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Error</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            You need to select at least one item
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     `;
-    document.getElementById('flash-messages').innerHTML = box;
+    document.getElementById('flash-messages').innerHTML = modal;
 }
 /* Below function is called from user/index.html onclick. 
  * This function checks at least one user/checkbox has been ticked. 
@@ -127,6 +139,7 @@ function checkArrayLen(target){
         /* if array is not empty */
         if (array.length === 0){
             flashError();
+            $("#exampleModal").modal('show');
         } else {
             modalItems = document.getElementById('modal-checked-items-count');
             if (modalItems) {
