@@ -29,9 +29,6 @@
               {{ items.sort('name', 'Leave Type') }}
           </th>
           <th class="col-header">
-              {{ items.sort('active') }}
-          </th>
-          <th class="col-header">
               {{ items.sort('deductable') }}
           </th>
           <th class="col-header">
@@ -52,9 +49,6 @@
         </td>
         <td>
             {{ ltype.name }}
-        </td>
-        <td>
-            {{ ltype.render(ltype.active) }}
         </td>
         <td>
             {{ ltype.render(ltype.deductable) }}

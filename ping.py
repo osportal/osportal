@@ -22,19 +22,31 @@ url = url._replace(database=None)
 
 # Wait for the database server to be available
 engine = create_engine(url)
-with engine.connect() as conn:
-    conn.execute("COMMIT")
-    cursor = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname = '{POSTGRES_DB}'"))
-    if not cursor.fetchone():
-        conn.execute(text(f"CREATE DATABASE {POSTGRES_DB}"))
-print(f"Waiting for {url.host} to be ready")
-while True:
-    try:
-        engine.raw_connection()
-        break
-    except Exception:
-        print(".", end="", flush=True)
-        time.sleep(1)
 
-print(f"{url.host} is ready")
-time.sleep(1)
+def wait_for_database(engine, timeout=60):
+    """Wait for the database server to be ready."""
+    start_time = time.time()
+    while True:
+        try:
+            # Try to connect to the database server
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+                print("Database server is ready!")
+                return True
+        except Exception as e:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                print("Timeout waiting for the database server. Exiting.")
+                raise e
+            print(f"Waiting for the database server... ({elapsed_time:.1f}s elapsed)")
+            time.sleep(1)
+
+# Wait for the database server to be ready
+wait_for_database(engine)
+
+# Check if the target database exists; create it if not
+with engine.connect() as conn:
+    result = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname = :dbname"), {'dbname': POSTGRES_DB})
+    if not result.fetchone():
+        conn.execute(text(f"CREATE DATABASE {POSTGRES_DB}"))
+        print(f"Database {POSTGRES_DB} created!")

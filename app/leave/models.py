@@ -13,7 +13,6 @@ class LeaveType(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(30), unique=True, nullable=False)
     deductable = db.Column(db.Boolean, default=False, nullable=False)
-    active = db.Column(db.Boolean, default=True, nullable=False)
     approval = db.Column(db.Boolean, default=True, nullable=False)
     hex_colour = db.Column(StripStr(10), nullable=False, default='#0066FF')
 

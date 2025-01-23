@@ -40,17 +40,6 @@ class UserForm(ModelForm):
                                DataRequired(),
                                Length(min=2, max=50),
                                ])
-    #dn = StringField('Display Name', validators=[ Optional(), Length(min=2, max=50), ])
-    contact_number = StringField('Contact Number', validators=[
-                               Optional(),
-                               Length(min=1, max=25),
-                               ])
-    site = QuerySelectField('Site',
-                               query_factory=lambda: Site.query.all(),
-                               widget=Select2Widget(),
-                               allow_blank=True,
-                               validators=[Optional()]
-                               )
 
 
 class RegistrationForm(UserForm):

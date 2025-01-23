@@ -29,7 +29,6 @@ def setup():
         except Exception as e:
             flash(f'{e}', 'danger')
         else:
-            countries=Country()
             settings.setup=False
             settings.save()
             flash(f'User successfully registered', 'success')

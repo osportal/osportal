@@ -26,14 +26,14 @@ def create_default_roles():
 def create_default_leave_types():
     # default name and deductable values
     types = [
-            ("Holiday", True, 14),
-            ("Sickness", False, 7)
+            ("Holiday", True, True),
+            ("Sickness", False, False)
     ]
     for leave_type in types:
         params = {
             'name': leave_type[0],
             'deductable': leave_type[1],
-            'max_days': leave_type[2]
+            'approval': leave_type[2]
         }
         LeaveType(**params).save()
 
@@ -53,7 +53,7 @@ def create_default_settings():
     create_default_countries()
     params = {
         'id': 1,
-        'site_name': 'osPortal'
+        'osportal_name': 'osPortal'
     }
     return Settings(**params).save()
 

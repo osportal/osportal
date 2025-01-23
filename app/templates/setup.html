@@ -14,6 +14,15 @@
 <legend>{{ legend }}</legend>
 
 {% call f.form_tag(endpoint, form=form) %}
+    {% call f.form_group(form.first_name) %}
+    {% endcall %}
+
+    {% call f.form_group(form.middle_name) %}
+    {% endcall %}
+
+    {% call f.form_group(form.last_name) %}
+    {% endcall %}
+
     {% call f.form_group(form.username) %}
     {% endcall %}
     

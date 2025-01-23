@@ -172,6 +172,16 @@ class NewUserForm(UserForm):
                                           allow_blank=True,
                                           render_kw={"multiple": "multiple"},
                                           validators=[Optional()])
+    contact_number = StringField('Contact Number', validators=[
+                               Optional(),
+                               Length(min=1, max=25),
+                               ])
+    site = QuerySelectField('Site',
+                               query_factory=lambda: Site.query.all(),
+                               widget=Select2Widget(),
+                               allow_blank=True,
+                               validators=[Optional()]
+                               )
     authoriser = QuerySelectField('Leave Authoriser', query_factory=lambda: User.query.all(), widget=Select2Widget(),
                                   allow_blank=True, validators=[Optional(), check_authoriser])
     job_title = StringField(validators=[Optional(), Length(1, 50)])
@@ -291,7 +301,7 @@ class EnttForm(ModelForm):
                                             widget=Select2Widget(),
                                             allow_blank=True,
                                             validators=[Optional()])
-    leave_types = QuerySelectMultipleField('Leave Types', query_factory=lambda: LeaveType.query.filter(LeaveType.active).all(),
+    leave_types = QuerySelectMultipleField('Leave Types', query_factory=lambda: LeaveType.query.all(),
                                              get_pk=lambda a: a.id, widget=Select2Widget(), allow_blank=True,
                                              render_kw={"multiple": "multiple"}, validators=[DataRequired()])
 

@@ -5,10 +5,29 @@ from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import database_exists, create_database
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 import sys
+from sqlalchemy.exc import OperationalError
+import time
+
+
+def wait_for_db():
+    timeout = 60
+    start_time = time.time()
+    while True:
+        try:
+            db.session.execute('SELECT 1')
+            print("Database is ready!")
+            break
+        except OperationalError:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                raise TimeoutError("Database connection timeout.")
+            print("Waiting for database...")
+            time.sleep(1)
 
 
 def setup():
     click.secho('[+] Creating Tables...', fg='cyan')
+    wait_for_db()
     db.create_all()
     click.secho('[+] Creating Default Settings...', fg='cyan')
     try:
