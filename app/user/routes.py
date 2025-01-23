@@ -3,6 +3,7 @@ from app.extensions import db
 from app.decorators import setup_required
 from app.admin.models import Settings
 from app.admin.forms import SearchForm
+from app.models import Site
 from app.posts.models import Post, Comment
 from app.user.auth import auth_user_db
 from app.user.decorators import (anonymous_required,
@@ -21,7 +22,8 @@ from flask_mail import Message
 import os
 from pathlib import Path
 from PIL import Image, UnidentifiedImageError
-from sqlalchemy import text
+from sqlalchemy import text, or_
+from sqlalchemy.orm import aliased
 
 
 user = Blueprint('user', __name__, template_folder='./templates')
@@ -275,15 +277,60 @@ def password_reset(token):
 def all_users(page):
     search_form = SearchForm()
 
+    # Define a mapping from field names to column objects
+    sort_columns = {
+        'created_at': User.created_at,
+        'username': User.username,
+        'email': User.email,
+        'job_title': User.job_title,
+        # Add more fields as needed...
+    }
+
+    # Get sort and direction values from the request arguments
+    sort_by_field = request.args.get('sort', 'created_at')  # Default to 'created_at'
+    sort_direction = request.args.get('direction', 'desc')  # Default to 'desc'
+
+    # Validate the sort_by_field
+    if sort_by_field not in sort_columns:
+        sort_by_field = 'created_at'  # Fallback to 'created_at' if invalid field
+
+    """
     sort_by = User.sort_by(request.args.get('sort', 'created_at'),
                            request.args.get('direction', 'desc'))
+    # Fully qualify the column to work for the join further below
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+    """
 
-    paginated_users = User.query \
-        .filter(User.active) \
-        .filter(User.search(request.args.get('q', ''))) \
-        .order_by(text(order_values)) \
-        .paginate(page, 30, True)
+    # Fully qualify the field name to avoid ambiguity
+    order_field = sort_columns.get(sort_by_field)
+
+    # Set the sorting direction
+    if sort_direction == 'desc':
+        order_values = order_field.desc()
+    else:
+        order_values = order_field.asc()
+
+    query = User.query
+    # Handle search with joins
+    search_query = request.args.get('q', '')
+    if search_query:
+        from app.department.models import Department, DepartmentMembers
+        DepartmentAlias = aliased(Department)
+        DepartmentMembersAlias = aliased(DepartmentMembers)
+        SiteAlias = aliased(Site)
+
+        query = query.join(DepartmentMembersAlias, User.id == DepartmentMembersAlias.user_id) \
+                     .join(DepartmentAlias, DepartmentMembersAlias.department_id == DepartmentAlias.id) \
+                     .join(SiteAlias, User.site_id == SiteAlias.id) \
+                     .filter(
+                         or_(
+                             User.search(search_query),# User fields
+                             SiteAlias.name.ilike(f'%{search_query}%'),
+                             DepartmentAlias.name.ilike(f'%{search_query}%')
+                         )
+                     )
+
+    paginated_users = query.order_by(order_values).paginate(page, 30, True)
     return render_template('all_users.html', users=paginated_users, form=search_form)
 
 

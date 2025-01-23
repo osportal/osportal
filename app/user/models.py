@@ -550,12 +550,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         with_middle_name = func.concat(cls.first_name, ' ', cls.middle_name, ' ', cls.last_name).ilike(search_query)
         without_middle_name = func.concat(cls.first_name, ' ', cls.last_name).ilike(search_query)
 
-        search_chain = (User.email.ilike(search_query),
-                        User.username.ilike(search_query),
-                        User.job_title.ilike(search_query),
+        search_chain = [cls.email.ilike(search_query),
+                        cls.username.ilike(search_query),
+                        cls.job_title.ilike(search_query),
                         with_middle_name,  # Match full name with middle name
                         without_middle_name  # Match full name without middle name
-                        )
+                        ]
 
         return or_(*search_chain)
 

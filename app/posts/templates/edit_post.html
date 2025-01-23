@@ -57,6 +57,7 @@
 <!-- if end request is edit -->
     {% call f.form_tag(endpoint, form=form, fid='editor-form', **form_kwargs) %}
       <legend>{{ legend }}</legend>
+      {% if post.created_at %}
       <div class="form-group">
         <label class="control-label"><strong>Created</strong></label>
         <p class="sm-margin-bottom form-control-static">
@@ -66,6 +67,7 @@
           </time>
         </p>
       </div>
+      {% endif %}
       {% call f.form_group(form.name, css_class='sm-margin-bottom',
                             autofocus='autofocus') %}
       {% endcall %}

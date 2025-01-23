@@ -1,4 +1,5 @@
   <div class="col-sm">
+    {% if user.created_at %}
     <div class="form-group">
       <label class="control-label"><strong>Created</strong></label>
       <p class="sm-margin-bottom form-control-static">
@@ -8,6 +9,7 @@
         </time>
       </p>
     </div>
+    {% endif %}
     <legend>Login activity</legend>
 
     <div class="panel panel-default">
