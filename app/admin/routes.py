@@ -1079,14 +1079,12 @@ def users_new():
     if form.validate_on_submit():
         try:
             form.populate_obj(user)
-            #TODO move annual allowance setup into succint method
-            # that user.register can also use
-            #user.annual_entitlement = user.country.default_annual_allowance
-            #user.days_left = user.annual_entitlement
             if current_app.config['MAX_ACTIVE_USERS']:
                 if form.active.data:
                     check_licence(1)
             user.save()
+            # initialise user entitlement data
+            user.init_entt()
         except (IntegrityError, PendingRollbackError) as e:
             db.session.rollback()
             flash(f'{e.orig.diag.message_detail}', 'danger')
