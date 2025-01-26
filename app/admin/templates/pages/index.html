@@ -46,45 +46,48 @@
           <th class="col-header">
               {{ items.sort('active') }}
           </th>
+          <th class="col-header">
+            <!-- for edit and delete buttons -->
+          </th>
         </tr>
     </thead>
     <tbody>
         {% for page in pages.items %}
         <tr data-href="{{ url_for('admin.pages_info', id=page.id) }}">
-        <td>
-          <label for="bulk_ids"></label>
-          <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
-                 type="checkbox" value="{{ page.id }}">
-        </td>
-        <td>
-            {{ page.name }}
-        </td>
-        <td>
-            {{ page.route }}
-        </td>
-        <td>
-            {{ page.render(page.active) }}
-        </td>
-        <td>
-            {% if current_user.permission('admin.page', crud='update') %}
-                <a class="btn btn-sm btn-primary" 
-                   href="{{ url_for('admin.pages_edit', id=page.id) }}" type="button">
-                    <i class="bi bi-pencil-fill"></i>
-                </a>
-            {% endif %}
-            {% if current_user.permission('admin.page', crud='delete') %}
-                {{ forms.action_confirm(
-                    id="delete-" ~ page.id, 
-                    url=url_for('admin.pages_delete', id=page.id),
-                    title="Delete", 
-                    btn="btn btn-sm btn-warning",
-                    target="#confirmModal",
-                    icon="bi bi-trash") 
-                }}
-            {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
+            <td>
+              <label for="bulk_ids"></label>
+              <input class="checkbox-item" id="bulk_ids" name="bulk_ids"
+                     type="checkbox" value="{{ page.id }}">
+            </td>
+            <td>
+                {{ page.name }}
+            </td>
+            <td>
+                {{ page.route }}
+            </td>
+            <td>
+                {{ page.render(page.active) }}
+            </td>
+            <td>
+                {% if current_user.permission('admin.page', crud='update') %}
+                    <a class="btn btn-sm btn-primary" 
+                       href="{{ url_for('admin.pages_edit', id=page.id) }}" type="button">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                {% endif %}
+                {% if current_user.permission('admin.page', crud='delete') %}
+                    {{ forms.action_confirm(
+                        id="delete-" ~ page.id, 
+                        url=url_for('admin.pages_delete', id=page.id),
+                        title="Delete", 
+                        btn="btn btn-sm btn-warning",
+                        target="#confirmModal",
+                        icon="bi bi-trash") 
+                    }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 {{ items.paginate(pages) }}

@@ -38,13 +38,10 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
+          {{ items.sort('is_pin', 'Pinned') }}
         </th>
         <th class="col-header">
-            <!-- Pin col -->
-        </th>
-        <th class="col-header">
-            <!-- Lock col -->
+          {{ items.sort('locked') }}
         </th>
         <th class="col-header">
           {{ items.sort('author', 'Author') }}
@@ -55,7 +52,7 @@
         <th class="col-header">
           {{ items.sort('updated_at', 'Last updated') }}
         </th>
-        <th>
+        <th class="col-header">
         <!-- for edit and delete buttons -->
         </th>
       </tr>
@@ -71,7 +68,6 @@
         <td>
             {{ post.name | truncate(70) }}
         </td>
-        <td>{{ post.render(post.active) }}</td>
         <td>
             {% if post.is_pin %}
                 <i title="Pinned post" class="bi bi-pin-angle-fill h3 text-gray-300"></i>

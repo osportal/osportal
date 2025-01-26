@@ -376,7 +376,7 @@ def posts(page):
 
     paginated_posts = Post.query \
         .filter(Post.search((request.args.get('q', text(''))))) \
-        .order_by(Post.is_pin.desc(), text(order_values)) \
+        .order_by(text(order_values)) \
         .paginate(page, 30, True)
 
     return render_template('post/index.html',
@@ -984,7 +984,7 @@ def entt_delete(id):
 @admin.route('/leave-types/new', methods=['GET', 'POST'])
 @permission_required('admin.leave_type', crud='create')
 def leave_type_new():
-    leave_type = LeaveType(active=True, hex_colour='#0066FF')
+    leave_type = LeaveType(hex_colour='#0066FF')
     form = LeaveTypeSettingsForm(obj=leave_type)
     if form.validate_on_submit():
         try:

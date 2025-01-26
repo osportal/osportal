@@ -35,7 +35,10 @@
               {{ items.sort('approval', 'Approval required') }}
           </th>
           <th class="col-header">
-              {{ items.sort('colour') }}
+              {{ items.sort('hex_colour', 'Colour') }}
+          </th>
+          <th class="col-header">
+          <!-- for edit and delete buttons -->
           </th>
         </tr>
     </thead>

@@ -11,7 +11,6 @@ from sqlalchemy import func, or_, event
 class Email(ResourceMixin):
     __tablename__ = 'email'
     id = db.Column(db.Integer, primary_key=True)
-    active = db.Column(db.Boolean, default=True)
     name = db.Column(StripStr(50), nullable=False)
     email = db.Column(FmtString(120), nullable=False)
     server = db.Column(FmtString(120))

@@ -38,10 +38,7 @@
           {{ items.sort('name') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
-        </th>
-        <th class="col-header">
-          {{ items.sort('head') }}
+          {{ items.sort('head', 'Head of Department') }}
         </th>
         <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
@@ -64,9 +61,6 @@
         </td>
         <td>
             {{ department.name }}
-        </td>
-        <td>
-            {{ department.render(department.active) }}
         </td>
         <td>
             {{ department.head }}

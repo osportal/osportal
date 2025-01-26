@@ -123,7 +123,6 @@ class CopyHolidaysToGroupForm(ModelForm):
 
 class PublicHolidayForm(ModelForm):
     name = StringField(validators=[DataRequired(), Length(1, 200)])
-    active = BooleanField('Active')
     start_date = DatePickerField('Date', validators=[DataRequired()])
 
 
@@ -167,7 +166,7 @@ class NewUserForm(UserForm):
     start_date = DatePickerField('Start Date', validators=[Optional()])
     department = QuerySelectMultipleField('Departments',
                                           query_factory=lambda: Department.query.all(),
-                                          get_label=lambda d: d.name + ' (disabled)' if not d.active else d.name,
+                                          get_label=lambda d: d.name,
                                           widget=Select2Widget(),
                                           allow_blank=True,
                                           render_kw={"multiple": "multiple"},
@@ -308,7 +307,6 @@ class EnttForm(ModelForm):
 
 class LeaveTypeSettingsForm(ModelForm):
     name = StringField('Name', validators=[DataRequired(), check_lt_exists])
-    active = BooleanField('Active')
     hex_colour = StringField('Colour', widget=ColorInput())
     deductable = BooleanField('Deduct days from allowance?')
     approval = BooleanField('Approval required?')
@@ -332,21 +330,16 @@ class SettingsForm(FlaskForm):
                                      widget=Select2Widget(), allow_blank=True,
                                      validators=[Optional()]
                                      )
-    reg_user_country = QuerySelectField('User Registration Country',
-                                        query_factory=lambda: Country.query.order_by(Country.name.asc()).all(),
-                                        widget=Select2Widget(), allow_blank=True,
-                                        validators=[Optional()]
-                                        )
 
     #Email
     system_email = QuerySelectField('System Email',
-                                    query_factory=lambda: Email.query.filter(Email.active).all(),
+                                    query_factory=lambda: Email.query.all(),
                                     get_pk=lambda s: s.id,
                                     allow_blank=True,
                                     validators=[Optional()]
                                     )
     alert_email = QuerySelectField('Alert Email',
-                                   query_factory=lambda: Email.query.filter(Email.active).all(),
+                                   query_factory=lambda: Email.query.all(),
                                    get_pk=lambda s: s.id,
                                    allow_blank=True,
                                    validators=[Optional()]

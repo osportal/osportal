@@ -12,7 +12,6 @@ class Post(ResourceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    active = db.Column(db.Boolean, default=True)
     is_pin = db.Column(db.Boolean, nullable=False, default=False)
     # relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'),

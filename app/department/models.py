@@ -27,9 +27,7 @@ class Department(ResourceMixin):
     __tablename__ = 'department'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(StripStr(65), unique=True, nullable=False)
-    active = db.Column(db.Boolean, default=True)
     description = db.Column(StripStr(350), nullable=True)
-    #approvers = db.relationship('User', secondary='department_approvers', backref=db.backref('approvals', lazy='dynamic'), uselist=True)
     members = db.relationship('User', secondary='department_members', backref='department', lazy='dynamic', uselist=True)
     head_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     head = db.relationship('User', foreign_keys=[head_id])

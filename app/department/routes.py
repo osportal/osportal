@@ -25,7 +25,6 @@ def all(page):
     from app.admin.forms import SearchForm
     search_form = SearchForm()
     paginated_departments = Department.query \
-        .filter(Department.active) \
         .filter(Department.search((request.args.get('q', text(''))))) \
         .order_by(Department.name.asc(),) \
         .paginate(page, 30, True)

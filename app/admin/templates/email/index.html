@@ -41,9 +41,6 @@
           {{ items.sort('email') }}
         </th>
         <th class="col-header">
-          {{ items.sort('active') }}
-        </th>
-        <th class="col-header">
           {{ items.sort('created_at', 'Created') }}
         </th>
         <th class="col-header">
@@ -67,9 +64,6 @@
         </td>
         <td>
             {{ email.email }}
-        </td>
-        <td>
-            {{ email.render(email.active) }}
         </td>
         <td>
           {% if email.created_at %}

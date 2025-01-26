@@ -207,7 +207,7 @@ def mentions():
 @login_required
 def profile(id):
     user = User.query.filter(User.id==id).filter(User.active).first_or_404()
-    depts = [d for d in user.department if d.active]
+    depts = [d for d in user.department]
     return render_template('profile.html', user=user, active_depts=depts)
 
 
@@ -217,7 +217,6 @@ def profile(id):
 def posts(id, page):
     user = User.query.get_or_404(id)
     paginated_posts = user.posts \
-            .filter(Post.active) \
             .order_by(Post.created_at.desc()) \
             .paginate(page, 30, True)
     return render_template('profile_posts.html', posts=paginated_posts, user=user)
