@@ -267,6 +267,15 @@
   }}
 {% endwith %}
 
+{{ forms.modal_bulk_action(
+    id="bulkCarryOver",
+    label="bulkCarryOverLabel",
+    title="Carry Over Entitlement",
+    text="Are you sure you want to carry over remaining entitlement for the selected users?",
+    url='admin.users_bulk_carryover',
+    btn_text="Submit")
+}}
+
 
 {% endif %}<!-- end if users exist -->
 {% include "partials/confirm_dialog.html" %}

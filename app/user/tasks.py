@@ -25,6 +25,25 @@ def reset_users_passwords(ids):
     return User.bulk_password_reset(ids)
 
 @celery.task()
+def update_carryover(ids):
+    """
+    Update user carryover data
+    type ids: list
+    return: int
+    """
+    save_count = 0
+    for id in ids:
+        user = User.query.get(id)
+        try:
+            user.carryover_entitlement()
+        except (ValueError, Exception) as e:
+            print(e)
+            continue
+        else:
+            save_count += 1
+    return save_count
+
+@celery.task()
 def update_entt(ids, entt):
     """
     Update user entitlement template

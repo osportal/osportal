@@ -12,7 +12,6 @@
       <li>
           <form id="export-form" action="{{ url_for('admin.export_selected_csv', table=table_name) }}" method="POST">
             <button type="submit" class="dropdown-item" role="button">
-                <i class="bi bi-download"></i>
                 <span class="align-middle">
                     Export Selected to CSV
                 </span>
@@ -25,7 +24,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-trash"></i>
             <span class="align-middle">
                 Delete
             </span>
@@ -38,7 +36,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-copy"></i>
             <span class="align-middle">
                 Copy Holidays to Years
             </span>
@@ -50,7 +47,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-copy"></i>
             <span class="align-middle">
                 Copy Holidays to Groups
             </span>
@@ -64,9 +60,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
-  <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/>
-</svg>
             <span class="align-middle">
                 Disable
             </span>
@@ -78,7 +71,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-check-circle-fill"></i>
             <span class="align-middle">
                 Enable
             </span>
@@ -92,7 +84,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-envelope-fill"></i>
             <span class="align-middle">
                 Send Password Reset Email
             </span>
@@ -104,7 +95,6 @@
           href=""
           role="button"
           data-toggle="modal">
-            <i class="bi bi-envelope-fill"></i>
             <span class="align-middle">
                 Send Welcome Email
             </span>
@@ -117,7 +107,6 @@
           role="button"
           data-toggle="modal">
             <span class="align-middle">
-                <i class="bi bi-file-earmark-font"></i>
                 Edit Entitlement Template
             </span>
         </a>
@@ -129,7 +118,6 @@
           role="button"
           data-toggle="modal">
             <span class="align-middle">
-                <i class="bi bi-hammer"></i>
                 Edit Role
             </span>
         </a>
@@ -141,7 +129,6 @@
           role="button"
           data-toggle="modal">
             <span class="align-middle">
-                <i class="bi bi-building"></i>
                 Edit Site
             </span>
         </a>
@@ -153,8 +140,18 @@
           role="button"
           data-toggle="modal">
             <span class="align-middle">
-                <i class="bi bi-diagram-3-fill"></i>
                 Edit Departments
+            </span>
+        </a>
+      </li>
+      <li>
+        <a onclick="checkArrayLen('#bulkCarryOver')"
+          class="dropdown-item"
+          href=""
+          role="button"
+          data-toggle="modal">
+            <span class="align-middle">
+                Carry Over Entitlement
             </span>
         </a>
       </li>

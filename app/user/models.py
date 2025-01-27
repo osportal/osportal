@@ -477,6 +477,34 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         self.entitlement_used -= Decimal(days)
         self.entitlement_rem += Decimal(days)
 
+    def carryover_entitlement(self):
+        if not self.entitlement_rem:
+            raise Exception('Entitlement Remaining is null')
+        if not self.entt:
+            raise Exception('User has no Entitlement Template')
+        # Maximum carryover allowed
+        max_carryover = min(self.entitlement_rem, self.entt.max_carryover)
+
+        # Calculate the potential new entitlement
+        potential_entitlement = self.entt.default_entitlement + max_carryover
+        entitlement_cap = self.entt.entitlement_cap  # Assume this attribute defines the cap
+
+        # Adjust carryover to reach the cap if there's room
+        if potential_entitlement > entitlement_cap:
+            # Reduce carryover to not exceed the entitlement cap
+            max_carryover = entitlement_cap - self.entt.default_entitlement
+
+        # Calculate the final entitlement within the cap
+        new_entitlement = self.entt.default_entitlement + max_carryover
+
+        # Update user attributes
+        self.previous_carryover = max_carryover
+        self.entitlement_rem = new_entitlement
+        self.entitlement_used = 0  # Reset used entitlement for the new period
+
+        # Save changes to the database
+        self.save()
+
     def is_active(self):
         return self.active
 

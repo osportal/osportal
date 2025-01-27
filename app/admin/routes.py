@@ -1309,6 +1309,15 @@ def bulk_edit_site():
     flash('{0} user(s) scheduled to be updated.'.format(len(ids)), 'success')
     return redirect(url_for('admin.users'))
 
+@admin.route('/users/bulk_carryover', methods=['POST'])
+@permission_required('admin.user', crud='update')
+def users_bulk_carryover():
+    ids = request.form.get('checked-items').split(",")
+    # stops circular import error
+    from app.user.tasks import update_carryover
+    update_carryover.delay(ids)
+    flash('{0} user(s) carryover entitlement to be updated'.format(len(ids)), 'success')
+    return redirect(url_for('admin.users'))
 
 @admin.route('/users/bulk_welcome_email', methods=['POST'])
 @permission_required('admin.user', crud='update')
@@ -1654,29 +1663,12 @@ def carry_over_entitlement(id):
     and overall entitlement cap. If there's room within the cap, carry over additional days.
     """
     user = User.query.get_or_404(id)
-
-    # Maximum carryover allowed
-    max_carryover = min(user.entitlement_rem, user.entt.max_carryover)
-
-    # Calculate the potential new entitlement
-    potential_entitlement = user.entt.default_entitlement + max_carryover
-    entitlement_cap = user.entt.entitlement_cap  # Assume this attribute defines the cap
-
-    # Adjust carryover to reach the cap if there's room
-    if potential_entitlement > entitlement_cap:
-        # Reduce carryover to not exceed the entitlement cap
-        max_carryover = entitlement_cap - user.entt.default_entitlement
-
-    # Calculate the final entitlement within the cap
-    new_entitlement = user.entt.default_entitlement + max_carryover
-
-    # Update user attributes
-    user.previous_carryover = max_carryover
-    user.entitlement_rem = new_entitlement
-    user.entitlement_used = 0  # Reset used entitlement for the new period
-
-    # Save changes to the database
-    user.save()
+    try:
+        user.carryover_entitlement()
+    except Exception as e:
+        flash(f'{e}', 'danger')
+    else:
+        flash('Entitlement carried over', 'success')
     return redirect(url_for('admin.users_info', id=id))
 
 
