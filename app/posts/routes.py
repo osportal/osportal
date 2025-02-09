@@ -53,7 +53,7 @@ def index(page):
     form = SearchForm()
     pinned_posts = Post.query.filter(Post.is_pin==True).all()
     sort_by = Post.sort_by(request.args.get('sort', 'created_at'),
-                           request.args.get('direction', 'desc'))
+                           request.args.get('direction', 'asc'))
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
     paginated_posts = Post.query \
         .filter(Post.search((request.args.get('q', text(''))))) \
@@ -64,9 +64,8 @@ def index(page):
 
 @posts.route('/posts/new', methods=['GET', 'POST'])
 def post_new():
-    if not current_user.can_permission('can_create_posts'):
-        if not current_user.permission('admin.post', crud='create'):
-            abort(403)
+    if not current_user.post_permissions('create', post):
+        abort(403)
     post = Post()
     form = PostForm()
     if form.validate_on_submit():
@@ -88,9 +87,8 @@ def post_new():
 def post_edit(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
-    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.can_permission('can_edit_posts')):
-        if not current_user.permission('admin.post', crud='update'):
-            abort(403)
+    if not current_user.post_permissions('edit', post):
+        abort(403)
     form = PostForm(obj=post)
     if form.validate_on_submit():
         try:
@@ -109,11 +107,8 @@ def post_edit(id):
 def post_delete(id):
     post = Post.query.get_or_404(id)
     post.is_locked()
-    # checks if non-author has admin permission to delete because
-    # permission required does not prevent another user from accessing route
-    if (post.user_id != current_user.id) or ((post.user == current_user) and not current_user.can_permission('can_delete_posts')): # can this user delete personal posts
-        if not current_user.permission('admin.post', crud='delete'):
-            abort(403)
+    if not current_user.post_permissions('delete', post):
+        abort(403)
     try:
         post.delete()
     except (IntegrityError, PendingRollbackError) as e:
@@ -172,13 +167,11 @@ def comment(id):
 @posts.route("/comments/<int:id>/edit", methods=['GET', 'POST'])
 def comment_edit(id):
     comment = Comment.query.get_or_404(id)
+    if not current_user.comment_permissions('edit', comment):
+        abort(403)
     # if post is locked, cannot edit comments
     post = Post.query.get_or_404(comment.post_id)
-    if post.is_locked():
-        return redirect(403)
-    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.can_permission('can_edit_comments')):
-        if not current_user.permission('admin.comment', crud='update'):
-            abort(403)
+    post.is_locked()
     form = CommentForm(obj=comment)
     if form.validate_on_submit():
         try:
@@ -197,14 +190,11 @@ def comment_edit(id):
 @posts.route("/comments/<int:id>/delete", methods=['POST'])
 def comment_delete(id):
     comment = Comment.query.get_or_404(id)
+    if not current_user.comment_permissions('delete', comment):
+        abort(403)
     # if post is locked, cannot delete comments
     post = Post.query.get_or_404(comment.post_id)
     post.is_locked()
-    # checks if non-author has admin permission to delete because
-    # permission required does not prevent another user from accessing route
-    if (comment.user_id != current_user.id) or ((comment.user == current_user) and not current_user.can_permission('can_delete_comments')):
-        if not current_user.permission('admin.comment', crud='delete'):
-            abort(403)
     try:
         comment.delete()
     except (IntegrityError, PendingRollbackError) as e:
@@ -220,7 +210,6 @@ def comment_delete(id):
 @permission_required('admin.post', crud='update')
 def pin_post(id):
     post = Post.query.get_or_404(id)
-    print("POST", post)
     try:
         post.pin()
     except Exception as e:

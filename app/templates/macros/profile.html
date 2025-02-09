@@ -18,7 +18,9 @@
                     </div>
                 </td>
                 <td width="25%" style="text-align:right">
+                {% if obj.created_at %}
                     {{ obj.pretty_date(obj.created_at) }}
+                {% endif %}
                 </td>
             </tr>
         {% endfor %}

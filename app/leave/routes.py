@@ -39,7 +39,7 @@ def calendar_settings():
     params = {
         'theme': 'bootstrap',
         'duration_days': 1,
-        'weekends': str(current_user.entt.weekend).lower(),
+        'weekends': str(current_user.get_entt_weekend()).lower(),
         'title_view': 'title',
         'grid_view': 'dayGridMonth,dayGridWeek,dayGridDay',
         'today_view': 'today,prev,next',
@@ -219,7 +219,9 @@ def history(page_param_first, page_param_second, page_param_third ):
             heading = f'{user} Records'
     form = leave_form()
     leaves = user.paginated_leaves(page_param_second)
-    paginated_holidays = user.entt.paginated_holidays(page_param_third)
+    paginated_holidays=None
+    if user.entt:
+        paginated_holidays = user.entt.paginated_holidays(page_param_third)
     return render_template('history.html',
                            form=form,
                            leaves=leaves,
@@ -282,13 +284,19 @@ def approve(id):
     deducted automatically.
     """
     leave = Leave.query.get_or_404(id)
+
+    if not leave.user.authoriser:
+        abort(403)
     if current_user != leave.user.authoriser:
         abort(403)
     if leave.status == 'Approved':
         abort(403) # Prevent reapproving already approved leave requests
 
     try:
-         # Validate time_unit consistency
+        if not leave.user.entt:
+            raise Exception('The user does not have an entitlement template assigned')
+
+        # Validate time_unit consistency
         if leave.time_unit != leave.user.entt.time_unit:
             raise Exception(
                 f"""Leave time unit '{leave.time_unit}' does not match the
@@ -340,9 +348,10 @@ def revoke(id):
     """
     leave = Leave.query.get_or_404(id)
 
+    if not leave.user.authoriser:
+        abort(403)
     if current_user != leave.user.authoriser:
         abort(403)
-
     if leave.status != 'Approved':
         abort(403)
 
@@ -350,10 +359,12 @@ def revoke(id):
 
     if form.validate_on_submit():
         try:
+            if not leave.user.entt:
+                raise Exception('The user does not have an entitlement template assigned')
             # Validate time_unit consistency
             if leave.time_unit != leave.user.entt.time_unit:
                 raise Exception(
-                    f"""Leave time unit '{leave.time_unit}' does not match the 
+                    f"""Leave time unit '{leave.time_unit}' does not match the
                     user's current entitlement time unit '{leave.user.entt.time_unit}'"""
                 )
 
@@ -392,20 +403,22 @@ def decline(id):
     """
     Only for leaves that are pending.
     Only authorisers can decline.
-    Declined Leaves can then be deleted by the user if
-    they so wish?
     """
     leave = Leave.query.get_or_404(id)
+    if not leave.user.authoriser:
+        abort(403)
     if current_user != leave.user.authoriser:
         abort(403)
     if leave.status != 'Pending':
         abort(403)
+
     form = LeaveDenyForm()
+
     if form.validate_on_submit():
         try:
             leave.status = 'Declined'
             leave.status_details = form.status_details.data
-            leave.actioned_by=current_user
+            #leave.actioned_by=current_user
             leave.save()
         except Exception as e:
             flash(f'{e}', 'danger')

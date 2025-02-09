@@ -21,9 +21,6 @@
 {% endblock head %}
 
 {% block content %}
-    <div>
-        <h2>{{ post.name }}</h2>
-    </div>
     {% if post.locked %}
         <div class="alert alert-info">
             <i class="bi bi-lock-fill h5" title="Locked"></i>
@@ -31,30 +28,49 @@
             interactions.
         </div>
     {% endif %}
-    <div class="row content-section">
-        <div class="col-sm-auto img-col">
-        <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">
-            {{ avatar_img(post.user, size='48', id='profileImg') }}
-        </a>
-        </div>
-        <div class="col">
-            <a class="mr-1" href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user }}</a>
-            {% if post.created_at %}
-            <small class="text-muted"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
-            {% endif %}
-            {% if post.updated_at %}
-                <small class="text-muted ml-1">(Last Modified: {{ post.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
-            {% endif %}
-            <div class="ck-content">{{ post.content | safe }}</div>
-        </div>
-        {% if not post.locked %}
-            {% if current_user.post_actions_access(post) %}
+    <div class="content-section">
+        <div class="row">
+            <div class="col-sm-auto" style="padding-right: 0 !important;">
+                <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">
+                    {{ avatar_img(post.user, size='48', id='profileImg') }}
+                </a>
+            </div>
+            <div class="col">
+                <a href="{{ url_for(profile_endpoint, id=post.user_id) }}">{{ post.user }}</a>
                 <div>
-                    {% include "post_actions.html" %}
+                {% if post.created_at %}
+                <small class="text-muted mr-1"><span title="{{ post.created_at.strftime("%-d %b %Y %H:%M") }}">{{ post.pretty_date(post.created_at) }}</span></small>
+                {% endif %}
+                {% if post.updated_at %}
+                    <small class="text-muted">(Last Modified: {{ post.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
+                {% endif %}
                 </div>
+                <div>
+                    <h2>{{ post.name }}</h2>
+                </div>
+                <div class="ck-content">{{ post.content | safe }}</div>
+            </div>
+        </div><!-- End of row -->
+        {% if not post.locked %}
+            {% if (post.user == current_user) and (current_user.post_permissions('edit', post) or current_user.post_permissions('delete', post)) %}
+            <hr>
             {% endif %}
+            <div class="row">
+                {% if current_user.post_permissions('edit', post) %}
+                <div class="col-auto">
+                    <a class="btn btn-sm btn-light" href="{{ url_for('posts.post_edit', id=post.id) }}">Edit</a>
+                </div>
+                {% endif %}
+                {% if current_user.post_permissions('delete', post) %}
+                <div class="col-auto">
+                      <button class="btn btn-sm btn-light" type="button" data-toggle="modal"
+                          data-target="#deletePostModal">Delete
+                      </button>
+                </div>
+                {% endif %}
+            </div>
         {% endif %}
-    </div><!-- End of row -->
+    </div><!-- end of content-section -->
 {% if comments.items %}
 <div class="mt-4"><!-- COMMENT SECTION DIV -->
 <ul class="mb-1 nav align-items-center">
@@ -72,57 +88,90 @@
 <!-- Comments -->
 {% for c in comments.items %}
 <div id="#cid{{ c.id}}" class="comment mb-4">
-    <div class="row content-section">
-        <div class="col-sm-auto img-col">
-            <a href="{{ url_for(profile_endpoint, id=c.user.id) }}">
-                {{ avatar_img(c.user, size='48', id='profileImg') }}
-            </a>
-        </div>
-        <div class="col">
-			<a class="mr-1" href="{{ url_for(profile_endpoint, id=c.user.id) }}">{{ c.user }}</a>
-            {% if c.created_at %}
-            <small class="text-muted"><span title="{{ c.created_at.strftime("%-d %b %Y %H:%M") }}">{{ c.pretty_date(c.created_at) }}</span></small>
-            {% endif %}
-            {% if c.updated_at %}
-                <small class="text-muted ml-1">(Last Modified: {{ c.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
-            {% endif %}
-            <div class="ck-content">{{ c.text | safe }}</div>
-        </div>
-        <!-- If user has no comment permissions and is not the comment author, avoid displaying empty dropdown -->
-        {# TODO {% if current_user.comment_permissions() or c.user == current_user %}
-        {% endif %} #}
-        {% if not post.locked %}
-            {% if current_user.comment_actions_access(c) %}
-            <div>
-                {% include "comment_actions.html" %}
+    <div class="content-section">
+        <div class="row">
+            <div class="col-sm-auto" style="padding-right: 0 !important;">
+                <a href="{{ url_for(profile_endpoint, id=c.user.id) }}">
+                    {{ avatar_img(c.user, size='48', id='profileImg') }}
+                </a>
             </div>
-	        {% endif %}
-	    {% endif %}
+            <div class="col">
+		    	<a class="mr-1" href="{{ url_for(profile_endpoint, id=c.user.id) }}">{{ c.user }}</a>
+                {% if c.created_at %}
+                <small class="text-muted"><span title="{{ c.created_at.strftime("%-d %b %Y %H:%M") }}">{{ c.pretty_date(c.created_at) }}</span></small>
+                {% endif %}
+                {% if c.updated_at %}
+                    <small class="text-muted ml-1">(Last Modified: {{ c.updated_at.strftime("%-d %b %Y %H:%M") }})</small>
+                {% endif %}
+                <div class="ck-content">{{ c.text | safe }}</div>
+            </div>
+        </div><!-- End of row -->
+        {% if not post.locked %}
+            {% if (c.user == current_user) and (current_user.comment_permissions('edit', c) or current_user.comment_permissions('delete', c)) %}
+            <hr>
+            {% endif %}
+            <div class="row">
+                {% if current_user.comment_permissions('edit', c) %}
+                <div class="col-auto">
+                    <a class="btn btn-sm btn-light" href="{{ url_for('posts.comment_edit', id=c.id) }}">Edit</a>
+                </div>
+                {% endif %}
+                {% if current_user.comment_permissions('delete', c) %}
+                <div class="col-auto">
+                    {{ f.action_confirm(
+                        id="delete-comment-confirm",
+                        url=url_for('posts.comment_delete', id=c.id),
+                        title="Delete",
+                        target="#confirmModal",
+                        btn="btn btn-sm btn-light",
+                        icon_only=False)
+                    }}
+                </div>
+                {% endif %}
+            </div>
+        {% endif %}<!-- End of lock check -->
     </div>
 </div>
+
 {% endfor %}
 {{ items.paginate(comments, args) }}
 </div><!-- END OF COMMENT SECTION DIV -->
 {% endif %}<!-- endif comments -->
 
 {% if form %}
-{% if not post.locked %}
-    <!-- Comment Form -->
-    <div class="mt-4">
-    {% call f.form_tag(endpoint, form=form, fid='editor-form', **args) %}
-
-      {% call f.form_group(form.text, css_class='sm-margin-bottom') %}
-      {% endcall %}
-    <!-- Submit buttons -->
-    <div class="row">
-      <div class="col-md-6">
-          <button onclick="getMentions()" type="button" class="btn btn-primary mr-3">{{ button }}</button>
-      </div>
-    </div>
-    {% endcall %}<!-- End of Comment Form -->
-    </div>
-{% endif %}<!-- End of lock check -->
+    {% if not post.locked %}
+        <!-- Comment Form -->
+        <div class="mt-4">
+        {% call f.form_tag(endpoint, form=form, fid='editor-form', **args) %}
+    
+          {% call f.form_group(form.text, css_class='sm-margin-bottom') %}
+          {% endcall %}
+        <!-- Submit buttons -->
+        <div class="row">
+          <div class="col-md-6">
+              <button onclick="getMentions()" type="button" class="btn btn-primary mr-3">{{ button }}</button>
+          </div>
+        </div>
+        {% endcall %}<!-- End of Comment Form -->
+        </div>
+    {% endif %}<!-- End of lock check -->
 {% endif %}
+
+
+{% with %}
+{% set url_args = {'id': post.id} %}
+{{ f.modal_bulk_action(
+    id="deletePostModal",
+    label="deletePostLabel",
+    title="Delete Post",
+    text="Are you sure you want to delete this post?",
+    url='posts.post_delete',
+    btn_text="Delete",
+    url_args=url_args)
+}}
+{% endwith %}
+
+{% include "partials/confirm_dialog.html" %}
 
 {% endblock content %}
 
@@ -146,4 +195,5 @@ $(document).on("click", ".ck-content img", function() {
 <script>var endpoint = "{{ url_for('user.mentions') }}"</script>
 <script src="{{ url_for('static', filename='js/textEditor.js') }}"></script>
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
+<script src="{{ url_for('static', filename='js/confirmModal.js') }}"></script>
 {% endblock %}

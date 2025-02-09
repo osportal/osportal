@@ -230,18 +230,31 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
             access = self.role.check_admin_access(obj, crud)
             return access
 
-    def post_actions_access(self, post):
+    def post_permissions(self, action, post=None):
+        """
+        Check if the user has permission for a given action on a post.
+        """
         if self.role:
-            return (post.user==self and (current_user.can_permission('can_edit_posts') or current_user.can_permission('can_delete_posts'))) or \
-                   self.permission('admin.post', crud='delete') or \
-                   self.permission('admin.post', crud='update')
+            if action == 'edit':
+                return (post and post.user == self and self.can_permission('can_edit_posts'))
+            elif action == 'delete':
+                return (post and post.user == self and self.can_permission('can_delete_posts'))
+            return False
+        return False
 
-    def comment_actions_access(self, comment):
+    def comment_permissions(self, action, comment=None):
+        """
+        Check if the user has permission for a given action on a comment.
+        """
         if self.role:
-            return (comment.user==self and (current_user.can_permission('can_edit_comments') or current_user.can_permission('can_delete_comments'))) or \
-                   (comment.user != self and current_user.can_permission('can_create_comments')) or \
-                   self.permission('admin.comment', crud='delete') or \
-                   self.permission('admin.comment', crud='update')
+            if action == 'edit':
+                return (comment and comment.user == self and self.can_permission('can_edit_comments'))
+            elif action == 'delete':
+                return (comment and comment.user == self and self.can_permission('can_delete_comments'))
+            elif action == 'create':
+                return (comment and comment.user != self and self.can_permission('can_create_comments'))
+            return False
+        return False
 
 
     @classmethod
@@ -326,6 +339,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
             return self.entt.default_entitlement
         return 0
 
+    def get_entt_weekend(self):
+        if self.entt:
+            return self.entt.weekend
+        else:
+            return False
+
     def get_entt_id(self):
         if self.entt:
             return self.entt.id
@@ -355,8 +374,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
     def active_departments(self):
         from app.department.models import Department, DepartmentMembers
         depts = db.session.query(Department).join(DepartmentMembers) \
-                           .filter(Department.active,
-                                   DepartmentMembers.user_id==self.id) \
+                           .filter(DepartmentMembers.user_id==self.id) \
                            .all()
         return depts
 
@@ -366,8 +384,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         leaves = db.session.query(Leave) \
                 .join(User) \
                 .join(Department, User.department) \
-                .filter(Department.active,
-                        DepartmentMembers.user_id==self.id,
+                .filter(DepartmentMembers.user_id==self.id,
                         Leave.status!='Declined',
                         Leave.status!='Revoked')
         return leaves.all()
@@ -623,20 +640,21 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         return delete_count
 
     def display_leave_allowance(self):
-        unit = self.entt.time_unit.title()
-        columns = [
-            [self.get_annual_leave_days(), 'Annual Entitlement'],
-            [self.entitlement_rem, f'{unit} Remaining'],
-            [self.entitlement_used, f'Used and Authorised {unit}'],
-            [self.previous_carryover, f'{unit} Carried Over']
-        ]
-        for column in columns:
-            if column[0] is not None:
-                if column[0].as_integer_ratio()[1] == 1:
-                    column[0] = int(column[0])
+        if self.entt:
+            unit = self.entt.time_unit.title()
+            columns = [
+                [self.get_annual_leave_days(), 'Annual Entitlement'],
+                [self.entitlement_rem, f'{unit} Remaining'],
+                [self.entitlement_used, f'Used and Authorised {unit}'],
+                [self.previous_carryover, f'{unit} Carried Over']
+            ]
+            for column in columns:
+                if column[0] is not None:
+                    if column[0].as_integer_ratio()[1] == 1:
+                        column[0] = int(column[0])
+                        yield column
+                else:
                     yield column
-            else:
-                yield column
 
     def is_last_superuser(self):
         if self.role:

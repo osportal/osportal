@@ -91,6 +91,7 @@
             </tr>
         </thead>
         <tbody>
+        {% if paginated_holidays %}
         {% for holiday in paginated_holidays.items %}
         <tr>
             <td>
@@ -101,14 +102,17 @@
             </td>
         </tr>
         {% endfor %}
+        {% endif %}
         </tbody>
     </table>
 </div><!-- End of table wrapper -->
 
+{% if paginated_holidays %}
 <!-- Render holidays pagination -->
 <div class="holidays-pagination">
     {{ items.multi_pagination(paginated_holidays, 'leave.history', 'page_param_third', 'page_param_first', 'page_param_second', page_param_first, page_param_second) }}
 </div>
+{% endif %}
 
 
 

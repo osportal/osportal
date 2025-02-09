@@ -63,12 +63,15 @@ class Leave(ResourceMixin, VersioningMixin):
     @hybrid_property
     def num_days(self):
         # https://stackoverflow.com/questions/19965018/python-decimal-checking-if-integer
-        return self.user.entt.convert_entitlement(
-            value=self.duration,
-            unit=self.time_unit,  # Use leave's stored time unit
-            target_unit='days',
-            hours_per_day=self.user.entt.working_hours_per_day
-        )
+        if self.user.entt:
+            converted = self.user.entt.convert_entitlement(
+                value=self.duration,
+                unit=self.time_unit,  # Use leave's stored time unit
+                target_unit='days',
+                hours_per_day=self.user.entt.working_hours_per_day
+            )
+            return f"{self.convert_to_int(converted)} days"
+        return f"{self.convert_to_int(self.duration)} {self.time_unit}"
 
     def convert_to_int(self, value):
         # Check if the value is a Decimal and has no decimal part

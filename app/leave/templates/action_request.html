@@ -3,11 +3,13 @@
 
 {% set form_kwargs = {'id': leave.id} %}
 
+{% set leave_user = leave.user | string %}
+
 {% if request.endpoint == 'leave.decline' %}
-    {% set heading = 'Decline Request - ' + leave.user.username %}
+    {% set heading = 'Decline Request - ' + leave_user %}
     {% set endpoint = 'leave.decline' %}
 {% elif request.endpoint == 'leave.revoke' %}
-{% set heading = 'Revoke Request - ' + leave.user.username %}
+    {% set heading = 'Revoke Request - ' + leave_user %}
     {% set endpoint = 'leave.revoke' %}
 {% endif %}
 

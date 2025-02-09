@@ -46,7 +46,7 @@ def login():
         user = auth_user_db(request.form.get('identity'), request.form.get('password'))
         if user:
             if user.active:
-                login_user(user, remember=form.remember.data)
+                login_user(user, remember=True)
                 user.update_login_activity(request.remote_addr)
                 if next_url:
                     return redirect(next_url)
