@@ -17,6 +17,7 @@
 {% endif %}
 
 {% block content %}
+
   {% set extra_setting_links = admin_role_sidebar(user=current_user) %}
   {% include "menu.html" %}
   {{ sidebaritems(extra_setting_links) }}
@@ -112,11 +113,18 @@
     </div>
     <div class="col">
       <div class="visible-xs visible-sm sm-margin-top"></div>
+      {% if request.endpoint.endswith('new') %}
+      <a href="{{ url_for('admin.roles') }}"
+          class="btn btn-light bg-opacity-10 btn-block">
+            Cancel
+      </a>
+      {% else %}
       <a href="{{ url_for('admin.roles_info', id=role.id) }}"
           id="info-url"
           class="btn btn-light bg-opacity-10 btn-block">
             Cancel
       </a>
+      {% endif %}
     </div>
   </div>
   {% endcall %}
