@@ -71,7 +71,7 @@ def send_leave_request_email(self, leave_id):
     osportal_name = get_settings_value('osportal_name')
     try:
         leave = Leave.query.get(leave_id)
-        send_email((f'{leave.ltype} Request - {leave.user.username} - {osportal_name}'),
+        send_email((f'{leave.ltype} Request - {leave.user} - {osportal_name}'),
                    recipients=[leave.user.authoriser.email],
                    #text_body=render_template('email/password_reset.txt',
                    #                          user=user, token=token),

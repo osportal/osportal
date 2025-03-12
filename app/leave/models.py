@@ -53,7 +53,7 @@ class Leave(ResourceMixin, VersioningMixin):
                                   backref='actioned_leaves',
                                   lazy='select',
                                   uselist=False)
-    status_details = db.Column(db.String(120), nullable=True)
+    status_details = db.Column(db.String(500), nullable=True)
     time_unit = db.Column(
         db.Enum('days', 'hours', name='leave_time_unit', native_enum=False),
         nullable=False,
@@ -74,10 +74,14 @@ class Leave(ResourceMixin, VersioningMixin):
         return f"{self.convert_to_int(self.duration)} {self.time_unit}"
 
     def convert_to_int(self, value):
-        # Check if the value is a Decimal and has no decimal part
-        if isinstance(value, Decimal) and value % 1 == 0:
-            return int(value)  # Convert to integer
-        return value  # Return as is if there's a decimal part
+         # Check if the value is a Decimal and has no decimal part
+        if isinstance(value, Decimal):
+            if value % 1 == 0:
+                return int(value)  # Convert to integer
+            else:
+                # Convert to float and strip trailing zeros
+                return float(f"{value:.10g}")
+        return value  # Return as is if not a Decimal
 
     @hybrid_property
     def hex_colour(self):
@@ -96,11 +100,11 @@ class Leave(ResourceMixin, VersioningMixin):
         self.status = new_status
         return self.save()
 
-    def request_notification(self):
+    def request_notification(self, leave_id):
         from app.admin.utils import get_settings_value
         if get_settings_value('system_email_id'):
             from app.email import send_leave_request_email
-            send_leave_request_email.delay(leave.id)
+            send_leave_request_email.delay(leave_id)
 
     def is_deductable(self):
         if self.ltype.deductable == True:
@@ -123,9 +127,9 @@ class Leave(ResourceMixin, VersioningMixin):
             # Deduct the equivalent amount
             self.user.deduct_leave_days(equivalent_amount)
 
-    def init_request(self):
+    def init_request(self, leave_id):
         if self.ltype.approval == True:
-            self.request_notification()
+            self.request_notification(leave_id)
         elif self.ltype.approval == False:
             self.is_deductable()
             self.status_update('Approved')

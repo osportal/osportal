@@ -173,8 +173,6 @@ def account():
                 current_user.email = form.email.data
             if current_user.role.user_edit_bio:
                 current_user.bio = form.bio.data
-            if current_user.role.user_edit_dob:
-                current_user.dob = form.dob.data
             if current_user.role.user_edit_image_file:
                 if form.image_file.data:
                     # delete existing picture

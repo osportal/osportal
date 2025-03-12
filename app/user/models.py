@@ -314,6 +314,15 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
             return f"{self.first_name} {self.middle_name} {self.last_name}"
         return f"{self.first_name} {self.last_name}"
 
+    @full_name.expression
+    def full_name(cls):
+        return func.concat(
+            cls.first_name,
+            " ",
+            func.coalesce(cls.middle_name + " ", ""),
+            cls.last_name
+        )
+
 
     @hybrid_property
     def avatar(self):
@@ -552,7 +561,8 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     def pending_authoriser_requests(self):
         leaves = db.session.query(Leave).join(User) \
-                .filter(User.authoriser==self, Leave.status=='Pending')
+                .filter(User.authoriser==self, Leave.status=='Pending') \
+                .order_by(Leave.created_at.desc())
         return leaves
 
     def paginated_pending_authoriser_requests(self, page):
@@ -563,6 +573,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
     def paginated_actioned_authoriser_requests(self, page):
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status!='Pending') \
+                .order_by(Leave.start_date.desc()) \
                 .paginate(page, 2, False)
         return leaves
 
@@ -570,6 +581,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         users = User.query \
                 .filter(User.authoriser==self) \
                 .filter(User.search((request.args.get('q', text(''))))) \
+                .order_by(User.full_name.asc()) \
                 .paginate(page, 1, False)
         return users
 
@@ -644,15 +656,19 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
             unit = self.entt.time_unit.title()
             columns = [
                 [self.get_annual_leave_days(), 'Annual Entitlement'],
+                [self.previous_carryover, f'{unit} Carried Over'],
                 [self.entitlement_rem, f'{unit} Remaining'],
                 [self.entitlement_used, f'Used and Authorised {unit}'],
-                [self.previous_carryover, f'{unit} Carried Over']
             ]
             for column in columns:
                 if column[0] is not None:
                     if column[0].as_integer_ratio()[1] == 1:
-                        column[0] = int(column[0])
-                        yield column
+                        column[0] = int(column[0])  # Convert to int if it's a whole number
+                    else:
+                        column[0] = float(column[0])  # Ensure it's a float
+                        # Format the float to strip unnecessary zeros
+                        column[0] = float(f"{column[0]:g}")
+                    yield column
                 else:
                     yield column
 

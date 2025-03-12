@@ -862,6 +862,7 @@ def public_holiday_groups_info(id, page):
         paginated_holidays = PublicHoliday.query \
                 .filter(PublicHoliday.group_id==group.id,
                         PublicHoliday.filter_year(dropdown_year)) \
+                .order_by(PublicHoliday.start_date.asc()) \
                 .paginate(page, 30, True)
     return render_template('public-holiday-group/info.html',
                            form=form,
@@ -1244,6 +1245,7 @@ def copy_holidays_to_years(id):
     ids = request.form.get('checked-items').split(",")
     from app.tasks import bulk_copy_holidays_to_years
     bulk_copy_holidays_to_years.delay(ids, years)
+    flash('{0} holiday(s) scheduled to be copied to requested years.'.format(len(ids)), 'success')
     return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 
@@ -1269,6 +1271,7 @@ def copy_holidays_to_groups(id):
     ids = request.form.get('checked-items').split(",")
     from app.tasks import bulk_copy_holidays_to_groups
     bulk_copy_holidays_to_groups.delay(ids, groups)
+    flash('{0} holiday(s) scheduled to be copied to requested groups.'.format(len(ids)), 'success')
     return redirect(url_for('admin.public_holiday_groups_info', id=group.id))
 
 

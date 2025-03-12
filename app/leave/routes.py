@@ -125,9 +125,9 @@ def index():
 @leave.route('/leave/create', methods=['GET', 'POST'], defaults={'id': None})
 def manage(id):
     leave = Leave.query.get_or_404(id) if id else Leave()
-    form = leave_form(obj=leave)
-      # Ensure the current user is authorized to edit the leave
+    form = leave_form(obj=leave) or leave_form()
     if id:
+        # Ensure the current user is authorized to edit the leave
         if current_user != leave.user:
             abort(403)
         # Only allow editing Pending leave requests
@@ -137,11 +137,13 @@ def manage(id):
     try:
         if form.validate_on_submit():
             # calculate if half days
-            if form.half_day.data:
+            print("form validated")
+            #if form.half_day.data:
+            if hasattr(form, 'half_day') and form.half_day.data:
                 requested = calculate_requested_days(form.start_date.data,
-                                                     form.end_date.data,
-                                                     current_user,
-                                                     half_day=True)
+                                                         form.end_date.data,
+                                                         current_user,
+                                                         half_day=True)
             else:
                 # otherwise calculate normal days
                 requested = calculate_requested_days(form.start_date.data,
@@ -159,7 +161,7 @@ def manage(id):
                 # if new booking, save
                 if not id:
                     leave.save()
-                    leave.init_request()
+                    leave.init_request(leave.id)
                     flash('Your leave request has been submitted', 'success')
                 else:
                     leave.save()
@@ -270,7 +272,7 @@ def delete(id):
             flash('Leave request deleted', 'success')
     else:
         flash('Cannot delete non-pending requests - contact admin', 'danger')
-    return redirect(url_for('leave.history'))
+    return redirect(url_for('leave.history', page_param_first=current_user.id))
 
 
 @leave.route('/leave/<int:id>/approve', methods=['GET', 'POST'])
@@ -394,7 +396,7 @@ def revoke(id):
                 from app.email import send_leave_request_status_update_email
                 send_leave_request_status_update_email.delay(id)
             flash('Successfully revoked leave request', 'success')
-            return redirect(url_for('leave.authorise_history'))
+            return redirect(url_for('leave.authorise'))
     return render_template('action_request.html', form=form, leave=leave)
 
 

@@ -48,12 +48,12 @@ a {
 </head>
 <div>
     <p><strong>Requested by {{ leave.user }}</strong></p>
-    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
+    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.num_days > 1 %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
     <p>Type: {{ leave.ltype.name }}</p>
     {% if leave.details %}
     <p>Details: {{ leave.details }}</p>
     {% endif %}
-    <p>Days: {% if leave.half_day %}0.5{% else %}{{ leave.calculate_days() }}{% endif %}
+    <p>Days: {{ leave.num_days }}{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}
     <div class="btn-toolbar" style="flex-wrap: unset !important;">
         <a class="btn btn-sm btn-success" href="{{ url_for('leave.approve', id=leave.id, _external=True) }}">Approve</a>
         <a class="btn btn-sm btn-danger" href="{{ url_for('leave.decline', id=leave.id, _external=True) }}">Reject</a>

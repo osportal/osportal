@@ -20,22 +20,22 @@
         <thead class="thead">
             <tr>
                 <th scope="col">
-                    {{ items.sort('user', 'Requested By') }}
+                    Requested By
                 </th>
                 <th scope="col">
-                    {{ items.sort('ltype', 'Type') }}
+                    Type
                 </th>
                 <th scope="col">
-                    {{ items.sort('start_date', 'Start Date') }}
+                    Start Date
                 </th>
                 <th scope="col">
-                    {{ items.sort('end_date', 'End Date') }}
+                    End Date
                 </th>
                 <th scope="col">
-                    {{ items.sort('duration', 'Duration') }}
+                    Duration
                 </th>
                 <th scope="col">
-                    {{ items.sort('status', 'Status') }}
+                    Status
                 </th>
                 <th scope="col">
                 </th>
@@ -57,7 +57,7 @@
                 {{ leave.end_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ leave.num_days }}
+                {{ leave.num_days }}{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}
             </td>
             <td>
                 <span>{{ leave.status }}</span>
@@ -86,25 +86,25 @@
         <thead class="thead">
             <tr>
                 <th scope="col">
-                    {{ items.sort('user', 'Requested By') }}
+                    Requested By
                 </th>
                 <th scope="col">
-                    {{ items.sort('ltype', 'Type') }}
+                    Type
                 </th>
                 <th scope="col">
-                    {{ items.sort('start_date', 'Start Date') }}
+                    Start Date
                 </th>
                 <th scope="col">
-                    {{ items.sort('end_date', 'End Date') }}
+                    End Date
                 </th>
                 <th scope="col">
-                    {{ items.sort('duration', 'Duration') }}
+                    Duration
                 </th>
                 <th class="col-header">
                     Last Actioned By
                 </th>
                 <th scope="col">
-                    {{ items.sort('status', 'Status') }}
+                    Status
                 </th>
                 <th scope="col">
                 </th>
@@ -126,7 +126,7 @@
                 {{ leave.end_date.strftime("%-d %b %Y") }}
             </td>
             <td>
-                {{ leave.num_days }}
+                {{ leave.num_days }}{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}
             </td>
             <td>
                 <span>{{ leave.actioned_by }}</span>
@@ -168,7 +168,7 @@
         <thead class="thead">
             <tr>
                 <th scope="col">
-                    {{ items.sort('full_name', 'Name') }}
+                    Name
                 </th>
                 <th scope="col">
                 </th>

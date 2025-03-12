@@ -24,9 +24,11 @@
 <script src="{{ url_for('static', filename='js/select2forms.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
-    authoriser = '{{ current_user.authoriser }}';
-    daysLeft = '{{ current_user.entitlement_rem }}';// use for pie chart
-    daysUsed = '{{ current_user.entitlement_used }}';// use for pie chart
+    authoriser = '{{ user.authoriser }}';
+    daysLeft = '{{ user.entitlement_rem }}';// use for pie chart
+    daysUsed = '{{ user.entitlement_used }}';// use for pie chart
+    daysLeftLabel = '{{ user.entt.time_unit | title }} Remaining';// use for pie chart
+    daysUsedLabel = '{{ user.entt.time_unit | title }} Used';// use for pie chart
 </script>
 
 <script>
@@ -103,7 +105,7 @@ $(document).on('click', function (e) {
 });
 </script>
 
-{% if current_user.entitlement_rem == 0 and current_user.entitlement_used == 0 %}
+{% if user.entitlement_rem == 0 and user.entitlement_used == 0 %}
 {% else %}
 <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/chart-pie-demo.js') }}"></script>

@@ -45,4 +45,4 @@ class LeaveHalfDayForm(LeaveForm):
 
 
 class LeaveDenyForm(FlaskForm):
-    status_details = TextAreaField('Reason', validators=[DataRequired(), Length(min=4,max=120)])
+    status_details = TextAreaField('Reason', validators=[DataRequired(), Length(min=2,max=500)])

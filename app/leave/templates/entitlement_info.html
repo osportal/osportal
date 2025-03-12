@@ -34,7 +34,7 @@
                 No Entitlement Template assigned
             </div>
             {% endif %}
-            {% if not user.entitlement_rem or not user.entitlement_used %}
+            {% if not user.entitlement_rem %}
             {% else %}
             <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
                 <canvas id="myPieChart" style="display: block; width: 292px; height: 208px;" width="292" height="208" class="chartjs-render-monitor"></canvas>
@@ -45,7 +45,7 @@
                         {{ legend_circle(size="15", colour="#4e73df") }}
                     </span>
                     <span class="text" style="vertical-align: middle;">
-                        Days Left
+                        {{ user.entt.time_unit | title }} Remaining
                     </span>
                 </span>
                 <span class="mr-2">
@@ -53,7 +53,7 @@
                     {{ legend_circle(size="15", colour="#D3D3D3") }}
                     </span>
                     <span class="text" style="vertical-align: middle;">
-                        Days Used
+                        {{ user.entt.time_unit | title }} Used
                     </span>
                 </span>
             </div>

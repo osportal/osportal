@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% import 'macros/form.html' as f with context %}
 
-{% set is_edit = leave.id is not none %}
+{% set is_edit = leave.id if not None %}
 {% set endpoint = 'leave.manage' %}
 {% set heading = 'Edit Leave' if is_edit else 'Add Leave' %}
 {% set form_kwargs = {'id': leave.id} if is_edit else {} %}
