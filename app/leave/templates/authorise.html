@@ -152,16 +152,6 @@
 </div>
 {% endif %}
 
-<legend>Users</legend>
-{{ f.search('leave.authorise') }}
-<input type="hidden" id="q" name="q" value="{{ request.args.get('q') }}">
-
-{% if request.args.get('q') %}
-    {% if users.items | count == 0 %}
-        <h5>No results found.</h5>
-    {% endif %}
-{% endif %}
-
 {% if users.items %}
 <div class="table-wrapper mb-4">
     <table class="table">

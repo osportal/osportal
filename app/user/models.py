@@ -542,7 +542,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         leaves = Leave.query \
                 .filter(Leave.user_id==self.id) \
                 .order_by(text(order_values)) \
-                .paginate(page, 2, False)
+                .paginate(page, 15, False)
         return leaves
 
     def pending_or_approved_leaves(self):
@@ -567,14 +567,14 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
 
     def paginated_pending_authoriser_requests(self, page):
         leaves = self.pending_authoriser_requests() \
-                .paginate(page, 2, False)
+                .paginate(page, 15, False)
         return leaves
 
     def paginated_actioned_authoriser_requests(self, page):
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status!='Pending') \
                 .order_by(Leave.start_date.desc()) \
-                .paginate(page, 2, False)
+                .paginate(page, 15, False)
         return leaves
 
     def paginated_authoriser_users(self, page):
@@ -582,7 +582,7 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
                 .filter(User.authoriser==self) \
                 .filter(User.search((request.args.get('q', text(''))))) \
                 .order_by(User.full_name.asc()) \
-                .paginate(page, 1, False)
+                .paginate(page, 15, False)
         return users
 
     @classmethod

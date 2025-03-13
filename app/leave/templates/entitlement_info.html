@@ -29,11 +29,11 @@
 	        Entitlement Information
 	    </div>
 	    <div class="card-body">
-            {% if not user.entt %}
+        {% if not user.entt %}
             <div class="alert alert-danger" role="alert">
                 No Entitlement Template assigned
             </div>
-            {% endif %}
+        {% else %}
             {% if not user.entitlement_rem %}
             {% else %}
             <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
@@ -58,14 +58,15 @@
                 </span>
             </div>
             {% endif %}
-		<table class="table table-striped">
-            {% for col in user.display_leave_allowance() %}
-		    <tr>
-                <td>{{ col[1] }}</td>
-                <td>{{ col[0] }}</td>
-		    </tr>
-            {% endfor %}
-		</table>
+		    <table class="table table-striped">
+                {% for col in user.display_leave_allowance() %}
+		        <tr>
+                    <td>{{ col[1] }}</td>
+                    <td>{{ col[0] }}</td>
+		        </tr>
+                {% endfor %}
+		    </table>
+        {% endif %}
     	</div>
 	</div>
 </div>

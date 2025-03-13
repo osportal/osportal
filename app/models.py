@@ -133,7 +133,7 @@ class Entt(ResourceMixin):
                 .filter(PublicHoliday.group_id==self.ph_group_id) \
                 .filter(extract('year', PublicHoliday.start_date) == current_year) \
                 .order_by(text(order_values)) \
-                .paginate(page, 3, False)
+                .paginate(page, 15, False)
         return holidays
 
 

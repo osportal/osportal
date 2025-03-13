@@ -196,8 +196,7 @@ def department(id):
     form = leave_form()
     # avoid circular import
     from app.department.models import Department
-    department = Department.query.filter(Department.id==id) \
-                                 .filter(Department.active).first_or_404()
+    department = Department.query.filter(Department.id==id).first_or_404()
     leaves = department.get_member_leaves()
     return render_template('department_calendar.html',
                            department=department,
@@ -241,13 +240,11 @@ def history(page_param_first, page_param_second, page_param_third ):
 @check_authoriser_access()
 def authorise(page_param_first, page_param_second, page_param_third):
     #form = leave_form()
-    search_form = SearchForm()
     deny_form = LeaveDenyForm()
     leaves = current_user.paginated_pending_authoriser_requests(page_param_first)
     actioned_leaves = current_user.paginated_actioned_authoriser_requests(page_param_second)
     users = current_user.paginated_authoriser_users(page_param_third)
     return render_template('authorise.html',
-                           form=search_form,
                            deny_form=deny_form,
                            leaves=leaves,
                            actioned_leaves=actioned_leaves,
