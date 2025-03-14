@@ -48,7 +48,7 @@ a {
 </head>
 <div>
     <p><strong>Requested by {{ leave.user }}</strong></p>
-    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.num_days > 1 %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
+    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.convert_to_int(leave.duration) > 1 %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
     <p>Type: {{ leave.ltype.name }}</p>
     {% if leave.details %}
     <p>Details: {{ leave.details }}</p>

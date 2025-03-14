@@ -1,6 +1,6 @@
 <div>
     <p>Dear {{ leave.user }},</p>
     <p>Your {{ leave.ltype.name }} request has been {{ leave.status }} by {{ leave.user.authoriser }}
-    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.num_days > 1 %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
+    <p>Requested dates: {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.convert_to_int(leave.duration) > 1 %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}</p>
     <p>Days: {{ leave.num_days }}{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}    
 </div>
