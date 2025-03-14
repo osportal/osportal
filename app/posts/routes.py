@@ -53,7 +53,7 @@ def index(page):
     form = SearchForm()
     pinned_posts = Post.query.filter(Post.is_pin==True).all()
     sort_by = Post.sort_by(request.args.get('sort', 'created_at'),
-                           request.args.get('direction', 'asc'))
+                           request.args.get('direction', 'desc'))
     order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
     paginated_posts = Post.query \
         .filter(Post.search((request.args.get('q', text(''))))) \
@@ -64,7 +64,7 @@ def index(page):
 
 @posts.route('/posts/new', methods=['GET', 'POST'])
 def post_new():
-    if not current_user.post_permissions('create', post):
+    if not current_user.post_permissions('create'):
         abort(403)
     post = Post()
     form = PostForm()
@@ -125,7 +125,7 @@ def post_delete(id):
 def post(id, page):
     post = Post.query.filter(Post.id==id).first_or_404()
     paginated_comments = post.paginated_comments(page)
-    if current_user.permission('admin.comment', crud='create') or current_user.can_permission('can_create_comments'):
+    if current_user.can_permission('can_create_comments'):
         form = CommentForm()
         form.text.label.text = 'Your comment'
         # TODO check if user has permission to create comment

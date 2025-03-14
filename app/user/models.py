@@ -235,7 +235,9 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         Check if the user has permission for a given action on a post.
         """
         if self.role:
-            if action == 'edit':
+            if action == 'create':
+                return self.can_permission('can_create_posts')
+            elif action == 'edit':
                 return (post and post.user == self and self.can_permission('can_edit_posts'))
             elif action == 'delete':
                 return (post and post.user == self and self.can_permission('can_delete_posts'))
@@ -247,12 +249,12 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         Check if the user has permission for a given action on a comment.
         """
         if self.role:
-            if action == 'edit':
+            if action == 'create':
+                return self.can_permission('can_create_comments')
+            elif action == 'edit':
                 return (comment and comment.user == self and self.can_permission('can_edit_comments'))
             elif action == 'delete':
                 return (comment and comment.user == self and self.can_permission('can_delete_comments'))
-            elif action == 'create':
-                return (comment and comment.user != self and self.can_permission('can_create_comments'))
             return False
         return False
 
