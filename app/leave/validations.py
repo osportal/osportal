@@ -48,7 +48,7 @@ def check_end_date(form, field):
             #then add 1 year onto for max end_date
             max_end_year = current_user.leave_year_start.replace(year=datetime.datetime.today().year+1)
             if form.end_date.data > max_end_year:
-                raise ValidationError(f'End date must be before your next leave year start ({max_end_year})')
+                raise ValidationError(f'End date must be before the start of your next leave year: {max_end_year.strftime("%-d %b %Y")}')
             DataRequired()
 
 
@@ -61,11 +61,9 @@ def check_leave_year_start(form, field):
         current_leave_year = current_user.leave_year_start.replace(year=datetime.datetime.today().year)
         # year has to be replaced with current_year
         if current_leave_year > form.start_date.data:
-            raise ValidationError(f'Start date must be greater than current leave year {current_leave_year}')
+            raise ValidationError(f'Start date must be later than the beginning of the current leave year: {current_leave_year.strftime("%-d %b %Y")}')
 
 
-#TODO below has been commented out from leave/forms
-# below validator does not take into account public holidays / weekends
 def check_allowance(form, field):
     # check available allowance if leave type is deductable
     ltype = EnttLeaveTypes.query.filter(EnttLeaveTypes.leave_type_id==form.entt_ltype.data.leave_type_id).first()

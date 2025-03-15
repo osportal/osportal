@@ -5,7 +5,7 @@ from app.leave.models import Leave
 from app.posts.models import Comment
 from app.utils.util_sqlalchemy import ResourceMixin, FmtString, StripStr
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 from flask_continuum import VersioningMixin
@@ -541,8 +541,10 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         sort_by = Leave.sort_by(request.args.get('sort', 'start_date'),
                                request.args.get('direction', 'desc'))
         order_values = '{0} {1}'.format(sort_by[0], sort_by[1])
+        view_cap = datetime.utcnow() - timedelta(days=2*365)  # Approximate 2 years
         leaves = Leave.query \
                 .filter(Leave.user_id==self.id) \
+                .filter(Leave.end_date>=view_cap) \
                 .order_by(text(order_values)) \
                 .paginate(page, 15, False)
         return leaves
@@ -562,8 +564,10 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         return False
 
     def pending_authoriser_requests(self):
+        view_cap = datetime.utcnow() - timedelta(days=2*365)  # Approximate 2 years
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status=='Pending') \
+                .filter(Leave.end_date>=view_cap) \
                 .order_by(Leave.created_at.desc())
         return leaves
 
@@ -573,8 +577,10 @@ class User(UserMixin, ResourceMixin, VersioningMixin):
         return leaves
 
     def paginated_actioned_authoriser_requests(self, page):
+        view_cap = datetime.utcnow() - timedelta(days=2*365)  # Approximate 2 years
         leaves = db.session.query(Leave).join(User) \
                 .filter(User.authoriser==self, Leave.status!='Pending') \
+                .filter(Leave.end_date>=view_cap) \
                 .order_by(Leave.start_date.desc()) \
                 .paginate(page, 15, False)
         return leaves
