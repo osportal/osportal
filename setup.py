@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='osportal-CLI',
     version='1.0',
-    packages=['app.cli', 'app.cli.commands'],
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'click',

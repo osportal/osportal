@@ -31,7 +31,7 @@ services:
     container_name: osportal-app-dev 
     build: .
     ports:
-      - 8002:5000
+      - "${HOST_PORT:-8000}:${CONTAINER_PORT:-8000}"  # Use default values of 8000 if not set
     volumes:
       - type: bind
         source: .
@@ -51,6 +51,7 @@ services:
       - celery
     command: > 
       gunicorn -c "python:conf.gunicorn"
+      --config conf/gunicorn.py
       --reload
       "app.run:app"
     restart: always

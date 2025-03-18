@@ -3,9 +3,8 @@ from app.utils.populate import create_default_settings
 import click
 from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import database_exists, create_database
-from sqlalchemy.exc import PendingRollbackError, IntegrityError
+from sqlalchemy.exc import PendingRollbackError, IntegrityError, OperationalError
 import sys
-from sqlalchemy.exc import OperationalError
 import time
 
 
@@ -47,11 +46,16 @@ def setup():
 def cli():
     """ Installs osportal with an interactive setup """
     click.secho('[+] Installing osPortal...', fg='cyan')
-    if database_exists(db.engine.url):
-        click.secho('Database already exists.', fg='red')
-        #sys.exit(0)
-    elif not database_exists(db.engine.url):
-        click.secho('[+] Creating Database...', fg='cyan')
-        create_database(db.engine.url)
-        click.secho('[+] Database successfully created.', fg='cyan')
-    setup()
+    try:
+        if database_exists(db.engine.url):
+            click.secho('Database already exists.', fg='red')
+            #sys.exit(0)
+        elif not database_exists(db.engine.url):
+            click.secho('[+] Creating Database...', fg='cyan')
+            create_database(db.engine.url)
+            click.secho('[+] Database successfully created.', fg='cyan')
+    except Exception as e:
+            click.secho(f'{e}', fg='red')
+    else:
+        click.secho('Setup process...', fg='cyan')
+        setup()

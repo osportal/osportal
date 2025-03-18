@@ -7,6 +7,7 @@ import jinja2
 import logging
 from logging.handlers import SMTPHandler
 import os
+from sqlalchemy.exc import OperationalError
 import traceback
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -91,7 +92,10 @@ def create_app():
     error_templates(app)
     # create tables if they do not exist
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except OperationalError as e:
+            print('db.create_all failed')
     return app
 
 

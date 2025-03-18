@@ -1,4 +1,5 @@
 from environ import environ
+import os
 from os import urandom
 from os.path import abspath, dirname, exists, join, pardir
 import secrets
@@ -14,18 +15,19 @@ def absolute_path(relative):
         pardir, pardir, pardir,pardir, relative))
 
 
-env = environ.Env(
-        SECURE_PROXY_SSL_HEADER=(tuple, None)
-)
+env = environ.Env()
 
 if not env('IGNORE_ENV_FILE', default=False):
-    project_env = absolute_path(".env")
-    if exists(project_env):
-        environ.Env.read_env(env_file=project_env)
+    project_env = os.path.abspath(".env")
+    # Check if the file exists
+    if os.path.exists(project_env):
+        print(".env file found! Loading file...")
+        environ.Env.read_env(env_file=project_env, overwrite=True)
+
 
 
 DEBUG = env('DEBUG', default=True)
-SERVER_NAME = env('SERVER_NAME', default='localhost:8002')
+SERVER_NAME=env('SERVER_NAME', default=None)
 DEBUG_TB_INTERCEPT_REDIRECTS = env('DEBUG_TB_INTERCEPT_REDIRECTS', default=False)
 
 SESSION_COOKIE_SECURE=env('SESSION_COOKIE_SECURE', default=True)
@@ -34,7 +36,6 @@ SESSION_COOKIE_HTTPONLY=env('SESSION_COOKIE_HTTPONLY', default=True)
 REMEMBER_COOKIE_HTTPONLY=env('REMEMBER_COOKIE_HTTPONLY', default=True)
 
 SECRET_KEY = env('SECRET_KEY', default=gen_secret_key())
-SERVER_PORT = env('SERVER_PORT', default=5000)
 POSTGRES_USER = env('POSTGRES_USER', default='postgres')
 POSTGRES_PASSWORD = env('POSTGRES_PASSWORD', default='devpassword')
 POSTGRES_DB = env('POSTGRES_DB', default='osportaldb')
