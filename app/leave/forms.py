@@ -3,7 +3,8 @@ from app.leave.models import LeaveType
 from app.leave.validations import (check_end_date,
                                    check_leave_year_start,
                                    check_allowance,
-                                   check_approval
+                                   check_approval,
+                                   half_day_validation
                                    )
 import datetime
 from flask_admin.form.widgets import Select2Widget
@@ -40,8 +41,7 @@ class LeaveForm(FlaskForm):
 
 
 class LeaveHalfDayForm(LeaveForm):
-    end_date = DatePickerField('End Date', validators=[check_end_date])
-    half_day = BooleanField(label='Half Day')
+    half_day = BooleanField(label='Half Day', validators=[half_day_validation])
 
 
 class LeaveDenyForm(FlaskForm):

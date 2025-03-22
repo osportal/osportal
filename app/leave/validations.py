@@ -10,6 +10,13 @@ from wtforms_components import DateRange
 from wtforms.validators import ValidationError, StopValidation, DataRequired
 
 
+
+def half_day_validation(form, field):
+    if form.half_day.data==True:
+        if form.end_date.data != form.start_date.data:
+            raise ValidationError('Since half day is checked the End Date must be the same as the Start Date.')
+
+
 # leave type validation
 def check_lt_exists(form, field):
     # checks new and current data when editing existing instance, returns if they are the same

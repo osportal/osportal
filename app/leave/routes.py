@@ -136,8 +136,6 @@ def manage(id):
 
     try:
         if form.validate_on_submit():
-            # calculate if half days
-            print("form validated")
             #if form.half_day.data:
             if hasattr(form, 'half_day') and form.half_day.data:
                 requested = calculate_requested_days(form.start_date.data,

@@ -107,6 +107,9 @@
                     Status
                 </th>
                 <th scope="col">
+                    Updated At
+                </th>
+                <th scope="col">
                 </th>
             </tr>
         </thead>
@@ -135,6 +138,11 @@
                 <span>{{ leave.status }}</span>
             </td>
             <td>
+                {% if leave.updated_at %}
+                <span>{{ leave.updated_at.strftime("%-d %b %Y %H:%M") }}</span>
+                {% endif %}
+            </td>
+            <td>
                 {% if leave.status == 'Approved' %}
                 <a href="{{url_for('leave.revoke', id=leave.id)}}" class="btn btn-sm btn-warning">
                     Revoke
@@ -155,6 +163,7 @@
 {% if users.items %}
 <div class="table-wrapper mb-4">
     <table class="table">
+        <legend>Users</legend>
         <thead class="thead">
             <tr>
                 <th scope="col">

@@ -65,7 +65,11 @@
         <td>
             {{ role.name }}
         </td>
-        <td>{{ role.render(role.superuser) }}</td>
+        <td>
+            {% if role.superuser %}
+                {{ role.render(role.superuser) }}
+            {% endif %}
+        </td>
         <td>{{ role.description }}</td>
         <td>
             {% if role.created_at %}

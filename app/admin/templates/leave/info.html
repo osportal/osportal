@@ -43,8 +43,16 @@
         <div class="mb-2">
         	<div><strong>Requested Dates</strong></div>
         	<div>
-            {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.half_day %} (Half Day){% else %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}
+                {{ leave.start_date.strftime("%-d %b, %Y") }}{% if leave.start_date != leave.end_date %} - {{ leave.end_date.strftime("%-d %b, %Y") }}{% endif %}{% if leave.half_day %} (Half Day){% endif %}
             </div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Duration</strong></div>
+        	<div>{{ leave.num_days }}{% if leave.time_unit == 'hours' %} ({{ leave.convert_to_int(leave.duration) }} hours){% endif %}</div>
+        </div>
+        <div class="mb-2">
+        	<div><strong>Time Unit</strong></div>
+        	<div>{{ leave.time_unit | title }}</div>
         </div>
         {% if leave.details%}
         <div class="mb-2">
@@ -70,6 +78,18 @@
             <div><strong>Current Leave Authoriser for user</strong></div>
         	<div>{{ leave.user.authoriser }}</div>
         </div>
+        {% if leave.created_at %}
+        <div class="mb-2">
+            <div><strong>Created At</strong></div>
+        	<div>{{ leave.created_at.strftime("%-d %b, %Y %H:%M") }}</div>
+        </div>
+        {% endif %}
+        {% if leave.updated_at %}
+        <div class="mb-2">
+            <div><strong>Last Updated</strong></div>
+        	<div>{{ leave.updated_at.strftime("%-d %b, %Y %H:%M") }}</div>
+        </div>
+        {% endif %}
     </div>
   </div>
 </div>
